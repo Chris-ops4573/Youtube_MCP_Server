@@ -1,4 +1,5 @@
 import pytest
+
 from ytmcp.ids import extract_video_id
 
 VID = "dQw4w9WgXcQ"

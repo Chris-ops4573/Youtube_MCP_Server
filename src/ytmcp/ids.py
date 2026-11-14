@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs, urlparse
 
 _ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 
