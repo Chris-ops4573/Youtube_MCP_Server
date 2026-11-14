@@ -1,0 +1,4 @@
+[
+  {"id": "UC1", "title": "Rust Lab", "description": "Rust tutorials", "keywords": ["rust"], "subscriber_count": 1000},
+  {"id": "UC2", "title": "Bake Club", "description": "Baking", "keywords": ["bread"], "subscriber_count": null}
+]
