@@ -12,7 +12,7 @@ import time
 from collections.abc import Callable
 from typing import Any
 from urllib.error import HTTPError
-from urllib.parse import urlencode
+from urllib.parse import unquote, urlencode
 from urllib.request import urlopen
 
 from ytmcp.durations import parse_duration
@@ -27,6 +27,8 @@ TIMEOUT_SECONDS = 10
 RETRY_STATUSES = {429, 500, 502, 503, 504}
 RETRY_REASONS = {"rateLimitExceeded", "userRateLimitExceeded", "backendError"}
 QUOTA_REASONS = {"quotaExceeded", "dailyLimitExceeded"}
+CHANNEL_PARTS = "snippet,statistics,brandingSettings,topicDetails"
+HIDDEN_UPLOAD_TITLES = {"Private video", "Deleted video"}
 
 # Takes a full URL, returns (HTTP status, parsed JSON body). Tests pass a fake.
 Fetch = Callable[[str], tuple[int, dict[str, Any]]]
@@ -85,6 +87,13 @@ def _to_video(item: dict[str, Any]) -> Video:
     )
 
 
+def _topics(item: dict[str, Any]) -> list[str]:
+    """topicCategories are Wikipedia URLs; keep the readable last part, sorted."""
+    urls = item.get("topicDetails", {}).get("topicCategories", [])
+    names = {unquote(u.rsplit("/", 1)[-1]).replace("_", " ") for u in urls}
+    return sorted(names)  # YouTube returns these in a changing order
+
+
 def _to_channel(item: dict[str, Any]) -> Channel:
     snippet = item.get("snippet", {})
     stats = item.get("statistics", {})
@@ -96,6 +105,8 @@ def _to_channel(item: dict[str, Any]) -> Channel:
         description=snippet.get("description", ""),
         keywords=_keywords(keywords),
         subscriber_count=None if hidden else int(stats["subscriberCount"]),
+        handle=(snippet.get("customUrl") or "").lower() or None,
+        topics=_topics(item),
     )
 
 
@@ -137,7 +148,8 @@ class YouTubeProvider(VideoProvider):
             retryable = status is None or status in RETRY_STATUSES or reason in RETRY_REASONS
             if not retryable or attempt == MAX_RETRIES:
                 raise YouTubeApiError(
-                    f"YouTube API call {method} failed (status {status}, reason {reason})."
+                    f"YouTube API call {method} failed (status {status}, reason {reason}).",
+                    reason=reason,
                 )
             self._sleep(2**attempt)  # 1s, 2s, 4s
         raise AssertionError("unreachable")
@@ -171,8 +183,40 @@ class YouTubeProvider(VideoProvider):
             batch = ids[start : start + MAX_IDS_PER_CALL]
             body = self._get(
                 "channels.list",
-                {"part": "snippet,statistics,brandingSettings", "id": ",".join(batch)},
+                {"part": CHANNEL_PARTS, "id": ",".join(batch)},
             )
             for item in body.get("items", []):
                 found[item["id"]] = _to_channel(item)
         return [found[i] for i in ids if i in found]
+
+    def get_channel_by_handle(self, handle: str) -> Channel | None:
+        body = self._get("channels.list", {"part": CHANNEL_PARTS, "forHandle": handle})
+        items = body.get("items", [])
+        return _to_channel(items[0]) if items else None
+
+    def search_channels(self, query: str, max_results: int = 25) -> list[Channel]:
+        """search.list finds channel IDs; channels.list fills in the metadata."""
+        body = self._get(
+            "search.list",
+            {"part": "id", "type": "channel", "q": query,
+             "maxResults": min(max(max_results, 1), 50)},
+        )
+        ids = [i["id"]["channelId"] for i in body.get("items", []) if i.get("id", {}).get("channelId")]
+        return self.get_channels(ids)[:max_results]
+
+    def get_recent_uploads(self, channel_id: str, max_results: int = 10) -> list[str]:
+        """Read the channel's uploads playlist (UC... -> UU...): 1 unit, not search's 100."""
+        if not channel_id.startswith("UC"):
+            return []
+        try:
+            body = self._get(
+                "playlistItems.list",
+                {"part": "snippet", "playlistId": "UU" + channel_id[2:],
+                 "maxResults": min(max(max_results, 1), 50)},
+            )
+        except YouTubeApiError as exc:
+            if exc.reason == "playlistNotFound":  # channel with no uploads
+                return []
+            raise
+        titles = [i.get("snippet", {}).get("title", "") for i in body.get("items", [])]
+        return [t for t in titles if t and t not in HIDDEN_UPLOAD_TITLES]

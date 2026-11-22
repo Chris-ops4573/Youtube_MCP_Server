@@ -27,7 +27,7 @@ from ytmcp.providers.caching import CachingProvider
 from ytmcp.providers.fixture import FixtureProvider
 from ytmcp.providers.youtube import YouTubeProvider
 from ytmcp.quota import QuotaTracker
-from ytmcp.tools import similar_videos_tool
+from ytmcp.tools import similar_channels_tool, similar_videos_tool
 
 
 def create_server(provider: VideoProvider) -> Any:
@@ -46,6 +46,21 @@ def create_server(provider: VideoProvider) -> Any:
         or an error with a code, message and remediation.
         """
         return similar_videos_tool(provider, video, top_n)
+
+    @mcp.tool(name="find_similar_channels")
+    def find_similar_channels_tool(channel: str, top_n: int = 10) -> dict[str, Any]:
+        """Find YouTube channels similar to a given channel.
+
+        Args:
+            channel: A channel ID (starts with UC), an @handle, or a
+                youtube.com/channel/... or youtube.com/@... URL.
+            top_n: How many results to return (1 to 50, default 10).
+
+        Returns ranked channels with title, handle, subscribers ("hidden" when
+        the channel hides its count), score and URL, or an error with a code,
+        message and remediation.
+        """
+        return similar_channels_tool(provider, channel, top_n)
 
     return mcp
 

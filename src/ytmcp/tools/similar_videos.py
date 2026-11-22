@@ -44,14 +44,14 @@ def format_results(results: list[ScoredVideo]) -> list[dict[str, Any]]:
     ]
 
 
-def _error(code: str, message: str, remediation: str) -> dict[str, Any]:
+def error_response(code: str, message: str, remediation: str) -> dict[str, Any]:
     return {"error": {"code": code, "message": message, "remediation": remediation}}
 
 
 def similar_videos_tool(provider: VideoProvider, video: str, top_n: int = 10) -> dict[str, Any]:
     """Run FR-1 and return either {"results": [...]} or {"error": {...}}."""
     if not 1 <= top_n <= MAX_TOP_N:
-        return _error(
+        return error_response(
             "INVALID_ARGUMENT",
             f"top_n must be between 1 and {MAX_TOP_N}.",
             f"Ask for between 1 and {MAX_TOP_N} results.",
@@ -59,11 +59,11 @@ def similar_videos_tool(provider: VideoProvider, video: str, top_n: int = 10) ->
     try:
         results = find_similar_videos(provider, video, top_n=top_n)
     except ValueError:
-        return _error(
+        return error_response(
             "INVALID_VIDEO_REFERENCE",
             "That is not a valid YouTube video ID or URL.",
             "Use an 11-character video ID or a watch, youtu.be, shorts or embed URL.",
         )
     except YtmcpError as exc:
-        return _error(exc.code, str(exc), exc.remediation)
+        return error_response(exc.code, str(exc), exc.remediation)
     return {"results": format_results(results)}

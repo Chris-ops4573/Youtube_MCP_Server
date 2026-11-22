@@ -73,16 +73,21 @@ def _text_of(video: Video) -> str:
     return f"{video.title} {video.description} {' '.join(video.tags)}"
 
 
-def text_similarities(seed: Video, candidates: list[Video]) -> list[float]:
-    """TF-IDF cosine similarity of each candidate to the seed."""
-    if not candidates:
+def tfidf_similarities(seed_text: str, texts: list[str]) -> list[float]:
+    """TF-IDF cosine similarity of each text to the seed text."""
+    if not texts:
         return []
-    docs = [_text_of(seed)] + [_text_of(c) for c in candidates]
+    docs = [seed_text, *texts]
     try:
         matrix = TfidfVectorizer(stop_words="english").fit_transform(docs)
     except ValueError:  # empty vocabulary, e.g. only stop words
-        return [0.0] * len(candidates)
+        return [0.0] * len(texts)
     return [float(s) for s in cosine_similarity(matrix[0], matrix[1:]).ravel()]
+
+
+def text_similarities(seed: Video, candidates: list[Video]) -> list[float]:
+    """TF-IDF cosine similarity of each candidate video to the seed."""
+    return tfidf_similarities(_text_of(seed), [_text_of(c) for c in candidates])
 
 
 # --- ranking --------------------------------------------------------------

@@ -23,6 +23,9 @@ CREATE TABLE IF NOT EXISTS channels (
 CREATE TABLE IF NOT EXISTS searches (
     query TEXT NOT NULL, max_results INTEGER NOT NULL, video_ids TEXT NOT NULL,
     fetched_at REAL NOT NULL, PRIMARY KEY (query, max_results));
+CREATE TABLE IF NOT EXISTS uploads (
+    channel_id TEXT NOT NULL, max_results INTEGER NOT NULL, titles TEXT NOT NULL,
+    fetched_at REAL NOT NULL, PRIMARY KEY (channel_id, max_results));
 CREATE TABLE IF NOT EXISTS quota_usage (
     day TEXT PRIMARY KEY, units INTEGER NOT NULL);
 """
@@ -98,6 +101,25 @@ class Cache:
                 (normalize_query(query), max_results, json.dumps(video_ids), self._now()),
             )
 
+    # --- recent uploads (titles) ---------------------------------------------
+
+    def get_uploads(self, channel_id: str, max_results: int, max_age: float) -> list[str] | None:
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT titles FROM uploads"
+                " WHERE channel_id = ? AND max_results = ? AND fetched_at >= ?",
+                (channel_id, max_results, self._now() - max_age),
+            ).fetchone()
+        return json.loads(row[0]) if row else None
+
+    def put_uploads(self, channel_id: str, max_results: int, titles: list[str]) -> None:
+        with self._lock, self._conn:
+            self._conn.execute(
+                "INSERT OR REPLACE INTO uploads (channel_id, max_results, titles, fetched_at)"
+                " VALUES (?, ?, ?, ?)",
+                (channel_id, max_results, json.dumps(titles), self._now()),
+            )
+
     # --- quota ledger (used by QuotaTracker) --------------------------------
 
     def get_spent(self, day: str) -> int:
@@ -128,4 +150,7 @@ class Cache:
                 )
             self._conn.execute(
                 "DELETE FROM searches WHERE fetched_at < ?", (now - search_max_age,)
+            )
+            self._conn.execute(
+                "DELETE FROM uploads WHERE fetched_at < ?", (now - metadata_max_age,)
             )

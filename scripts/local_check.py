@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # fixture provider: no live API calls or quota (TQ-5)
 ENV = {**os.environ, "PYTHONPATH": str(ROOT / "src"), "YTMCP_PROVIDER": "fixture"}
 FIXTURE_VIDEO_ID = "aaaaaaaaaaa"  # first video in tests/fixtures/videos.json
+FIXTURE_CHANNEL = "@rustlab"  # in tests/fixtures/channels.json
 SERVER_TIMEOUT_SECONDS = 15
 
 
@@ -47,13 +48,17 @@ async def _call_server() -> str:
     async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
         await session.initialize()
         tools = [t.name for t in (await session.list_tools()).tools]
-        if "find_similar_videos" not in tools:
-            raise RuntimeError(f"find_similar_videos not registered, got {tools}")
+        for name in ("find_similar_videos", "find_similar_channels"):
+            if name not in tools:
+                raise RuntimeError(f"{name} not registered, got {tools}")
         result = await session.call_tool("find_similar_videos", {"video": FIXTURE_VIDEO_ID})
         is_error = getattr(result, "is_error", getattr(result, "isError", False))  # mcp 2.x / 1.x
         if is_error or "results" not in str(result.content):
             raise RuntimeError(f"unexpected tool result: {result.content}")
-        return f"tools: {tools}; find_similar_videos returned results"
+        channels = await session.call_tool("find_similar_channels", {"channel": FIXTURE_CHANNEL})
+        if getattr(channels, "is_error", False) or "results" not in str(channels.content):
+            raise RuntimeError(f"unexpected channel result: {channels.content}")
+        return f"tools: {tools}; both returned results"
 
 
 def step_server() -> tuple[bool, str]:
@@ -70,7 +75,7 @@ STEPS = [
     ("build", step_build),
     ("lint", step_lint),
     ("tests (coverage >= 80%)", step_tests),
-    ("server + find_similar_videos", step_server),
+    ("server + both tools", step_server),
 ]
 
 

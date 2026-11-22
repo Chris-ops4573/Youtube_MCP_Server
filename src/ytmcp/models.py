@@ -22,3 +22,5 @@ class Channel:
     description: str
     keywords: list[str] = field(default_factory=list)
     subscriber_count: int | None = None  # None when hidden
+    handle: str | None = None  # e.g. "@rustlab"
+    topics: list[str] = field(default_factory=list)  # from topicDetails

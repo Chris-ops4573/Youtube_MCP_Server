@@ -3,14 +3,84 @@
   "items": [
     {
       "id": "UC1",
-      "snippet": {"title": "Rust Lab", "description": "Rust tutorials"},
-      "statistics": {"subscriberCount": "12000", "hiddenSubscriberCount": false},
-      "brandingSettings": {"channel": {"keywords": "rust \"systems programming\""}}
+      "snippet": {
+        "title": "Rust Lab",
+        "description": "Rust tutorials"
+      },
+      "statistics": {
+        "subscriberCount": "12000",
+        "hiddenSubscriberCount": false
+      },
+      "brandingSettings": {
+        "channel": {
+          "keywords": "rust \"systems programming\""
+        }
+      }
     },
     {
       "id": "UC2",
-      "snippet": {"title": "Bake Club", "description": "Bread"},
-      "statistics": {"hiddenSubscriberCount": true}
+      "snippet": {
+        "title": "Bake Club",
+        "description": "Bread"
+      },
+      "statistics": {
+        "hiddenSubscriberCount": true
+      }
+    },
+    {
+      "id": "UC1111111111111111111111",
+      "snippet": {
+        "title": "Rust Lab",
+        "description": "Rust tutorials",
+        "customUrl": "@RustLab"
+      },
+      "statistics": {
+        "subscriberCount": "12000",
+        "hiddenSubscriberCount": false
+      },
+      "brandingSettings": {
+        "channel": {
+          "keywords": "rust \"systems programming\""
+        }
+      },
+      "topicDetails": {
+        "topicCategories": [
+          "https://en.wikipedia.org/wiki/Technology",
+          "https://en.wikipedia.org/wiki/Computer_programming"
+        ]
+      }
+    },
+    {
+      "id": "UC3333333333333333333333",
+      "snippet": {
+        "title": "Rust Weekly",
+        "description": "Weekly Rust news and tutorials",
+        "customUrl": "@rustweekly"
+      },
+      "statistics": {
+        "subscriberCount": "500",
+        "hiddenSubscriberCount": false
+      },
+      "brandingSettings": {
+        "channel": {
+          "keywords": "rust news"
+        }
+      },
+      "topicDetails": {
+        "topicCategories": [
+          "https://en.wikipedia.org/wiki/Technology"
+        ]
+      }
+    },
+    {
+      "id": "UC4444444444444444444444",
+      "snippet": {
+        "title": "Quiet Channel",
+        "description": "No labels here"
+      },
+      "statistics": {
+        "hiddenSubscriberCount": true
+      }
     }
   ]
 }

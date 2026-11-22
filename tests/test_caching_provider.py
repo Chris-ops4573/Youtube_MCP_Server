@@ -4,7 +4,7 @@ from ytmcp.cache import Cache
 from ytmcp.providers.caching import CachingProvider
 from ytmcp.providers.youtube import YouTubeProvider
 from ytmcp.quota import QuotaTracker
-from ytmcp.services import find_similar_videos
+from ytmcp.services import find_similar_channels, find_similar_videos
 
 DAY = 24 * 3600
 
@@ -119,3 +119,70 @@ def test_end_to_end_second_request_is_free():
     second = find_similar_videos(provider, "aaaaaaaaaaa")
     assert [r.video.id for r in first] == [r.video.id for r in second]
     assert quota.spent == 102
+
+
+RUST_LAB = "UC1111111111111111111111"
+
+
+def test_repeat_channel_search_costs_nothing():
+    provider, fake, quota, _ = make()
+    first = provider.search_channels("rust lab", 15)
+    spent = quota.spent
+    second = provider.search_channels("Rust  Lab", 15)
+    assert [c.id for c in first] == [c.id for c in second]
+    assert quota.spent == spent == 101
+    assert fake.resources() == ["search", "channels"]
+
+
+def test_channel_search_is_kept_apart_from_video_search():
+    provider, fake, _, _ = make()
+    provider.search_videos("rust", 25)
+    provider.search_channels("rust", 25)
+    assert fake.resources().count("search") == 2
+
+
+def test_channel_search_primes_channel_cache():
+    provider, fake, _, _ = make()
+    provider.search_channels("rust", 25)
+    provider.get_channels([RUST_LAB])
+    assert fake.resources() == ["search", "channels"]
+
+
+def test_recent_uploads_are_cached_including_empty():
+    provider, fake, quota, _ = make()
+    first = provider.get_recent_uploads(RUST_LAB)
+    assert provider.get_recent_uploads(RUST_LAB) == first
+    assert provider.get_recent_uploads("UC4444444444444444444444") == []  # playlistNotFound -> []
+    assert provider.get_recent_uploads("UC4444444444444444444444") == []
+    assert fake.resources() == ["playlistItems", "playlistItems"]
+    assert quota.spent == 2
+
+
+def test_stale_uploads_are_refetched():
+    provider, fake, _, clock = make()
+    provider.get_recent_uploads(RUST_LAB)
+    clock.t += 6 * 3600 + 1
+    provider.get_recent_uploads(RUST_LAB)
+    assert fake.resources() == ["playlistItems", "playlistItems"]
+
+
+def test_handle_lookup_fills_channel_cache():
+    provider, fake, _, _ = make()
+    channel = provider.get_channel_by_handle("@rustlab")
+    assert provider.get_channels([channel.id]) == [channel]
+    assert fake.resources() == ["channels"]
+
+
+def test_unknown_handle_returns_none():
+    provider, _, _, _ = make()
+    assert provider.get_channel_by_handle("@nobodyhere") is None
+
+
+def test_end_to_end_second_channel_request_is_free():
+    provider, _, quota, _ = make()
+    first = find_similar_channels(provider, RUST_LAB)
+    spent = quota.spent
+    assert spent == 1 + 1 + 100 + 1 + 2
+    second = find_similar_channels(provider, RUST_LAB)
+    assert [r.profile.channel.id for r in first] == [r.profile.channel.id for r in second]
+    assert quota.spent == spent

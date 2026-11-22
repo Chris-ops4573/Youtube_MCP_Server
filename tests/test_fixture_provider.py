@@ -23,5 +23,5 @@ def test_search_matches_title_terms(provider):
 
 
 def test_get_channels_hidden_subscribers(provider):
-    (channel,) = provider.get_channels(["UC2"])
+    (channel,) = provider.get_channels(["UC2222222222222222222222"])
     assert channel.subscriber_count is None

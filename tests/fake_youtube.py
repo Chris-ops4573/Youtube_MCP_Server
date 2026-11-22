@@ -34,7 +34,19 @@ class FakeYouTube:
                 raise item
             return item
         if resource == "search":
-            return 200, sample("search")
+            return 200, sample("search_channels" if params.get("type") == "channel" else "search")
+        if resource == "playlistItems":
+            playlist = sample("playlist_items").get(params["playlistId"])
+            if playlist is None:
+                return 404, {"error": {"errors": [{"reason": "playlistNotFound"}]}}
+            return 200, playlist
+        if "forHandle" in params:
+            wanted = params["forHandle"].lower()
+            items = [
+                i for i in sample("channels")["items"]
+                if i.get("snippet", {}).get("customUrl", "").lower() == wanted
+            ]
+            return 200, {"items": items}
         ids = params["id"].split(",")
         items = [i for i in sample(resource)["items"] if i["id"] in ids]
         return 200, {"items": items}
