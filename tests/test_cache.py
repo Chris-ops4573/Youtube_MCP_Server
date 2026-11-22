@@ -130,3 +130,36 @@ def test_quota_new_day_starts_at_zero_with_cache():
     quota.record("videos.list")
     assert cache.get_spent("2026-11-22") == 100
     assert cache.get_spent("2026-11-23") == 1
+
+
+def test_uploads_roundtrip_and_expiry():
+    clock = Clock()
+    cache = Cache(now=clock)
+    assert cache.get_uploads("UC1", 10, 3600) is None
+    cache.put_uploads("UC1", 10, ["a", "b"])
+    assert cache.get_uploads("UC1", 10, 3600) == ["a", "b"]
+    assert cache.get_uploads("UC1", 5, 3600) is None  # different max_results
+    clock.t += 3601
+    assert cache.get_uploads("UC1", 10, 3600) is None
+
+
+def test_empty_uploads_are_cached_too():
+    cache = Cache()
+    cache.put_uploads("UC1", 10, [])
+    assert cache.get_uploads("UC1", 10, 3600) == []
+
+
+def test_prune_removes_old_uploads():
+    clock = Clock()
+    cache = Cache(now=clock)
+    cache.put_uploads("UC1", 10, ["a"])
+    clock.t += 2 * DAY
+    cache.prune(DAY, 3600)
+    assert cache.get_uploads("UC1", 10, 10 * DAY) is None
+
+
+def test_channel_fields_roundtrip():
+    cache = Cache()
+    c = Channel(id="UC1", title="T", description="D", handle="@t", topics=["Technology"])
+    cache.put_channels([c])
+    assert cache.get_channels(["UC1"], DAY) == {"UC1": c}

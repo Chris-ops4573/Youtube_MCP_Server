@@ -161,3 +161,86 @@ def test_ensure_budget_uses_quota():
     provider.ensure_budget(100)
     with pytest.raises(QuotaExceededError):
         provider.ensure_budget(101)
+
+
+# --- channels: topics, handle, search, uploads (FR-2) ----------------------
+
+RUST_LAB = "UC1111111111111111111111"
+
+
+def test_channel_topics_and_handle_mapped():
+    provider, _, _ = make()
+    (channel,) = provider.get_channels([RUST_LAB])
+    assert channel.handle == "@rustlab"  # lower-cased
+    assert channel.topics == ["Computer programming", "Technology"]  # sorted
+    assert channel.keywords == ["rust", "systems programming"]
+
+
+def test_channel_without_optional_parts():
+    provider, _, _ = make()
+    (channel,) = provider.get_channels(["UC4444444444444444444444"])
+    assert channel.handle is None
+    assert channel.topics == []
+    assert channel.subscriber_count is None
+
+
+def test_get_channels_asks_for_topic_details():
+    provider, fake, _ = make()
+    provider.get_channels([RUST_LAB])
+    assert "topicDetails" in fake.calls[0][1]["part"]
+
+
+def test_get_channel_by_handle():
+    provider, fake, _ = make()
+    channel = provider.get_channel_by_handle("@RustLab")
+    assert channel.id == RUST_LAB
+    assert fake.calls[0][1]["forHandle"] == "@RustLab"
+
+
+def test_get_channel_by_handle_not_found():
+    provider, _, _ = make()
+    assert provider.get_channel_by_handle("@nobodyhere") is None
+
+
+def test_search_channels_enriches_and_skips_unknown_ids():
+    quota = QuotaTracker(reserve=0)
+    provider, fake, _ = make(quota=quota)
+    channels = provider.search_channels("rust", max_results=10)
+    assert fake.resources() == ["search", "channels"]
+    assert fake.calls[0][1]["type"] == "channel"
+    assert [c.id for c in channels] == [
+        "UC3333333333333333333333", RUST_LAB, "UC4444444444444444444444"
+    ]
+    assert quota.spent == 101
+
+
+def test_get_recent_uploads_hides_private_and_deleted():
+    provider, fake, _ = make()
+    titles = provider.get_recent_uploads(RUST_LAB)
+    assert titles == ["Rust ownership explained", "Rust lifetimes tutorial"]
+    assert fake.calls[0][1]["playlistId"] == "UU1111111111111111111111"  # UC... -> UU...
+
+
+def test_get_recent_uploads_playlist_not_found_is_empty():
+    provider, _, _ = make()
+    assert provider.get_recent_uploads("UC4444444444444444444444") == []
+
+
+def test_get_recent_uploads_other_errors_still_raise():
+    provider, _, _ = make(queue=[(400, sample("error_bad_request"))])
+    with pytest.raises(YouTubeApiError) as exc:
+        provider.get_recent_uploads(RUST_LAB)
+    assert exc.value.reason == "invalidParameter"
+
+
+def test_get_recent_uploads_ignores_non_channel_ids():
+    provider, fake, _ = make()
+    assert provider.get_recent_uploads("not-a-channel") == []
+    assert fake.calls == []
+
+
+def test_playlist_items_cost_one_unit():
+    quota = QuotaTracker(reserve=0)
+    provider, _, _ = make(quota=quota)
+    provider.get_recent_uploads(RUST_LAB)
+    assert quota.spent == 1

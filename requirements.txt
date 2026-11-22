@@ -1,6 +1,10 @@
-pytest
-pytest-cov
-ruff
-scikit-learn
-mcp
-python-dotenv
+# Runtime
+mcp>=2.3,<3
+scikit-learn>=1.5,<2
+python-dotenv>=1.0,<2
+tzdata  # time zone data for zoneinfo on Windows (quota resets at Pacific midnight)
+
+# Development and CI
+pytest>=8
+pytest-cov>=5
+ruff>=0.5

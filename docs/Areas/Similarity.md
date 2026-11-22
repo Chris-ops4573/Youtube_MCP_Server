@@ -20,4 +20,6 @@ Score = sum of (weight x signal), each signal is 0 to 1 (FR-1.3):
 - Results exclude the seed and duplicates; ties broken by video ID (deterministic).
 - `low_confidence` is true when tags are missing (FR-1.4).
 
+Channels use the same TF-IDF helper with their own weights: see [[Channels]].
+
 Part of [[Architecture]].

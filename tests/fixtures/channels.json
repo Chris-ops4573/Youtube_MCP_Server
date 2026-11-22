@@ -1,4 +1,14 @@
 [
-  {"id": "UC1", "title": "Rust Lab", "description": "Rust tutorials", "keywords": ["rust"], "subscriber_count": 1000},
-  {"id": "UC2", "title": "Bake Club", "description": "Baking", "keywords": ["bread"], "subscriber_count": null}
+  {"id": "UC1111111111111111111111", "title": "Rust Lab", "description": "Rust tutorials",
+   "keywords": ["rust", "systems programming"], "subscriber_count": 1000,
+   "handle": "@rustlab", "topics": ["Technology"]},
+  {"id": "UC2222222222222222222222", "title": "Bake Club", "description": "Baking",
+   "keywords": ["bread"], "subscriber_count": null,
+   "handle": "@bakeclub", "topics": ["Food"]},
+  {"id": "UC3333333333333333333333", "title": "Rust Weekly", "description": "Weekly Rust news and tutorials",
+   "keywords": ["rust", "news"], "subscriber_count": 500,
+   "handle": "@rustweekly", "topics": ["Technology"]},
+  {"id": "UC4444444444444444444444", "title": "Sourdough Daily", "description": "Bread every day",
+   "keywords": ["bread", "sourdough"], "subscriber_count": 200,
+   "handle": "@sourdoughdaily", "topics": ["Food"]}
 ]

@@ -14,20 +14,23 @@ services -> CachingProvider -> YouTubeProvider -> YouTube API
 ## Behaviour
 - `get_videos` / `get_channels`: return cached rows, fetch only the missing IDs.
 - `search_videos`: a repeat of the same search (case and spacing ignored) is served from the cache, so it costs **0 units instead of 100**. Search results also fill the video cache.
+- Channel searches are cached like video searches (kept apart, so the same words don't clash). Recent uploads are cached per channel, including "no uploads".
+- A handle lookup always costs 1 unit but fills the channel cache.
 - IDs YouTube doesn't return (private/deleted) are not cached, so they are asked for again.
 
 ## Expiry (YouTube API terms: refresh or delete stale data, SRS 6)
 | Data | Max age |
 |---|---|
 | Video and channel metadata | 24 hours |
-| Search results | 1 hour |
+| Search results (video and channel) | 1 hour |
+| Recent upload titles | 6 hours |
 
 Expired rows are ignored, and deleted at startup (`prune`).
 
 ## Database
 - Default `.cache/ytmcp.db` in the project (git-ignored). Change with `YTMCP_CACHE_PATH`; turn off with `YTMCP_CACHE=off` (see `.env.example`).
 - WAL mode (SRS 2.4). All SQL uses parameters, never string-built values (SRS 5.3); a test checks this.
-- Tables: `videos`, `channels`, `searches`, `quota_usage`.
+- Tables: `videos`, `channels`, `searches`, `uploads`, `quota_usage`.
 - `quota_usage` keeps the daily unit count, so [[Quota]] survives restarts.
 - No real user data is stored: only public video and channel metadata.
 

@@ -13,7 +13,7 @@ def _call(server, name, arguments):
 def test_server_registers_the_tool(provider):
     server = create_server(provider)
     tools = asyncio.run(server.list_tools())
-    assert [t.name for t in tools] == ["find_similar_videos"]
+    assert [t.name for t in tools] == ["find_similar_videos", "find_similar_channels"]
 
 
 def test_tool_call_returns_results(provider):
@@ -52,3 +52,13 @@ def test_cache_can_be_turned_off(monkeypatch):
     monkeypatch.setenv("YOUTUBE_API_KEY", "k")
     monkeypatch.setenv("YTMCP_CACHE", "off")
     assert isinstance(build_provider(), YouTubeProvider)
+
+
+def test_channel_tool_call_returns_results(provider):
+    result = _call(create_server(provider), "find_similar_channels", {"channel": "@rustlab"})
+    assert "Rust Weekly" in str(result)
+
+
+def test_channel_tool_call_reports_errors(provider):
+    result = _call(create_server(provider), "find_similar_channels", {"channel": "nope"})
+    assert "INVALID_CHANNEL_REFERENCE" in str(result)

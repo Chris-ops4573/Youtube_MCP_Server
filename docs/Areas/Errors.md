@@ -11,6 +11,8 @@ Tools never show stack traces. Errors look like this (UI-3):
 | `INVALID_ARGUMENT` | `top_n` not between 1 and 50 |
 | `INVALID_VIDEO_REFERENCE` | not a valid video ID or URL |
 | `VIDEO_NOT_FOUND` | video is private, deleted or missing |
+| `INVALID_CHANNEL_REFERENCE` | not a valid channel ID, @handle or channel URL |
+| `CHANNEL_NOT_FOUND` | channel does not exist |
 | `API_KEY_MISSING` | no `YOUTUBE_API_KEY` set |
 | `QUOTA_EXCEEDED` | not enough daily quota left (checked before any call) - see [[Quota]] |
 | `YOUTUBE_API_ERROR` | API error or network failure after retries |

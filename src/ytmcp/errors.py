@@ -17,6 +17,13 @@ class VideoNotFoundError(YtmcpError):
     remediation = "Check that the video exists and is public, then try again."
 
 
+class ChannelNotFoundError(YtmcpError):
+    """The channel does not exist or has no public page."""
+
+    code = "CHANNEL_NOT_FOUND"
+    remediation = "Check the channel ID, @handle or URL, then try again."
+
+
 class ApiKeyMissingError(YtmcpError):
     """No YouTube API key is configured."""
 
@@ -36,3 +43,7 @@ class YouTubeApiError(YtmcpError):
 
     code = "YOUTUBE_API_ERROR"
     remediation = "Check your internet connection and API key, then try again."
+
+    def __init__(self, message: str, reason: str | None = None):
+        super().__init__(message)
+        self.reason = reason  # YouTube's error reason, e.g. "playlistNotFound"

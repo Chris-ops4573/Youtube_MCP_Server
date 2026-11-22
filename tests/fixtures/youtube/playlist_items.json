@@ -1,0 +1,40 @@
+{
+  "UU1111111111111111111111": {
+    "items": [
+      {
+        "snippet": {
+          "title": "Rust ownership explained"
+        }
+      },
+      {
+        "snippet": {
+          "title": "Private video"
+        }
+      },
+      {
+        "snippet": {
+          "title": "Rust lifetimes tutorial"
+        }
+      },
+      {
+        "snippet": {
+          "title": "Deleted video"
+        }
+      }
+    ]
+  },
+  "UU3333333333333333333333": {
+    "items": [
+      {
+        "snippet": {
+          "title": "Rust 2026 edition news"
+        }
+      },
+      {
+        "snippet": {
+          "title": "Rust async tutorial"
+        }
+      }
+    ]
+  }
+}

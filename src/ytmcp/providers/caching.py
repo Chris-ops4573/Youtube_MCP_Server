@@ -12,6 +12,7 @@ from ytmcp.providers.base import VideoProvider
 HOUR = 3600
 METADATA_MAX_AGE = 24 * HOUR  # video and channel metadata
 SEARCH_MAX_AGE = 1 * HOUR  # search results change more often
+UPLOADS_MAX_AGE = 6 * HOUR  # recent upload titles
 
 
 class CachingProvider(VideoProvider):
@@ -21,11 +22,13 @@ class CachingProvider(VideoProvider):
         cache: Cache,
         metadata_max_age: float = METADATA_MAX_AGE,
         search_max_age: float = SEARCH_MAX_AGE,
+        uploads_max_age: float = UPLOADS_MAX_AGE,
     ):
         self._inner = inner
         self._cache = cache
         self._metadata_max_age = metadata_max_age
         self._search_max_age = search_max_age
+        self._uploads_max_age = uploads_max_age
         cache.prune(metadata_max_age, search_max_age)
 
     def ensure_budget(self, units: int) -> None:
@@ -59,3 +62,26 @@ class CachingProvider(VideoProvider):
             self._cache.put_channels(fetched)
             found.update({c.id: c for c in fetched})
         return [found[i] for i in ids if i in found]
+
+    def get_channel_by_handle(self, handle: str) -> Channel | None:
+        channel = self._inner.get_channel_by_handle(handle)
+        if channel:
+            self._cache.put_channels([channel])
+        return channel
+
+    def search_channels(self, query: str, max_results: int = 25) -> list[Channel]:
+        key = f"channel: {query}"  # kept apart from video searches
+        ids = self._cache.get_search(key, max_results, self._search_max_age)
+        if ids is not None:
+            return self.get_channels(ids)
+        channels = self._inner.search_channels(query, max_results)
+        self._cache.put_channels(channels)
+        self._cache.put_search(key, max_results, [c.id for c in channels])
+        return channels
+
+    def get_recent_uploads(self, channel_id: str, max_results: int = 10) -> list[str]:
+        titles = self._cache.get_uploads(channel_id, max_results, self._uploads_max_age)
+        if titles is None:
+            titles = self._inner.get_recent_uploads(channel_id, max_results)
+            self._cache.put_uploads(channel_id, max_results, titles)
+        return titles
