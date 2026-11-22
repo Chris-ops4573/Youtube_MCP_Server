@@ -1,0 +1,89 @@
+"""Local check (SK-2): build, lint, test, start the server, call one tool.
+
+Run from the repo root:  python scripts/local_check.py
+Prints PASS/FAIL for each step and exits 1 if any step fails.
+"""
+
+import asyncio
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+ROOT = Path(__file__).resolve().parents[1]
+ENV = {**os.environ, "PYTHONPATH": str(ROOT / "src")}
+FIXTURE_VIDEO_ID = "aaaaaaaaaaa"  # first video in tests/fixtures/videos.json
+SERVER_TIMEOUT_SECONDS = 15
+
+
+def run(cmd: list[str]) -> tuple[bool, str]:
+    result = subprocess.run(
+        cmd, check=False, cwd=ROOT, env=ENV, capture_output=True, text=True
+    )
+    output = (result.stdout + result.stderr).strip()
+    return result.returncode == 0, output
+
+
+def step_build() -> tuple[bool, str]:
+    return run([sys.executable, "-c", "import ytmcp.server"])
+
+
+def step_lint() -> tuple[bool, str]:
+    return run([sys.executable, "-m", "ruff", "check", "."])
+
+
+def step_tests() -> tuple[bool, str]:
+    return run([sys.executable, "-m", "pytest", "-q", "--cov=src", "--cov-fail-under=80"])
+
+
+async def _call_server() -> str:
+    params = StdioServerParameters(
+        command=sys.executable, args=["-m", "ytmcp.server"], env=ENV, cwd=ROOT
+    )
+    async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
+        await session.initialize()
+        tools = [t.name for t in (await session.list_tools()).tools]
+        if "find_similar_videos" not in tools:
+            raise RuntimeError(f"find_similar_videos not registered, got {tools}")
+        result = await session.call_tool("find_similar_videos", {"video": FIXTURE_VIDEO_ID})
+        is_error = getattr(result, "is_error", getattr(result, "isError", False))  # mcp 2.x / 1.x
+        if is_error or "results" not in str(result.content):
+            raise RuntimeError(f"unexpected tool result: {result.content}")
+        return f"tools: {tools}; find_similar_videos returned results"
+
+
+def step_server() -> tuple[bool, str]:
+    try:
+        detail = asyncio.run(asyncio.wait_for(_call_server(), SERVER_TIMEOUT_SECONDS))
+        return True, detail
+    except Exception as exc:  # noqa: BLE001 - any failure is reported as FAIL
+        while isinstance(exc, ExceptionGroup):  # show the real error, not the group
+            exc = exc.exceptions[0]
+        return False, f"{type(exc).__name__}: {exc}"
+
+
+STEPS = [
+    ("build", step_build),
+    ("lint", step_lint),
+    ("tests (coverage >= 80%)", step_tests),
+    ("server + find_similar_videos", step_server),
+]
+
+
+def main() -> int:
+    failed = False
+    for name, step in STEPS:
+        ok, output = step()
+        print(f"{'PASS' if ok else 'FAIL'}  {name}")
+        if not ok:
+            failed = True
+            print("      " + output[-2000:].replace("\n", "\n      "))
+    print("\nlocal-check:", "FAILED" if failed else "all steps passed")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

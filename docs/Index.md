@@ -10,6 +10,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Providers]]
 - [[Similarity]]
 - [[Errors]]
+- [[Testing]]
 
 ## Resources
 - [[Requirements]]
