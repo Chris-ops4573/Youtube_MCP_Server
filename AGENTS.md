@@ -24,6 +24,7 @@ python scripts/local_check.py   # SK-2: build, lint, tests, server check
 - Tools return errors as `{"error": {"code", "message", "remediation"}}`, never stack traces or secrets. (UI-3)
 - Never write to a user's YouTube account without explicit confirmation. (FR-5.5)
 - No secrets or real user data in code, fixtures or logs. Never commit `.env`. (5.3)
+- Cached data expires (24 h metadata, 1 h searches); never store secrets or user data in the cache. (SRS 6)
 - Check quota with `provider.ensure_budget(...)` before any API calls. (FR-7.1)
 - Tests use fixtures only, no live API calls. (TQ-5)
 - Test coverage stays at or above 80%. (SRS 5.4)
