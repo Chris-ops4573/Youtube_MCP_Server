@@ -13,6 +13,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Quota]]
 - [[Cache]]
 - [[Channels]]
+- [[Auth]]
 - [[Testing]]
 
 ## Resources
@@ -27,6 +28,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[ADR-004 Live provider with API key]]
 - [[ADR-005 SQLite cache]]
 - [[ADR-006 Channel candidates and uploads]]
+- [[ADR-007 OAuth with PKCE and keyring]]
 
 ## Log
 - [[Log]]

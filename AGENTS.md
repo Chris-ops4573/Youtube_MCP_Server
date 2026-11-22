@@ -16,6 +16,7 @@ pytest            # run tests
 ruff check .      # lint
 cp .env.example .env    # then add your YOUTUBE_API_KEY
 python -m ytmcp.server   # run the MCP server (YTMCP_PROVIDER=fixture for sample data)
+python -m ytmcp auth login|status|logout   # Google sign-in (FR-6)
 python scripts/local_check.py   # SK-2: build, lint, tests, server check
 ```
 
@@ -25,6 +26,8 @@ python scripts/local_check.py   # SK-2: build, lint, tests, server check
 - Never write to a user's YouTube account without explicit confirmation. (FR-5.5)
 - No secrets or real user data in code, fixtures or logs. Never commit `.env`. (5.3)
 - Cached data expires (24 h metadata, 1 h searches); never store secrets or user data in the cache. (SRS 6)
+- Google login tokens live only in the OS keyring. Never print, log, store in files/DB/cache, or put them in errors. (FR-6.2, 5.3)
+- Ask for read-only access by default; write access only at the first confirmed playlist creation. (FR-6.1)
 - Check quota with `provider.ensure_budget(...)` before any API calls. (FR-7.1)
 - Tests use fixtures only, no live API calls. (TQ-5)
 - Test coverage stays at or above 80%. (SRS 5.4)
