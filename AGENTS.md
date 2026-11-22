@@ -15,6 +15,7 @@ pip install -r requirements.txt
 pytest            # run tests
 ruff check .      # lint
 python -m ytmcp.server   # run the MCP server (uses test fixtures for now)
+python scripts/local_check.py   # SK-2: build, lint, tests, server check
 ```
 
 ## Rules (from the SRS)
@@ -23,6 +24,7 @@ python -m ytmcp.server   # run the MCP server (uses test fixtures for now)
 - Never write to a user's YouTube account without explicit confirmation. (FR-5.5)
 - No secrets or real user data in code, fixtures or logs. (5.3)
 - Tests use fixtures only, no live API calls. (TQ-5)
+- Test coverage stays at or above 80%. (SRS 5.4)
 
 ## Brain (Obsidian vault in `docs/`)
 - Read `docs/Index.md` first.

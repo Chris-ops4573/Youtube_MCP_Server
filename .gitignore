@@ -1,1 +1,12 @@
+# Python
 .venv/
+__pycache__/
+*.pyc
+
+# Tools
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# Obsidian app settings
+docs/.obsidian/
