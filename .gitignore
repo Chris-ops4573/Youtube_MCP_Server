@@ -13,3 +13,9 @@ docs/.obsidian/
 
 # Secrets
 .env
+
+# Local cache
+.cache/
+*.db
+*.db-wal
+*.db-shm

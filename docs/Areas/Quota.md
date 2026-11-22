@@ -17,7 +17,7 @@ File: `src/ytmcp/quota.py`
 - Every API call (including retries) is recorded.
 - One `find_similar_videos` costs **102** units: videos.list (seed) + search.list + videos.list (candidates). SRS 5.1 limit is 210.
 
-## Limitation
-The count is kept in memory, so it resets when the server restarts. It will be saved in SQLite with the cache (FR-7.2, next branch).
+## Saved across restarts
+With the cache on, each call is also written to the `quota_usage` table (one row per Pacific-time day), so the count survives restarts. See [[Cache]]. With `YTMCP_CACHE=off` it is memory only.
 
 Used by [[Providers]]. Part of [[Architecture]].

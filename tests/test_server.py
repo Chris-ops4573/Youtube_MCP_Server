@@ -1,5 +1,6 @@
 import asyncio
 
+from ytmcp.providers.caching import CachingProvider
 from ytmcp.providers.fixture import FixtureProvider
 from ytmcp.providers.youtube import YouTubeProvider
 from ytmcp.server import build_provider, create_server
@@ -30,7 +31,24 @@ def test_build_provider_fixture(monkeypatch):
     assert isinstance(build_provider(), FixtureProvider)
 
 
-def test_build_provider_defaults_to_youtube(monkeypatch):
+def test_build_provider_defaults_to_youtube(monkeypatch, tmp_path):
     monkeypatch.delenv("YTMCP_PROVIDER", raising=False)
     monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    monkeypatch.setenv("YTMCP_CACHE_PATH", str(tmp_path / "c.db"))
+    assert isinstance(build_provider(), CachingProvider)
+
+
+def test_build_provider_wraps_live_provider_in_cache(monkeypatch, tmp_path):
+    monkeypatch.setenv("YTMCP_PROVIDER", "youtube")
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    monkeypatch.setenv("YTMCP_CACHE_PATH", str(tmp_path / "c.db"))
+    monkeypatch.delenv("YTMCP_CACHE", raising=False)
+    assert isinstance(build_provider(), CachingProvider)
+    assert (tmp_path / "c.db").exists()
+
+
+def test_cache_can_be_turned_off(monkeypatch):
+    monkeypatch.setenv("YTMCP_PROVIDER", "youtube")
+    monkeypatch.setenv("YOUTUBE_API_KEY", "k")
+    monkeypatch.setenv("YTMCP_CACHE", "off")
     assert isinstance(build_provider(), YouTubeProvider)
