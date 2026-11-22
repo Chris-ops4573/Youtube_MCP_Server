@@ -4,6 +4,8 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 
 ## Projects
 - [[Stage 1 Review]]
+- [[Stage 2 Review]]
+- [[Development Plan]]
 
 ## Areas
 - [[Architecture]]
@@ -15,6 +17,10 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Channels]]
 - [[Auth]]
 - [[Testing]]
+- [[Design Components]]
+- [[Design Classes]]
+- [[Design Sequences]]
+- [[Design Data]]
 
 ## Resources
 - [[Requirements]]
@@ -29,6 +35,10 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[ADR-005 SQLite cache]]
 - [[ADR-006 Channel candidates and uploads]]
 - [[ADR-007 OAuth with PKCE and keyring]]
+- [[ADR-008 Python 3.11 and libraries]]
+- [[ADR-009 Stdio transport only]]
+- [[ADR-010 Like dates from the likes playlist]]
+- [[ADR-011 Metadata only, no transcripts]]
 
 ## Log
 - [[Log]]

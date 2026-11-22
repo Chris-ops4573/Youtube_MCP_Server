@@ -35,6 +35,7 @@ python scripts/local_check.py   # SK-2: build, lint, tests, server check
 ## Brain (Obsidian vault in `docs/`)
 - Read `docs/Index.md` first.
 - When you change code, update the related note in `docs/Areas/` and the row in `docs/Resources/Traceability.md`.
+- If you change how the parts connect (new class, table, service or flow), update the diagrams in the `docs/Areas/Design *.md` notes too.
 - Add one line to `docs/Log.md` for each change.
 - New design decision -> new ADR in `docs/adr/` that cites at least one note with `[[wikilink]]`.
 - Link notes with `[[wikilinks]]`.

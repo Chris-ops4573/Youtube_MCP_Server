@@ -1,0 +1,147 @@
+# Design Sequences
+
+Design document 3 of 4 (SE-2). Who calls whom, in order.
+Back to [[Design Components]]. Classes: [[Design Classes]].
+
+## 1. Find similar videos (built, FR-1)
+A cold request. With a warm cache the YouTube calls are skipped and it costs 0 units. `find_similar_channels` (FR-2) follows the same shape: see [[Channels]].
+
+```mermaid
+sequenceDiagram
+  actor AI as AI client
+  participant S as server.py
+  participant T as tool
+  participant V as service
+  participant C as CachingProvider
+  participant DB as SQLite cache
+  participant Y as YouTubeProvider
+  participant G as YouTube API
+  AI->>S: find_similar_videos(video, top_n)
+  S->>T: similar_videos_tool
+  T->>V: find_similar_videos
+  V->>V: extract the 11 character ID
+  V->>C: ensure_budget(102 units)
+  C->>Y: ensure_budget(102 units)
+  Note over Y: QuotaExceededError here means no API call is made
+  V->>C: get_videos for the seed
+  C->>DB: look up
+  DB-->>C: miss
+  C->>Y: get_videos
+  Y->>G: videos.list (1 unit)
+  G-->>Y: seed video
+  C->>DB: save
+  V->>C: search_videos(query)
+  C->>DB: same search in the last hour?
+  alt not cached
+    C->>Y: search_videos
+    Y->>G: search.list (100 units)
+    Y->>G: videos.list (1 unit)
+    C->>DB: save videos and search
+  else cached
+    DB-->>C: video IDs (0 units)
+  end
+  V->>V: rank by TF-IDF and weights
+  V-->>T: scored videos
+  T-->>S: results or error dict
+  S-->>AI: JSON
+```
+
+## 2. Sign in (built, FR-6.1)
+```mermaid
+sequenceDiagram
+  actor U as User
+  participant CLI as cli.py
+  participant A as AuthService
+  participant L as LoopbackReceiver
+  participant B as Browser
+  participant G as Google
+  participant K as OS keyring
+  U->>CLI: python -m ytmcp auth login
+  CLI->>A: login()
+  A->>A: make PKCE verifier, challenge and state
+  A->>L: listen on 127.0.0.1, any free port
+  A->>B: open the Google sign-in link
+  B->>G: user signs in and approves read-only access
+  G-->>B: redirect to 127.0.0.1 /callback with code and state
+  B->>L: GET /callback
+  L-->>A: code and state
+  A->>A: reject unless state matches
+  A->>G: swap code and verifier for tokens
+  G-->>A: access token and refresh token
+  A->>K: save token
+  A-->>CLI: signed in
+  CLI-->>U: Signed in, read-only
+```
+
+## 3. Stay signed in (built, FR-6.2)
+Later features call `get_access_token()`. The user is only asked to sign in again if Google refuses to renew (for example the 7 day Testing-mode limit).
+
+```mermaid
+sequenceDiagram
+  participant F as a feature
+  participant A as AuthService
+  participant K as OS keyring
+  participant G as Google
+  F->>A: get_access_token()
+  A->>K: load token
+  alt no token
+    A-->>F: AUTH_REQUIRED, sign in
+  else token still valid
+    A-->>F: access token
+  else token expired
+    A->>G: refresh with the refresh token
+    alt Google renews it
+      G-->>A: new access token
+      A->>K: save
+      A-->>F: access token
+    else invalid_grant
+      A->>K: delete the saved login
+      A-->>F: AUTH_REQUIRED, sign in again
+    end
+  end
+```
+
+## 4. Create a playlist (PLANNED, FR-5, not built)
+The server, not the AI client, enforces confirmation (FR-5.5). Text from YouTube videos is untrusted, so it can never trigger a write.
+
+```mermaid
+sequenceDiagram
+  actor U as User
+  participant AI as AI client
+  participant S as MCP server
+  participant P as Proposal store
+  participant G as YouTube API
+  U->>AI: Make me a 2 hour Rust playlist
+  AI->>S: propose_playlist(constraints)
+  S->>S: validate constraints and pick videos
+  S->>P: save proposal (id, content hash, 15 minute expiry)
+  S-->>AI: proposal with videos and totals
+  AI-->>U: show the proposal and ask to confirm
+  U->>AI: Yes, create it
+  AI->>S: create_playlist(proposal_id, confirm)
+  S->>P: load the proposal
+  Note over S,P: Refuse if unknown, expired, changed or not confirmed
+  S->>S: check quota (50 plus 50 per video) and write permission
+  S->>G: playlists.insert (private)
+  S->>G: playlistItems.insert for each video
+  S-->>AI: created, or a report of partial failures
+```
+
+### Proposal states (PLANNED)
+No write to YouTube happens before `Creating`. Declining or timing out creates nothing.
+
+```mermaid
+stateDiagram-v2
+  [*] --> Proposed: propose_playlist
+  Proposed --> Expired: 15 minutes pass
+  Proposed --> Declined: user declines
+  Proposed --> Creating: create_playlist with confirmation
+  Creating --> Created: all videos added
+  Creating --> PartiallyCreated: some inserts failed
+  Creating --> Failed: playlist not created
+  Expired --> [*]
+  Declined --> [*]
+  Created --> [*]
+  PartiallyCreated --> [*]
+  Failed --> [*]
+```
