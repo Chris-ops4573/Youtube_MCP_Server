@@ -31,9 +31,17 @@ Progress is tracked in [[Traceability]].
 - SB-1 to SB-6 PARA vault with index and log, wikilinks, stage reviews, AGENTS.md, brain changes via PRs
 - TQ-1 to TQ-8 unit/integration/e2e/negative tests, fixtures in CI, coverage >= 80%
 
-## Open (TBD)
-- TBD-1 language (assumed Python 3.11+), TBD-2 similarity weights, TBD-3 like dates,
-  TBD-4 HTTP transport, TBD-5 non-English tokenising, TBD-6 quota reserve / max playlist,
-  TBD-7 team details, TBD-8 re-check quota costs, TBD-9 transcripts for summaries
+## TBD items (open questions in the SRS)
+| TBD | Question | Status |
+|---|---|---|
+| TBD-1 | Language and libraries | Decided: Python 3.11+, [[ADR-008 Python 3.11 and libraries]] |
+| TBD-2 | Similarity weights | Open (Stage 3). Starting guesses, see [[Similarity]] and [[Channels]] |
+| TBD-3 | Like dates for FR-4.2 | Decided: from the likes playlist, [[ADR-010 Like dates from the likes playlist]] |
+| TBD-4 | HTTP transport | Decided: stdio only, [[ADR-009 Stdio transport only]] |
+| TBD-5 | Non-English tokenising | Open (Stage 3) |
+| TBD-6 | Quota reserve (500) and max playlist length (24 h) | Open (Stage 3). Both are assumed values |
+| TBD-7 | Team details on the SRS cover | Open |
+| TBD-8 | Re-check API unit costs | Open. Needs a person to confirm, see [[Quota]] |
+| TBD-9 | Transcripts for summaries | Decided: metadata only, [[ADR-011 Metadata only, no transcripts]] |
 
 See also [[Glossary]].

@@ -1,5 +1,7 @@
 # Architecture
 
+Diagrams (components, classes, sequences, data): [[Design Components]], [[Design Classes]], [[Design Sequences]], [[Design Data]].
+
 A request flows through these layers:
 
 ```

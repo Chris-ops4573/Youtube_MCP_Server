@@ -12,6 +12,25 @@ File: `src/ytmcp/quota.py`
 
 (Costs from SRS 2.5; re-check in Google's Quota Calculator, TBD-8.)
 
+Planned calls for FR-3, FR-4 and FR-5 (not in `quota.py` yet; add when they are built). These are the published costs, **not yet confirmed** in the Quota Calculator:
+
+| API method | Cost | Used by |
+|---|---|---|
+| subscriptions.list | 1 | FR-3, FR-4 |
+| playlists.list | 1 | FR-3, FR-4 |
+| videoCategories.list | 1 | FR-4 (category names) |
+| playlists.insert | 50 | FR-5 |
+| playlistItems.insert | 50 each | FR-5 |
+
+Reading about 4,000 likes is about 80 `playlistItems.list` calls (50 per call): see [[ADR-010 Like dates from the likes playlist]]. A playlist of 10 videos costs 50 + 10 x 50 = 550 units (FR-5.6).
+
+## Closing TBD-8 (a person has to do this)
+Our count is only what this server believes it spent. To check it against Google:
+1. In Google Cloud Console open the project, then APIs & Services, YouTube Data API v3, Quotas and System Limits. Note today's "Queries per day" usage.
+2. Run one fresh `find_similar_channels` request (expected cost: 118 units) with an empty cache (`YTMCP_CACHE=off` or a new `YTMCP_CACHE_PATH`).
+3. Look at the console again (it can lag a few minutes). The difference should be 118.
+4. Write the result in [[Stage 2 Review]] and fix `COSTS` in `quota.py` if it is different.
+
 ## How it works
 - A reserve of 500 units is kept back (assumed, TBD-6), so 9,500 are usable.
 - Before a request runs, the service calls `provider.ensure_budget(estimate)`. If there isn't enough left it fails with `QUOTA_EXCEEDED` **before any API call** (FR-7.1).
