@@ -1,5 +1,8 @@
 import pytest
+from fake_youtube import FakeYouTube
 
+from ytmcp.providers.youtube import YouTubeProvider
+from ytmcp.quota import QuotaTracker
 from ytmcp.tools import format_duration, similar_videos_tool, video_url
 
 
@@ -46,3 +49,15 @@ def test_missing_video_returns_error(provider):
 def test_top_n_out_of_range(provider, top_n):
     out = similar_videos_tool(provider, "aaaaaaaaaaa", top_n=top_n)
     assert out["error"]["code"] == "INVALID_ARGUMENT"
+
+def test_quota_error_has_remediation():
+    provider = YouTubeProvider("k", quota=QuotaTracker(daily_limit=0, reserve=0), fetch=FakeYouTube())
+    out = similar_videos_tool(provider, "aaaaaaaaaaa")
+    assert out["error"]["code"] == "QUOTA_EXCEEDED"
+    assert "midnight Pacific" in out["error"]["remediation"]
+
+
+def test_missing_api_key_error():
+    out = similar_videos_tool(YouTubeProvider(None), "aaaaaaaaaaa")
+    assert out["error"]["code"] == "API_KEY_MISSING"
+    assert ".env" in out["error"]["remediation"]

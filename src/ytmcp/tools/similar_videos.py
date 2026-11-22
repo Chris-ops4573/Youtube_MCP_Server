@@ -65,9 +65,5 @@ def similar_videos_tool(provider: VideoProvider, video: str, top_n: int = 10) ->
             "Use an 11-character video ID or a watch, youtu.be, shorts or embed URL.",
         )
     except YtmcpError as exc:
-        return _error(
-            exc.code,
-            str(exc),
-            "Check that the video exists and is public, then try again.",
-        )
+        return _error(exc.code, str(exc), exc.remediation)
     return {"results": format_results(results)}

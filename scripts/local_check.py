@@ -14,7 +14,8 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 ROOT = Path(__file__).resolve().parents[1]
-ENV = {**os.environ, "PYTHONPATH": str(ROOT / "src")}
+# fixture provider: no live API calls or quota (TQ-5)
+ENV = {**os.environ, "PYTHONPATH": str(ROOT / "src"), "YTMCP_PROVIDER": "fixture"}
 FIXTURE_VIDEO_ID = "aaaaaaaaaaa"  # first video in tests/fixtures/videos.json
 SERVER_TIMEOUT_SECONDS = 15
 

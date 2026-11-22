@@ -1,12 +1,21 @@
 """Find videos similar to a given video (FR-1)."""
 
+import math
+
 from ytmcp.errors import VideoNotFoundError
 from ytmcp.ids import extract_video_id
 from ytmcp.models import Video
 from ytmcp.providers.base import VideoProvider
+from ytmcp.quota import COSTS, MAX_IDS_PER_CALL
 from ytmcp.similarity import ScoredVideo, rank_similar
 
 MAX_QUERY_TAGS = 3
+
+
+def estimate_cost(search_size: int) -> int:
+    """Quota units for one FR-1 request: seed lookup + search + candidate lookup."""
+    lookups = 1 + math.ceil(search_size / MAX_IDS_PER_CALL)
+    return COSTS["search.list"] + lookups * COSTS["videos.list"]
 
 
 def build_query(seed: Video) -> str:
@@ -24,10 +33,12 @@ def find_similar_videos(
     """Return the top_n videos most similar to the given video.
 
     `video_ref` is an 11-character ID or a YouTube URL. Raises ValueError
-    for an invalid reference and VideoNotFoundError if the video is
-    private, deleted or missing.
+    for an invalid reference, VideoNotFoundError if the video is
+    private, deleted or missing, and QuotaExceededError (before any API
+    call) if the daily quota cannot cover the request.
     """
     video_id = extract_video_id(video_ref)
+    provider.ensure_budget(estimate_cost(search_size))
 
     seeds = provider.get_videos([video_id])
     if not seeds:

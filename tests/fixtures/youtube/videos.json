@@ -1,0 +1,37 @@
+{
+  "kind": "youtube#videoListResponse",
+  "items": [
+    {
+      "kind": "youtube#video",
+      "id": "aaaaaaaaaaa",
+      "snippet": {
+        "channelId": "UC1", "channelTitle": "Rust Lab",
+        "title": "Rust ownership explained", "description": "Borrow checker basics",
+        "tags": ["rust", "ownership"], "categoryId": "27",
+        "defaultAudioLanguage": "en-US", "liveBroadcastContent": "none"
+      },
+      "contentDetails": {"duration": "PT10M"}
+    },
+    {
+      "kind": "youtube#video",
+      "id": "bbbbbbbbbbb",
+      "snippet": {
+        "channelId": "UC1", "channelTitle": "Rust Lab",
+        "title": "Rust lifetimes tutorial", "description": "Lifetimes and borrowing",
+        "tags": ["rust", "lifetimes"], "categoryId": "27",
+        "defaultLanguage": "en", "liveBroadcastContent": "none"
+      },
+      "contentDetails": {"duration": "PT15M"}
+    },
+    {
+      "kind": "youtube#video",
+      "id": "ccccccccccc",
+      "snippet": {
+        "channelId": "UC2", "channelTitle": "Bake Club",
+        "title": "Sourdough live bake", "description": "Baking bread",
+        "categoryId": "26", "liveBroadcastContent": "live"
+      },
+      "contentDetails": {"duration": "P0D"}
+    }
+  ]
+}

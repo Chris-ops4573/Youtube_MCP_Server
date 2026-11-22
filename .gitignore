@@ -10,3 +10,6 @@ __pycache__/
 
 # Obsidian app settings
 docs/.obsidian/
+
+# Secrets
+.env
