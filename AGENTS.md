@@ -14,7 +14,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 pytest            # run tests
 ruff check .      # lint
-python -m ytmcp.server   # run the MCP server (uses test fixtures for now)
+cp .env.example .env    # then add your YOUTUBE_API_KEY
+python -m ytmcp.server   # run the MCP server (YTMCP_PROVIDER=fixture for sample data)
 python scripts/local_check.py   # SK-2: build, lint, tests, server check
 ```
 
@@ -22,7 +23,8 @@ python scripts/local_check.py   # SK-2: build, lint, tests, server check
 - All YouTube access goes through `VideoProvider` (`src/ytmcp/providers/base.py`). (SE-6)
 - Tools return errors as `{"error": {"code", "message", "remediation"}}`, never stack traces or secrets. (UI-3)
 - Never write to a user's YouTube account without explicit confirmation. (FR-5.5)
-- No secrets or real user data in code, fixtures or logs. (5.3)
+- No secrets or real user data in code, fixtures or logs. Never commit `.env`. (5.3)
+- Check quota with `provider.ensure_budget(...)` before any API calls. (FR-7.1)
 - Tests use fixtures only, no live API calls. (TQ-5)
 - Test coverage stays at or above 80%. (SRS 5.4)
 

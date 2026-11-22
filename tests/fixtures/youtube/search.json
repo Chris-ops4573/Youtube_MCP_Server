@@ -1,0 +1,9 @@
+{
+  "kind": "youtube#searchListResponse",
+  "items": [
+    {"kind": "youtube#searchResult", "id": {"kind": "youtube#video", "videoId": "bbbbbbbbbbb"}},
+    {"kind": "youtube#searchResult", "id": {"kind": "youtube#channel", "channelId": "UC9"}},
+    {"kind": "youtube#searchResult", "id": {"kind": "youtube#video", "videoId": "aaaaaaaaaaa"}},
+    {"kind": "youtube#searchResult", "id": {"kind": "youtube#video", "videoId": "ccccccccccc"}}
+  ]
+}

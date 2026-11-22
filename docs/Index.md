@@ -10,6 +10,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Providers]]
 - [[Similarity]]
 - [[Errors]]
+- [[Quota]]
 - [[Testing]]
 
 ## Resources
@@ -21,6 +22,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[ADR-001 Provider interface]]
 - [[ADR-002 Metadata similarity]]
 - [[ADR-003 Structured errors]]
+- [[ADR-004 Live provider with API key]]
 
 ## Log
 - [[Log]]

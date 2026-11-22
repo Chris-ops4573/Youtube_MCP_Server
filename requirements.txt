@@ -3,3 +3,4 @@ pytest-cov
 ruff
 scikit-learn
 mcp
+python-dotenv

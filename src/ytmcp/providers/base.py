@@ -17,3 +17,9 @@ class VideoProvider(ABC):
     @abstractmethod
     def get_channels(self, channel_ids: list[str]) -> list[Channel]:
         """Fetch channel metadata. Missing IDs are omitted."""
+
+    def ensure_budget(self, units: int) -> None:
+        """Raise QuotaExceededError if `units` quota units are not available (FR-7.1).
+
+        Providers that do not use quota (e.g. fixtures) keep this no-op.
+        """

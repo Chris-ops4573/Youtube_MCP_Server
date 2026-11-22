@@ -1,0 +1,16 @@
+{
+  "kind": "youtube#channelListResponse",
+  "items": [
+    {
+      "id": "UC1",
+      "snippet": {"title": "Rust Lab", "description": "Rust tutorials"},
+      "statistics": {"subscriberCount": "12000", "hiddenSubscriberCount": false},
+      "brandingSettings": {"channel": {"keywords": "rust \"systems programming\""}}
+    },
+    {
+      "id": "UC2",
+      "snippet": {"title": "Bake Club", "description": "Bread"},
+      "statistics": {"hiddenSubscriberCount": true}
+    }
+  ]
+}

@@ -1,13 +1,17 @@
 """MCP server entry point.
 
 Run with:  python -m ytmcp.server
-Currently serves sample data from the FixtureProvider; this switches to
-the live provider once it exists.
+
+Provider is picked with YTMCP_PROVIDER (read from the environment or .env):
+- "youtube" (default): live YouTube Data API, needs YOUTUBE_API_KEY
+- "fixture": sample data from tests/fixtures (no API calls, no quota)
 """
 
 import os
 from pathlib import Path
 from typing import Any
+
+from dotenv import load_dotenv
 
 try:  # mcp 2.x
     from mcp.server.mcpserver import MCPServer
@@ -16,6 +20,7 @@ except ImportError:  # mcp 1.x
 
 from ytmcp.providers.base import VideoProvider
 from ytmcp.providers.fixture import FixtureProvider
+from ytmcp.providers.youtube import YouTubeProvider
 from ytmcp.tools import similar_videos_tool
 
 
@@ -46,8 +51,17 @@ def _default_fixtures_dir() -> Path:
     return Path(__file__).resolve().parents[2] / "tests" / "fixtures"
 
 
+def build_provider() -> VideoProvider:
+    """Pick the provider from YTMCP_PROVIDER. A missing API key is not fatal:
+    the server still starts and tools return an API_KEY_MISSING error."""
+    if os.environ.get("YTMCP_PROVIDER", "youtube").lower() == "fixture":
+        return FixtureProvider(_default_fixtures_dir())
+    return YouTubeProvider(os.environ.get("YOUTUBE_API_KEY") or None)
+
+
 def main() -> None:
-    create_server(FixtureProvider(_default_fixtures_dir())).run()
+    load_dotenv()  # reads .env if present; real environment variables win
+    create_server(build_provider()).run()
 
 
 if __name__ == "__main__":

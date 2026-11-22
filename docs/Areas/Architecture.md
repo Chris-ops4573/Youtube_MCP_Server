@@ -13,7 +13,8 @@ AI client -> server.py -> tools/ -> services/ -> providers/ (YouTube data)
 | Tools | `src/ytmcp/tools/` | Formats results and errors for the AI client - see [[Errors]] |
 | Services | `src/ytmcp/services/` | The feature logic (e.g. FR-1) |
 | Providers | `src/ytmcp/providers/` | All YouTube access - see [[Providers]] |
+| Quota | `src/ytmcp/quota.py` | Daily API budget - see [[Quota]] |
 | Similarity | `src/ytmcp/similarity.py` | Scoring - see [[Similarity]] |
 | Models | `src/ytmcp/models.py` | `Video` and `Channel` data classes |
 
-Decisions: [[ADR-001 Provider interface]], [[ADR-003 Structured errors]].
+Decisions: [[ADR-001 Provider interface]], [[ADR-003 Structured errors]], [[ADR-004 Live provider with API key]].
