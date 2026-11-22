@@ -13,6 +13,9 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | FR-2.1 (ID, @handle, URL) | `src/ytmcp/ids.py`, `providers/youtube.py` | `tests/test_ids.py`, `tests/test_youtube_provider.py` | [[Channels]] | |
 | FR-2.2 (channel profile) | `src/ytmcp/services/similar_channels.py`, `channel_similarity.py` | `tests/test_similar_channels.py`, `tests/test_channel_similarity.py` | [[Channels]] | |
 | FR-2.3 (rank, exclude seed, hidden subs) | `src/ytmcp/channel_similarity.py`, `tools/similar_channels.py` | `tests/test_channel_similarity.py`, `tests/test_similar_channels_tool.py` | [[Channels]] | |
+| FR-6.1 (OAuth, PKCE, read-only default) | `src/ytmcp/auth/oauth.py`, `pkce.py`, `loopback.py`, `service.py` | `tests/test_oauth.py`, `test_pkce.py`, `test_loopback.py`, `test_auth_service.py` | [[Auth]] | |
+| FR-6.2 (tokens only in keyring, re-auth on expiry) | `src/ytmcp/auth/tokens.py`, `service.py` | `tests/test_tokens.py`, `tests/test_auth_service.py` | [[Auth]] | |
+| UI-4 (CLI: auth part only) | `src/ytmcp/cli.py` | `tests/test_cli.py` | [[Auth]] | |
 | FR-7.1 (quota pre-check) | `src/ytmcp/quota.py`, `services/similar_videos.py` | `tests/test_quota.py`, `tests/test_similar_videos.py` | [[Quota]] | |
 | FR-7.2 (SQLite cache, batching) | `src/ytmcp/cache.py`, `providers/caching.py` | `tests/test_cache.py`, `tests/test_caching_provider.py` | [[Cache]] | |
 | FR-7.1 (ledger survives restart) | `src/ytmcp/quota.py`, `src/ytmcp/cache.py` | `tests/test_cache.py` | [[Quota]] | |
@@ -22,6 +25,6 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | SRS 5.4 (coverage >= 80%) | `.github/workflows/ci.yml` | CI pytest step | [[Testing]] | |
 | FR-5.2 (durations) | `src/ytmcp/durations.py` | `tests/test_durations.py` | | |
 
-Not started: FR-3 to FR-6, UI-2, UI-4, SK-1, SK-3.
+Not started: FR-3 to FR-5, UI-2, SK-1, SK-3. Partly done: UI-4 (only the `auth` commands).
 
 Back to [[Requirements]].

@@ -47,3 +47,30 @@ class YouTubeApiError(YtmcpError):
     def __init__(self, message: str, reason: str | None = None):
         super().__init__(message)
         self.reason = reason  # YouTube's error reason, e.g. "playlistNotFound"
+
+
+class OAuthConfigError(YtmcpError):
+    """The Google OAuth client ID is not configured."""
+
+    code = "OAUTH_NOT_CONFIGURED"
+    remediation = (
+        "Set YTMCP_OAUTH_CLIENT_ID and YTMCP_OAUTH_CLIENT_SECRET in the .env file "
+        "(see .env.example) and try again."
+    )
+
+
+class AuthRequiredError(YtmcpError):
+    """The user is not signed in, or their Google login has expired (FR-6.2)."""
+
+    code = "AUTH_REQUIRED"
+    remediation = "Run `python -m ytmcp auth login` to sign in with Google, then try again."
+
+
+class AuthFailedError(YtmcpError):
+    """Signing in failed (denied, timed out, bad response or no keyring)."""
+
+    code = "AUTH_FAILED"
+    remediation = (
+        "Run `python -m ytmcp auth login` again. If it keeps failing, check your "
+        "OAuth client settings in .env."
+    )

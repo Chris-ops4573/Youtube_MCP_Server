@@ -2,6 +2,7 @@
 mcp>=2.3,<3
 scikit-learn>=1.5,<2
 python-dotenv>=1.0,<2
+keyring>=25,<26  # OS keyring for the Google login tokens (FR-6.2)
 tzdata  # time zone data for zoneinfo on Windows (quota resets at Pacific midnight)
 
 # Development and CI
