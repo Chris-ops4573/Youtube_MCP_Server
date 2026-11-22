@@ -17,6 +17,7 @@ ruff check .      # lint
 cp .env.example .env    # then add your YOUTUBE_API_KEY
 python -m ytmcp.server   # run the MCP server (YTMCP_PROVIDER=fixture for sample data)
 python -m ytmcp auth login|status|logout   # Google sign-in (FR-6)
+python scripts/brain.py check|search "words"|new adr "Title"   # the brain (notes + skills)
 python scripts/local_check.py   # SK-2: build, lint, tests, server check
 ```
 
@@ -33,7 +34,8 @@ python scripts/local_check.py   # SK-2: build, lint, tests, server check
 - Test coverage stays at or above 80%. (SRS 5.4)
 
 ## Brain (Obsidian vault in `docs/`)
-- Read `docs/Index.md` first.
+- Read `docs/Index.md` first. Skills: `brain-query` (ask), `brain-ingest` (add), `brain-refine` (fix). See `docs/Areas/Brain.md`.
+- `python scripts/brain.py check` must pass: CI runs it. Notes may not contain `TODO`.
 - When you change code, update the related note in `docs/Areas/` and the row in `docs/Resources/Traceability.md`.
 - If you change how the parts connect (new class, table, service or flow), update the diagrams in the `docs/Areas/Design *.md` notes too.
 - Add one line to `docs/Log.md` for each change.

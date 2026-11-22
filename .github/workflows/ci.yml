@@ -23,6 +23,9 @@ jobs:
       - name: Lint
         run: ruff check .
 
+      - name: Validate brain notes and skills
+        run: python scripts/brain.py check
+
       - name: Run tests with coverage
         run: pytest --cov=src --cov-fail-under=80
 

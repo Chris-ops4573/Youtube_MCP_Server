@@ -37,6 +37,10 @@ def step_lint() -> tuple[bool, str]:
     return run([sys.executable, "-m", "ruff", "check", "."])
 
 
+def step_brain() -> tuple[bool, str]:
+    return run([sys.executable, "scripts/brain.py", "check"])
+
+
 def step_tests() -> tuple[bool, str]:
     return run([sys.executable, "-m", "pytest", "-q", "--cov=src", "--cov-fail-under=80"])
 
@@ -74,6 +78,7 @@ def step_server() -> tuple[bool, str]:
 STEPS = [
     ("build", step_build),
     ("lint", step_lint),
+    ("brain notes and skills", step_brain),
     ("tests (coverage >= 80%)", step_tests),
     ("server + both tools", step_server),
 ]

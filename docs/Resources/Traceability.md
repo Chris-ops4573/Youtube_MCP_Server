@@ -20,6 +20,9 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | FR-7.2 (SQLite cache, batching) | `src/ytmcp/cache.py`, `providers/caching.py` | `tests/test_cache.py`, `tests/test_caching_provider.py` | [[Cache]] | |
 | FR-7.1 (ledger survives restart) | `src/ytmcp/quota.py`, `src/ytmcp/cache.py` | `tests/test_cache.py` | [[Quota]] | |
 | SRS 3.4 (retries, no key in errors) | `src/ytmcp/providers/youtube.py` | `tests/test_youtube_provider.py` | [[Providers]] | |
+| SK-3 (brain-ingest, brain-refine, brain-query) | `.claude/skills/brain-*/`, `scripts/brain.py` | `tests/test_brain.py` | [[Brain]] | |
+| SK-4 (valid SKILL.md, cites a note), TQ-7 (evals) | `scripts/brain.py check`, `.claude/skills/*/evals.md` | `tests/test_brain.py` | [[Skill Evaluations]] | |
+| CI validates notes and skills (SRS section 6) | `.github/workflows/ci.yml` | CI step `Validate brain notes and skills` | [[Brain]] | |
 | SE-2 (design docs, UML, ER) | docs only | n/a | [[Design Components]], [[Design Classes]], [[Design Sequences]], [[Design Data]] | |
 | SE-3 (ADRs cite notes) | `docs/adr/` | n/a | [[Index]] (ADR-001 to ADR-011) | |
 | SE-4 (development plan) | docs only | n/a | [[Development Plan]] | |
@@ -28,6 +31,6 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | SRS 5.4 (coverage >= 80%) | `.github/workflows/ci.yml` | CI pytest step | [[Testing]] | |
 | FR-5.2 (durations) | `src/ytmcp/durations.py` | `tests/test_durations.py` | | |
 
-Not started: FR-3 to FR-5, UI-2, SK-1, SK-3. Partly done: UI-4 (only the `auth` commands).
+Not started: FR-3 to FR-5, UI-2, SK-1. Partly done: UI-4 (only the `auth` commands).
 
 Back to [[Requirements]].

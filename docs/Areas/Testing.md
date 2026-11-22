@@ -16,8 +16,9 @@ Runs on every PR to `main`: ruff lint, pytest with the coverage gate, gitleaks s
 - Steps, each reported PASS/FAIL:
   1. build - the `ytmcp` package imports
   2. lint - `ruff check .`
-  3. tests - pytest with the 80% coverage gate
-  4. server - starts `python -m ytmcp.server` over stdio and calls `find_similar_videos` and `find_similar_channels` on fixture data
+  3. brain - `python scripts/brain.py check` validates the notes and skills (see [[Brain]])
+  4. tests - pytest with the 80% coverage gate
+  5. server - starts `python -m ytmcp.server` over stdio and calls `find_similar_videos` and `find_similar_channels` on fixture data
 - Exits with code 1 if any step fails.
 
 Part of [[Architecture]].
