@@ -5,8 +5,11 @@ Stage 2 = Design. Deliverables from the SRS (section 6): design docs, `brain-ref
 ## Deliverables
 - [x] Design docs with UML and ER: [[Design Components]], [[Design Classes]], [[Design Sequences]], [[Design Data]]
 - [x] `local-check` skill (SK-2): see [[Testing]]
-- [ ] `brain-refine` skill (SK-3)
-- [ ] `brain-query` skill (SK-3)
+- [x] `brain-refine` skill (SK-3): `.claude/skills/brain-refine/`
+- [x] `brain-query` skill (SK-3): `.claude/skills/brain-query/`
+- [x] `brain-ingest` skill (SK-3): `.claude/skills/brain-ingest/`
+- [x] Skills have valid `SKILL.md`, cite a note and have evals (SK-4, TQ-7): see [[Brain]] and [[Skill Evaluations]]
+- [ ] Skill cases that need a person to judge them: see [[Skill Evaluations]]
 - [x] ADRs cite brain notes (SE-3): every ADR in the [[Index]] has a `Cites:` line
 - [x] Development plan (SE-4): [[Development Plan]]
 
@@ -24,4 +27,4 @@ FR-1, FR-2, FR-7 and the FR-6 sign-in core are built and tested. See [[Traceabil
 
 ## Not part of this review
 - TBD-2, TBD-5, TBD-6 (Stage 3) and TBD-7 (cover page names) are still open: see [[Requirements]].
-- The CI check for notes and skills (SRS section 6) is planned, not built: see [[Development Plan]].
+- The CI check for notes and skills (SRS section 6) is built: `python scripts/brain.py check`, see [[Brain]].

@@ -17,6 +17,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Channels]]
 - [[Auth]]
 - [[Testing]]
+- [[Brain]]
 - [[Design Components]]
 - [[Design Classes]]
 - [[Design Sequences]]
@@ -26,6 +27,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Requirements]]
 - [[Traceability]]
 - [[Glossary]]
+- [[Skill Evaluations]]
 
 ## Decisions (ADRs)
 - [[ADR-001 Provider interface]]
@@ -39,6 +41,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[ADR-009 Stdio transport only]]
 - [[ADR-010 Like dates from the likes playlist]]
 - [[ADR-011 Metadata only, no transcripts]]
+- [[ADR-012 Brain checks in a standard library script]]
 
 ## Log
 - [[Log]]
