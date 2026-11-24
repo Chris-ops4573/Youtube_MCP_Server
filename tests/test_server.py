@@ -1,9 +1,10 @@
 import asyncio
 
+from ytmcp.config import build_provider
 from ytmcp.providers.caching import CachingProvider
 from ytmcp.providers.fixture import FixtureProvider
 from ytmcp.providers.youtube import YouTubeProvider
-from ytmcp.server import build_provider, create_server
+from ytmcp.server import create_server
 
 
 def _call(server, name, arguments):

@@ -15,26 +15,11 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from ytmcp.auth import (
-    SCOPE_READONLY,
-    SCOPE_WRITE,
-    AuthService,
-    OAuthClient,
-    OAuthConfig,
-    TokenStore,
-)
-from ytmcp.cache import Cache, default_cache_path
+from ytmcp.auth import SCOPE_READONLY, SCOPE_WRITE, AuthService
+from ytmcp.config import build_auth_service, build_store
 from ytmcp.errors import ProposalUsedError, YtmcpError
 from ytmcp.proposals import CONFIRMED, ProposalStore
 from ytmcp.services.playlists import load_open_proposal
-
-
-def build_auth_service() -> AuthService:
-    return AuthService(OAuthClient(OAuthConfig.from_env()), TokenStore())
-
-
-def build_store() -> ProposalStore:
-    return ProposalStore(Cache(default_cache_path()))
 
 
 def _parser() -> argparse.ArgumentParser:
