@@ -3,14 +3,20 @@
 Google sign-in (OAuth) so the server can read the user's own YouTube data later (FR-3, FR-4) and create playlists (FR-5). An API key can only read public data: see [[Providers]].
 Files: `src/ytmcp/auth/` (`oauth.py`, `pkce.py`, `loopback.py`, `tokens.py`, `service.py`), `src/ytmcp/cli.py`
 
-## Commands (UI-4, auth part)
+## Commands (UI-4)
 ```bash
 python -m ytmcp auth login    # opens the browser, asks for read-only access
 python -m ytmcp auth login --write   # also allows creating playlists (needed before the first one)
 python -m ytmcp auth status   # signed in? what access? (never prints tokens)
 python -m ytmcp auth logout   # tells Google to cancel the login, deletes the saved one
 ```
-`quota status`, `serve` and `local-check` commands come later.
+The same program has three more commands:
+```bash
+python -m ytmcp quota status   # units used today, reserve, units left, time until the reset (midnight Pacific)
+python -m ytmcp serve          # starts the MCP server, the same as python -m ytmcp.server
+python -m ytmcp local-check    # runs scripts/local_check.py (build, lint, brain, tests, server)
+```
+`quota status` only counts calls made by this server ([[Quota]]). `local-check` needs the project folder, and says so if the script is missing ([[Testing]]).
 
 ## How login works (FR-6.1)
 1. Create a one-time secret (PKCE verifier) and a random `state` in memory.

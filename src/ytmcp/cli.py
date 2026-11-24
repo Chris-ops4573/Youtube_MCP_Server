@@ -2,24 +2,40 @@
 
     python -m ytmcp auth login [--write] | status | logout
     python -m ytmcp playlist confirm <proposal_id>
+    python -m ytmcp quota status
+    python -m ytmcp serve
+    python -m ytmcp local-check
 
 Prints plain messages. Never prints tokens, codes or secrets, and errors
 show a code, a message and what to do about it (UI-3).
 """
 
 import argparse
+import subprocess
 import sys
 import time
 from collections.abc import Callable, Sequence
+from datetime import UTC, datetime, timedelta
+from datetime import time as day_time
+from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 
 from ytmcp.auth import SCOPE_READONLY, SCOPE_WRITE, AuthService
-from ytmcp.config import build_auth_service, build_store
+from ytmcp.config import build_auth_service, build_quota_tracker, build_store
 from ytmcp.errors import ProposalUsedError, YtmcpError
 from ytmcp.proposals import CONFIRMED, ProposalStore
+from ytmcp.quota import DAILY_LIMIT, RESERVE, QuotaTracker
 from ytmcp.services.playlists import load_open_proposal
+
+ROOT = Path(__file__).resolve().parents[2]
+PACIFIC = ZoneInfo("America/Los_Angeles")  # YouTube resets quota at midnight Pacific time
+
+
+def _pacific_now() -> datetime:
+    return datetime.now(PACIFIC)
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -39,6 +55,11 @@ def _parser() -> argparse.ArgumentParser:
     steps = playlist.add_subparsers(dest="action", required=True)
     confirm = steps.add_parser("confirm", help="confirm a proposal so create_playlist can use it")
     confirm.add_argument("proposal_id")
+    quota = commands.add_parser("quota", help="how much of today's YouTube quota is used")
+    quota_actions = quota.add_subparsers(dest="action", required=True)
+    quota_actions.add_parser("status", help="show units used, left and when the quota resets")
+    commands.add_parser("serve", help="start the MCP server (same as python -m ytmcp.server)")
+    commands.add_parser("local-check", help="build, lint, tests and a server check (SK-2)")
     return parser
 
 
@@ -110,6 +131,47 @@ def _run_playlist_confirm(
     return 0
 
 
+def _run_quota_status(
+    quota_factory: Callable[[Callable[[], Any]], QuotaTracker],
+    clock: Callable[[], datetime],
+    out: Callable[[str], Any],
+) -> int:
+    """Today's count (Pacific time). It only counts calls made by this server."""
+    now = clock()
+    tracker = quota_factory(lambda: clock().date())
+    midnight = datetime.combine(now.date() + timedelta(days=1), day_time(0), tzinfo=PACIFIC)
+    left = midnight.astimezone(UTC) - now.astimezone(UTC)  # in UTC, so a clock change cannot skew it
+    hours, minutes = divmod(int(left.total_seconds()) // 60, 60)
+    out(f"Quota for {now.date().isoformat()} (Pacific time)")
+    out(f"  Used: {tracker.spent} of {DAILY_LIMIT} units")
+    out(f"  Reserve kept back: {RESERVE} units")
+    out(f"  Left to use: {tracker.remaining} units")
+    out(f"  Resets in {hours} h {minutes} min (midnight Pacific time)")
+    out("  Only calls made by this server are counted, not other apps using the same API key.")
+    return 0
+
+
+def _run_local_check(run: Callable[[Sequence[str]], int], out: Callable[[str], Any], root: Path) -> int:
+    script = root / "scripts" / "local_check.py"
+    if not script.is_file():
+        out(f"Cannot find {script}. Run this from a copy of the project.")
+        return 1
+    return run([sys.executable, str(script)])
+
+
+def _run_serve() -> int:
+    from ytmcp import (
+        server,  # only here: the server is not needed for the other commands
+    )
+
+    server.main()
+    return 0
+
+
+def _run_subprocess(command: Sequence[str]) -> int:
+    return subprocess.run(command, cwd=ROOT, check=False).returncode
+
+
 def main(
     argv: Sequence[str] | None = None,
     service_factory: Callable[[], AuthService] = build_auth_service,
@@ -118,10 +180,20 @@ def main(
     ask: Callable[[str], str] = input,
     is_terminal: Callable[[], bool] = lambda: sys.stdin.isatty() and sys.stdout.isatty(),
     now: Callable[[], float] = time.time,
+    quota_factory: Callable[[Callable[[], Any]], QuotaTracker] = build_quota_tracker,
+    clock: Callable[[], datetime] = _pacific_now,
+    serve: Callable[[], int] = _run_serve,
+    run_command: Callable[[Sequence[str]], int] = _run_subprocess,
 ) -> int:
     load_dotenv()
     args = _parser().parse_args(argv)
     try:
+        if args.command == "quota":
+            return _run_quota_status(quota_factory, clock, out)
+        if args.command == "serve":
+            return serve()
+        if args.command == "local-check":
+            return _run_local_check(run_command, out, ROOT)
         if args.command == "playlist":
             return _run_playlist_confirm(args.proposal_id, store_factory, out, ask, is_terminal, now)
         _run_auth(args.action, service_factory(), out, write=getattr(args, "write", False))

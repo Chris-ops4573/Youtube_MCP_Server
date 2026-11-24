@@ -28,3 +28,4 @@ Newest at the bottom. Format: `YYYY-MM-DD - who - what changed`
 - 2026-11-24 - Chris - F4: min_video_minutes now defaults to 3 (0 turns it off). See [[Playlist]], [[ADR-019 Leave out short clips by default]].
 - 2026-11-24 - Chris - F4: added the describe_video tool (1 quota unit) for the video-to-playlist skill. See [[Similarity]].
 - 2026-11-24 - Chris - F4: added the video-to-playlist skill (SK-1) with 5 evals; not yet run by a person. See [[Playlist]], [[Skill Evaluations]].
+- 2026-11-24 - Chris - F5: added the quota status, serve and local-check commands (UI-4). See [[Auth]], [[Quota]].

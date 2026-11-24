@@ -12,7 +12,9 @@ Settings (environment variables, or a .env file):
 """
 
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 from ytmcp.auth import AuthService, OAuthClient, OAuthConfig, TokenStore
@@ -40,6 +42,12 @@ def default_fixtures_dir() -> Path:
 
 def build_auth_service() -> AuthService:
     return AuthService(OAuthClient(OAuthConfig.from_env()), TokenStore())
+
+
+def build_quota_tracker(today: Callable[[], date] | None = None) -> QuotaTracker:
+    """The day's quota count from the database file, for `quota status`."""
+    cache = Database(default_cache_path())
+    return QuotaTracker(cache=cache, today=today) if today else QuotaTracker(cache=cache)
 
 
 def build_store() -> ProposalStore:
