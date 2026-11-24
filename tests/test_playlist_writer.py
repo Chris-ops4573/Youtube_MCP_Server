@@ -9,7 +9,7 @@ from ytmcp.errors import (
     YouTubeApiError,
     YouTubeChannelRequiredError,
 )
-from ytmcp.providers.playlists import YouTubePlaylistWriter
+from ytmcp.providers.youtube import YouTubePlaylistWriter
 from ytmcp.quota import QuotaTracker
 
 TOKEN = "SECRET-ACCESS-TOKEN"

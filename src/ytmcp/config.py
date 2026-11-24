@@ -21,8 +21,7 @@ from ytmcp.proposals import ProposalStore
 from ytmcp.providers.base import PlaylistWriter, VideoProvider
 from ytmcp.providers.caching import CachingProvider
 from ytmcp.providers.fixture import FixtureProvider
-from ytmcp.providers.playlists import YouTubePlaylistWriter
-from ytmcp.providers.youtube import YouTubeProvider
+from ytmcp.providers.youtube import YouTubePlaylistWriter, YouTubeProvider
 from ytmcp.quota import QuotaTracker
 
 
