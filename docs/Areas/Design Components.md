@@ -15,7 +15,7 @@ flowchart LR
   Services --> Caching["CachingProvider"]
   Services -.->|"fixture mode and tests"| Fixture["FixtureProvider"]
   Caching --> Live["YouTubeProvider"]
-  Caching --> DB[("SQLite cache")]
+  Caching --> DB[("SQLite database")]
   Live --> Quota["QuotaTracker"]
   Quota --> DB
   Live -->|"HTTPS and API key"| YT["YouTube Data API v3"]
@@ -44,7 +44,7 @@ flowchart LR
 | Services | The feature logic (FR-1, FR-2) | `src/ytmcp/services/` |
 | Similarity | Pure scoring maths for videos and channels, no API calls | `similarity.py` |
 | Providers | All YouTube access (SE-6) | `src/ytmcp/providers/` |
-| Cache and quota | SQLite cache and the daily unit count (FR-7) | `cache.py`, `quota.py` |
+| Database and quota | The one SQLite file (cache, quota count, proposals) and the daily unit count (FR-7) | `database.py`, `quota.py` |
 | Auth | Google sign-in and token storage (FR-6) | `src/ytmcp/auth/` |
 | CLI | `auth login`, `status`, `logout` (UI-4, partly) | `cli.py` |
 

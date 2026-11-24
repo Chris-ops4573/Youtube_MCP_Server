@@ -5,7 +5,7 @@ the cache exists. Only IDs that are missing or expired are fetched, which
 saves quota: a repeated search costs 0 units instead of 100.
 """
 
-from ytmcp.cache import Cache
+from ytmcp.database import Database
 from ytmcp.models import Channel, Video
 from ytmcp.providers.base import VideoProvider
 
@@ -19,7 +19,7 @@ class CachingProvider(VideoProvider):
     def __init__(
         self,
         inner: VideoProvider,
-        cache: Cache,
+        cache: Database,
         metadata_max_age: float = METADATA_MAX_AGE,
         search_max_age: float = SEARCH_MAX_AGE,
         uploads_max_age: float = UPLOADS_MAX_AGE,

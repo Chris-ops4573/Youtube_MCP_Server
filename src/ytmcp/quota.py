@@ -9,7 +9,7 @@ from collections.abc import Callable
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
-from ytmcp.cache import Cache
+from ytmcp.database import Database
 from ytmcp.errors import QuotaExceededError
 
 # Unit cost per API method (SRS 2.5; re-check in Quota Calculator, TBD-8).
@@ -41,7 +41,7 @@ class QuotaTracker:
         daily_limit: int = DAILY_LIMIT,
         reserve: int = RESERVE,
         today: Callable[[], date] = _today_pacific,
-        cache: Cache | None = None,
+        cache: Database | None = None,
     ):
         self.daily_limit = daily_limit
         self.reserve = reserve

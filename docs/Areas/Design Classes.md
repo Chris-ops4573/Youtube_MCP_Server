@@ -21,7 +21,7 @@ classDiagram
   class FixtureProvider
   class YouTubeProvider
   class CachingProvider
-  class Cache
+  class Database
   class QuotaTracker
   class Video {
     +str id
@@ -48,9 +48,9 @@ classDiagram
   VideoProvider <|-- YouTubeProvider
   VideoProvider <|-- CachingProvider
   CachingProvider o-- VideoProvider : wraps
-  CachingProvider --> Cache : reads and writes
+  CachingProvider --> Database : reads and writes
   YouTubeProvider --> QuotaTracker : counts every call
-  QuotaTracker --> Cache : saves daily count
+  QuotaTracker --> Database : saves daily count
   VideoProvider ..> Video
   VideoProvider ..> Channel
 ```
@@ -146,7 +146,7 @@ classDiagram
   PlaylistWriter <|-- YouTubePlaylistWriter
   YouTubePlaylistWriter --> QuotaTracker : counts every call
   YouTubePlaylistWriter --> AuthService : gets a write token
-  ProposalStore --> Cache : proposals table
+  ProposalStore --> Database : proposals table
   ProposalStore --> Proposal
   Constraints ..> Selection : select_videos
 ```

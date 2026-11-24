@@ -6,7 +6,7 @@ from fake_playlists import FakeWriter, ListProvider
 from fake_playlists import make_video as v
 
 from ytmcp import proposals
-from ytmcp.cache import Cache
+from ytmcp.database import Database
 from ytmcp.errors import QuotaExceededError, WriteAccessRequiredError, YouTubeApiError
 from ytmcp.proposals import ProposalStore
 from ytmcp.providers.youtube import YouTubeProvider
@@ -18,7 +18,7 @@ IDS = ["aaaaaaaaaaa", "bbbbbbbbbbb", "ccccccccccc"]
 
 @pytest.fixture
 def store():
-    return ProposalStore(Cache(":memory:"))
+    return ProposalStore(Database(":memory:"))
 
 
 def three():

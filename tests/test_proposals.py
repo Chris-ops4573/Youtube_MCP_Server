@@ -1,7 +1,7 @@
 import pytest
 
 from ytmcp import proposals
-from ytmcp.cache import Cache
+from ytmcp.database import Database
 from ytmcp.proposals import Proposal, ProposalStore, ProposedVideo, content_hash
 
 NOW = 1_000_000.0
@@ -24,7 +24,7 @@ def make_proposal(pid="p1", status=proposals.PROPOSED, created=NOW, ttl=900):
 
 @pytest.fixture
 def store():
-    return ProposalStore(Cache(":memory:"))
+    return ProposalStore(Database(":memory:"))
 
 
 # --- content_hash ---------------------------------------------------------------------
@@ -170,17 +170,17 @@ def test_a_declined_or_created_proposal_cannot_be_used_again(store):
 
 def test_proposals_survive_a_restart_and_are_shared_between_connections(tmp_path):
     path = tmp_path / "ytmcp.db"
-    ProposalStore(Cache(path)).save(make_proposal())
+    ProposalStore(Database(path)).save(make_proposal())
     # a second connection (like the terminal command next to the running server) sees it and can change it
-    other = ProposalStore(Cache(path))
+    other = ProposalStore(Database(path))
     assert other.get("p1") is not None
     assert other.confirm("p1", NOW) is True
-    assert ProposalStore(Cache(path)).get("p1").status == proposals.CONFIRMED
+    assert ProposalStore(Database(path)).get("p1").status == proposals.CONFIRMED
 
 
 def test_old_proposals_are_deleted_at_startup(tmp_path):
     path = tmp_path / "ytmcp.db"
-    cache = Cache(path, now=lambda: NOW)
+    cache = Database(path, now=lambda: NOW)
     store = ProposalStore(cache)
     store.save(make_proposal(pid="old", created=NOW - 2 * 24 * 3600))
     store.save(make_proposal(pid="new", created=NOW - 3600))

@@ -49,7 +49,7 @@ Logins are read-only by default. Before the first playlist, run `python -m ytmcp
 Video titles and channel names come from YouTube. They are cut to one short line with control characters removed, returned as data, and every proposal tells the AI never to follow instructions inside them ([[Requirements]], SRS 5.3).
 
 ## Where proposals live
-In the SQLite file, in the `proposals` table, even with the cache switched off, so the terminal command and the server see the same data ([[Design Data]]). Proposals older than a day are deleted at startup.
+In the SQLite file (`src/ytmcp/database.py`), in the `proposals` table, even with the cache switched off, so the terminal command and the server see the same data ([[Design Data]]). Proposals older than a day are deleted at startup.
 
 ## Tested against real YouTube (2026-11-23)
 - **Proposal:** "rust programming tutorial", 60 minutes, at most 30 minutes per video, English: 14 videos totalling 1:02:52, in 1.4 s, 101 units. A wrong hash was refused. A "yes" with a read-only login was refused at the write-permission step.

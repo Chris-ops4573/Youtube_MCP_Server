@@ -10,7 +10,7 @@ import json
 import secrets
 from dataclasses import dataclass
 
-from ytmcp.cache import Cache
+from ytmcp.database import Database
 
 PROPOSAL_TTL_SECONDS = 15 * 60
 PRIVACY = "private"  # playlists are always created private (SRS 5.2)
@@ -68,7 +68,7 @@ def new_proposal_id() -> str:
 
 
 class ProposalStore:
-    def __init__(self, cache: Cache):
+    def __init__(self, cache: Database):
         self._cache = cache
 
     def save(self, proposal: Proposal) -> None:

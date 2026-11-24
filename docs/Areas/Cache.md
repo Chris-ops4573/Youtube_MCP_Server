@@ -1,13 +1,13 @@
 # Cache
 
 SQLite cache for video and channel metadata, search results and the quota count (FR-7.2).
-Files: `src/ytmcp/cache.py` (database), `src/ytmcp/providers/caching.py` (wrapper)
+Files: `src/ytmcp/database.py` (the SQLite file, class Database: it also holds the quota count and the playlist proposals), `src/ytmcp/providers/caching.py` (the wrapper)
 
 ## How it fits
 ```
 services -> CachingProvider -> YouTubeProvider -> YouTube API
                   |
-               Cache (SQLite)
+             Database (SQLite)
 ```
 `CachingProvider` has the same interface as every provider ([[Providers]]), so services and tools did not change.
 

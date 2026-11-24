@@ -118,14 +118,14 @@ def test_login_with_write_asks_for_write_access_and_says_so():
 import pytest
 
 from ytmcp import proposals
-from ytmcp.cache import Cache
+from ytmcp.database import Database
 from ytmcp.proposals import Proposal, ProposalStore, ProposedVideo, content_hash
 
 NOW = 1_000_000.0
 
 
 def saved_store(status=proposals.PROPOSED, ttl=900):
-    store = ProposalStore(Cache(":memory:"))
+    store = ProposalStore(Database(":memory:"))
     ids = ["aaaaaaaaaaa", "bbbbbbbbbbb"]
     store.save(Proposal(
         id="prop1", content_hash=content_hash("My list", "d", ids), title="My list", description="d",
