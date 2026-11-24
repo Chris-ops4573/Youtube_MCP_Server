@@ -34,6 +34,8 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Glossary]]
 - [[Skill Evaluations]]
 - [[Architecture Overview]]
+- [[User Guide]]
+- [[Tool Reference]]
 
 ## Decisions (ADRs)
 - [[ADR-001 Provider interface]]

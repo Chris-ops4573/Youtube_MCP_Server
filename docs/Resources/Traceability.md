@@ -41,6 +41,7 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | CI validates notes and skills (SRS section 6) | `.github/workflows/ci.yml` | CI step `Validate brain notes and skills` | [[Brain]] | |
 | SE-2 (design docs, UML, ER) | docs only | n/a | [[Design Components]], [[Design Classes]], [[Design Sequences]], [[Design Data]] | |
 | SE-3 (ADRs cite notes) | `docs/adr/` | n/a | every ADR is listed in the [[Index]] | |
+| SE-7 (README, user guide, tool reference, changelog) | `README.md`, `CHANGELOG.md`, `docs/Resources/User Guide.md`, `docs/Resources/Tool Reference.md` | n/a | [[User Guide]], [[Tool Reference]] | |
 | SE-4 (development plan) | docs only | n/a | [[Development Plan]] | |
 | SE-6 / SI-1 | `src/ytmcp/providers/` | `tests/test_fixture_provider.py` | [[Providers]] | |
 | SK-1 | `.claude/skills/video-to-playlist/` | the skill's evals, run by a person ([[Skill Evaluations]]) | [[Playlist]] | |
