@@ -42,6 +42,6 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | SRS 5.4 (coverage >= 80%) | `.github/workflows/ci.yml` | CI pytest step | [[Testing]] | |
 | FR-5.2 (durations) | `src/ytmcp/durations.py` | `tests/test_durations.py` | | |
 
-Not started: FR-4, SK-1. FR-3 is built and tested with fakes; it has not been tried against a real account yet. Partly done: UI-4 (the `auth` and `playlist confirm` commands; `quota status`, `serve` and `local-check` are not CLI commands yet). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation has not been tried in a real terminal.
+Not started: FR-4, SK-1. FR-3 is built, tested, and was tried on a real account (read-only). Partly done: UI-4 (the `auth` and `playlist confirm` commands; `quota status`, `serve` and `local-check` are not CLI commands yet). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation has not been tried in a real terminal.
 
 Back to [[Requirements]].

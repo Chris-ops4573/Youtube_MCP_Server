@@ -453,3 +453,26 @@ def test_recommend_videos_without_an_account_over_the_protocol(provider):
             return json.loads((await client.call_tool("recommend_videos", {})).content[0].text)
 
     assert asyncio.run(scenario())["error"]["code"] == "ACCOUNT_NOT_AVAILABLE"
+
+
+# --- found by a real test: a few tag-spammed videos and the word "shorts" dominated the profile ----------------------
+
+
+def test_a_word_counts_once_per_liked_video_so_tag_spam_cannot_dominate():
+    spam = vid("spam", "One clip", ["celebrity"] * 30)  # one video repeating a tag 30 times
+    honest = [vid(f"f{n}", "Football highlights") for n in range(3)]
+    profile = build_taste_profile([spam, *honest], [], [], term_count=3)
+    # 3 videos beat 1 video, however often the tag repeats; the spammed tag is only a tie-break word
+    assert profile.top_terms == ["football", "highlights", "celebrity"]
+
+
+def test_format_words_are_not_interests():
+    liked = [vid("a", "Funny moments #shorts", ["shorts", "viral"]), vid("b", "Football edit official video")]
+    terms = build_taste_profile(liked, [], [], term_count=10).top_terms
+    assert terms == ["football", "funny", "moments"]
+    assert not {"shorts", "viral", "edit", "official", "video"} & set(terms)
+
+
+def test_subscription_titles_are_also_counted_once_each():
+    profile = build_taste_profile([], ["Rust Rust Rust", "Rust Lab", "Cooking"], [], term_count=2)
+    assert profile.top_terms == ["rust", "cooking"]  # rust is in 2 titles however often it repeats; ties alphabetical

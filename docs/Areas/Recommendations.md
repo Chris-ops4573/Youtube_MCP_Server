@@ -19,7 +19,7 @@ Files: `src/ytmcp/services/recommendations.py` (the steps), `src/ytmcp/similarit
 | Part | How it is made |
 |---|---|
 | Text | The titles and tags of your liked videos. With no likes, your subscription titles instead |
-| Top words | The 3 most common words of 3 letters or more in that text, leaving out common English words. Ties are broken alphabetically. They become the search query |
+| Top words | The 3 words found in the most liked videos, 3 letters or more. A word counts **once per video**, so a few videos with long repeated tag lists cannot dominate. Common English words and format words (`shorts`, `video`, `edit`, `official` and similar) are left out. Ties are broken alphabetically. They become the search query |
 | Category shares | Each category's share of your likes |
 | Channels | The channels of your liked videos, plus the channels you subscribe to |
 
@@ -73,6 +73,10 @@ About 74 requests fit in a day's usable quota. Repeats are cheaper because the c
 - The weights are untuned (TBD-2) and the search uses only 3 words, so a varied taste is under-represented.
 - Likes beyond the newest 250 are not read, and only the first 50 videos of each of 10 playlists are.
 - The tool reports `playlist_videos` (how many distinct videos were found in your playlists), not the number of playlists, because the account interface returns only the video IDs.
-- Tested with fakes and over the real MCP protocol. **It has not been tried against a real account yet.**
+- If most of your likes are Shorts, most recommendations will be Shorts too: there is no minimum length for recommendations.
+- Tested with fakes and over the real MCP protocol, and **tried on a real account** (see below).
+
+## Tried on a real account (2026-11-24)
+Read-only, through the real server: 250 likes, 142 subscriptions and 43 playlist videos were read in about 10 seconds, and the server counted 123 units (the 127 is a ceiling: fewer playlists than the cap were read). The first run gave poor results: the top words were a format word and a name repeated in the tags of a few videos. That is why a word now counts once per video and format words are ignored. The second run matched the account's broad interests, with 10 results from 10 different channels, and each reason was accurate.
 
 Why: [[ADR-017 Recommendations from a taste profile]]. Part of [[Architecture]].

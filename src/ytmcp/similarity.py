@@ -245,6 +245,12 @@ DEFAULT_TASTE_WEIGHTS: dict[str, float] = {
 
 LIKED_OFTEN_SHARE = 0.20  # a category is "liked often" when it is 20% of the user's likes
 _WORD = re.compile(r"[^\W\d_]{3,}")  # words made of 3 or more letters
+# Words that name the format of a video, not what it is about. A real test showed "shorts" as
+# the top interest of someone whose likes are mostly Shorts, which says nothing about taste.
+FORMAT_WORDS = frozenset(
+    {"shorts", "short", "video", "videos", "official", "full", "viral", "trending",
+     "subscribe", "youtube", "edit", "edits"}
+)
 
 
 @dataclass(frozen=True)
@@ -273,7 +279,7 @@ class ScoredRecommendation:
 
 
 def _words(text: str) -> list[str]:
-    return [w for w in _WORD.findall(text.lower()) if w not in ENGLISH_STOP_WORDS]
+    return [w for w in _WORD.findall(text.lower()) if w not in ENGLISH_STOP_WORDS and w not in FORMAT_WORDS]
 
 
 def build_taste_profile(
@@ -283,9 +289,14 @@ def build_taste_profile(
     term_count: int = 3,
 ) -> TasteProfile:
     """Describe what the user likes. With no liked videos, subscription titles stand in."""
-    liked_text = " ".join(f"{v.title} {' '.join(v.tags)}" for v in liked)
+    documents = [f"{v.title} {' '.join(v.tags)}" for v in liked]
+    liked_text = " ".join(documents)
+    if not liked_text.strip():  # no likes: the subscription titles stand in
+        documents = list(subscription_titles)
     text = liked_text if liked_text.strip() else " ".join(subscription_titles)
-    counts = Counter(_words(text))
+    # A word counts once per video, so a few videos with long repeated tag lists cannot
+    # outweigh everything else.
+    counts = Counter(word for document in documents for word in set(_words(document)))
     ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))  # ties: alphabetical
     categories = Counter(v.category_id for v in liked if v.category_id)
     return TasteProfile(
