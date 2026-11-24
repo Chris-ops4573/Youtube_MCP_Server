@@ -28,6 +28,8 @@ Tools never show stack traces. Errors look like this (UI-3):
 | `WRITE_ACCESS_REQUIRED` | the login has no write permission: `python -m ytmcp auth login --write` |
 | `YOUTUBE_CHANNEL_REQUIRED` | the Google account has no YouTube channel |
 | `PLAYLIST_WRITES_DISABLED` | fixture mode: no real playlists |
+| `ACCOUNT_NOT_AVAILABLE` | fixture mode: no account, so no recommendations - see [[Recommendations]] |
+| `NOT_ENOUGH_HISTORY` | no likes and no subscriptions to learn a taste from |
 
 Each error class in `errors.py` has its own `code` and `remediation`.
 

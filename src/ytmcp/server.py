@@ -32,6 +32,7 @@ from ytmcp.tools import (
     Answer,
     create_playlist_tool,
     propose_playlist_tool,
+    recommend_videos_tool,
     similar_channels_tool,
     similar_videos_tool,
 )
@@ -161,6 +162,27 @@ def create_server(
             return await ask_user(ctx, message)
 
         return await create_playlist_tool(account, store, proposal_id, content_hash, ask)
+
+    @mcp.tool(
+        name="recommend_videos",
+        annotations=types.ToolAnnotations(
+            read_only_hint=True, destructive_hint=False, open_world_hint=True
+        ),
+    )
+    def recommend_videos_fn(top_n: int = 10) -> dict[str, Any]:
+        """Recommend videos based on the user's own YouTube likes, subscriptions and playlists.
+
+        Needs the user to be signed in (python -m ytmcp auth login). It reads their data
+        read-only, never changes anything, and costs about 127 quota units.
+
+        Args:
+            top_n: How many results to return (1 to 50, default 10).
+
+        Returns ranked videos the user has not already liked or saved, each with a short
+        reason, plus counts of what was read. Returns an error with a code, message and
+        remediation if the user is not signed in or has no likes or subscriptions.
+        """
+        return recommend_videos_tool(provider, account, top_n)
 
     return mcp
 
