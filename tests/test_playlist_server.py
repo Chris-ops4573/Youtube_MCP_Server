@@ -166,7 +166,7 @@ def test_there_is_no_tool_to_edit_or_delete_anything():
     tools = asyncio.run(names())
     assert tools == [
         "find_similar_videos", "find_similar_channels", "propose_playlist", "create_playlist",
-        "recommend_videos",
+        "recommend_videos", "analyze_engagement",
     ]
 
 

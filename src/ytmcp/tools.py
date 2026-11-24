@@ -23,6 +23,7 @@ from ytmcp.errors import (
 from ytmcp.playlist_planner import Selection, validate_constraints
 from ytmcp.proposals import CONFIRMED, PROPOSAL_TTL_SECONDS, Proposal, ProposalStore
 from ytmcp.providers.base import AccountProvider, VideoProvider
+from ytmcp.services.engagement import analyze_engagement, validate_arguments
 from ytmcp.services.playlists import (
     CreateResult,
     create_playlist,
@@ -335,3 +336,23 @@ def recommend_videos_tool(
         },
         "low_confidence": found.low_confidence,
     }
+
+
+# --- engagement: analyze_engagement (FR-4) ------------------------------------------------------------
+
+
+def analyze_engagement_tool(
+    provider: VideoProvider,
+    account: AccountProvider | None,
+    sources: object = None,
+    period_months: object = 12,
+    compare: object = False,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Run FR-4 and return the statistics, or {"error": {...}}. The arguments are checked first,
+    with a reason for each bad one, before anything is read."""
+    try:
+        arguments = validate_arguments(sources, period_months, compare)
+        return analyze_engagement(provider, account, arguments, now)
+    except YtmcpError as exc:
+        return _error(exc)

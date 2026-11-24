@@ -8,7 +8,7 @@ Tools never show stack traces. Errors look like this (UI-3):
 
 | Code | When |
 |---|---|
-| `INVALID_ARGUMENT` | `top_n` not between 1 and 50 |
+| `INVALID_ARGUMENT` | `top_n` not between 1 and 50; or a bad `analyze_engagement` argument, where `fields` says which and why - see [[Engagement]] |
 | `INVALID_VIDEO_REFERENCE` | not a valid video ID or URL |
 | `VIDEO_NOT_FOUND` | video is private, deleted or missing |
 | `INVALID_CHANNEL_REFERENCE` | not a valid channel ID, @handle or channel URL |

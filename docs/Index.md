@@ -19,6 +19,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Auth]]
 - [[Playlist]]
 - [[Recommendations]]
+- [[Engagement]]
 - [[Testing]]
 - [[Brain]]
 - [[Design Components]]

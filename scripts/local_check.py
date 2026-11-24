@@ -52,6 +52,7 @@ EXPECTED_TOOLS = (
     "propose_playlist",
     "create_playlist",
     "recommend_videos",
+    "analyze_engagement",
 )
 
 

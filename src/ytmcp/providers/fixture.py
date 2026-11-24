@@ -15,6 +15,10 @@ class FixtureProvider(VideoProvider):
             c["id"]: Channel(**c)
             for c in json.loads((fixtures_dir / "channels.json").read_text())
         }
+        categories_file = fixtures_dir / "categories.json"
+        self._categories: dict[str, str] = (
+            json.loads(categories_file.read_text()) if categories_file.exists() else {}
+        )
         uploads_file = fixtures_dir / "uploads.json"
         self._uploads: dict[str, list[str]] = (
             json.loads(uploads_file.read_text()) if uploads_file.exists() else {}
@@ -47,6 +51,9 @@ class FixtureProvider(VideoProvider):
             if any(t in f"{c.title} {c.description} {' '.join(c.keywords)}".lower() for t in terms)
         ]
         return hits[:max_results]
+
+    def category_names(self, region="US"):
+        return dict(self._categories)
 
     def get_recent_uploads(self, channel_id, max_results=10):
         return self._uploads.get(channel_id, [])[:max_results]

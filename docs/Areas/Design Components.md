@@ -61,5 +61,5 @@ FR-5 adds `propose_playlist` and `create_playlist`. The account provider is sepa
 ## Recommendations (built)
 FR-3 adds `recommend_videos`: a service that reads the account through the account provider, builds a taste profile (in similarity.py) and searches once. See [[Recommendations]] and [[Design Sequences]].
 
-## Not built yet (planned)
-FR-4 engagement analysis will be a new **service and tool** in the same layers. The account provider already reads the likes, subscriptions and playlists it needs.
+## Engagement (built)
+FR-4 adds `analyze_engagement`: a service that reads the chosen sources through the account provider and works out statistics with pure functions. See [[Engagement]] and [[Design Sequences]].
