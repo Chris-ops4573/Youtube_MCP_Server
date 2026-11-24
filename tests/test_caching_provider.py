@@ -4,7 +4,8 @@ from ytmcp.database import Database
 from ytmcp.providers.caching import CachingProvider
 from ytmcp.providers.youtube import YouTubeProvider
 from ytmcp.quota import QuotaTracker
-from ytmcp.services import find_similar_channels, find_similar_videos
+from ytmcp.services.similar_channels import find_similar_channels
+from ytmcp.services.similar_videos import find_similar_videos
 
 DAY = 24 * 3600
 

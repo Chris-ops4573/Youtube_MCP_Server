@@ -5,8 +5,11 @@ from ytmcp.errors import QuotaExceededError, VideoNotFoundError
 from ytmcp.models import Video
 from ytmcp.providers.youtube import YouTubeProvider
 from ytmcp.quota import QuotaTracker
-from ytmcp.services import build_query, find_similar_videos
-from ytmcp.services.similar_videos import estimate_cost
+from ytmcp.services.similar_videos import (
+    build_query,
+    estimate_cost,
+    find_similar_videos,
+)
 
 
 def test_build_query_uses_title_and_top_tags():
