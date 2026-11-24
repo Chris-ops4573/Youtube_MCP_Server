@@ -1,6 +1,6 @@
 from fake_youtube import FakeYouTube
 
-from ytmcp.cache import Cache
+from ytmcp.database import Database
 from ytmcp.providers.caching import CachingProvider
 from ytmcp.providers.youtube import YouTubeProvider
 from ytmcp.quota import QuotaTracker
@@ -19,7 +19,7 @@ class Clock:
 
 def make(cache=None, clock=None, fake=None):
     clock = clock or Clock()
-    cache = cache or Cache(now=clock)
+    cache = cache or Database(now=clock)
     fake = fake or FakeYouTube()
     quota = QuotaTracker(reserve=0, cache=cache)
     inner = YouTubeProvider("k", quota=quota, fetch=fake, sleep=lambda s: None)
@@ -96,7 +96,7 @@ def test_budget_check_goes_to_inner_provider():
     from ytmcp.errors import QuotaExceededError
 
     clock = Clock()
-    cache = Cache(now=clock)
+    cache = Database(now=clock)
     inner = YouTubeProvider("k", quota=QuotaTracker(daily_limit=50, reserve=0, cache=cache), fetch=FakeYouTube())
     with pytest.raises(QuotaExceededError):
         CachingProvider(inner, cache).ensure_budget(51)
@@ -104,9 +104,9 @@ def test_budget_check_goes_to_inner_provider():
 
 def test_cache_survives_restart(tmp_path):
     path = tmp_path / "c.db"
-    first, _, _, _ = make(cache=Cache(path))
+    first, _, _, _ = make(cache=Database(path))
     first.search_videos("rust", 25)
-    second, fake2, quota2, _ = make(cache=Cache(path))
+    second, fake2, quota2, _ = make(cache=Database(path))
     second.search_videos("rust", 25)
     assert fake2.calls == []  # served from disk
     assert quota2.spent == 101  # ledger remembered across restart

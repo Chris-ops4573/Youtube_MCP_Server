@@ -13,7 +13,7 @@ sequenceDiagram
   participant T as tool
   participant V as service
   participant C as CachingProvider
-  participant DB as SQLite cache
+  participant DB as SQLite database
   participant Y as YouTubeProvider
   participant G as YouTube API
   AI->>S: find_similar_videos(video, top_n)

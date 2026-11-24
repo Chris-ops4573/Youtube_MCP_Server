@@ -4,7 +4,7 @@ Design document 4 of 4 (SE-2). The ER diagram of the local database, and where e
 Back to [[Design Components]]. How the cache behaves: [[Cache]].
 
 ## Database (SQLite, WAL mode)
-File `.cache/ytmcp.db`, created by `src/ytmcp/cache.py`. Metadata is stored as JSON text in `data`. The links between tables are logical (an ID inside JSON), not SQL foreign keys.
+File `.cache/ytmcp.db`, created by `src/ytmcp/database.py`. Metadata is stored as JSON text in `data`. The links between tables are logical (an ID inside JSON), not SQL foreign keys.
 
 ```mermaid
 erDiagram

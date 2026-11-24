@@ -20,8 +20,8 @@ from mcp.server.elicitation import (
 from mcp.shared.exceptions import MCPError
 
 from ytmcp import config
-from ytmcp.cache import Cache
 from ytmcp.config import build_services
+from ytmcp.database import Database
 from ytmcp.proposals import ProposalStore
 from ytmcp.providers.fixture import FixtureProvider
 from ytmcp.providers.youtube import YouTubePlaylistWriter
@@ -31,7 +31,7 @@ IDS = ["aaaaaaaaaaa", "bbbbbbbbbbb"]
 
 
 def make(writer=None):
-    store = ProposalStore(Cache(":memory:"))
+    store = ProposalStore(Database(":memory:"))
     provider = ListProvider([v(IDS[0], 30, "Rust A"), v(IDS[1], 30, "Rust B")])
     writer = writer if writer is not None else FakeWriter()
     return create_server(provider, store, writer), store, writer

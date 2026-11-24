@@ -24,8 +24,8 @@ try:  # mcp 2.x
 except ImportError:  # mcp 1.x
     from mcp.server.fastmcp import Context
 
-from ytmcp.cache import Cache
 from ytmcp.config import build_services
+from ytmcp.database import Database
 from ytmcp.proposals import ProposalStore
 from ytmcp.providers.base import PlaylistWriter, VideoProvider
 from ytmcp.tools import (
@@ -68,7 +68,7 @@ def create_server(
     store: ProposalStore | None = None,
     writer: PlaylistWriter | None = None,
 ) -> Any:
-    store = store or ProposalStore(Cache(":memory:"))
+    store = store or ProposalStore(Database(":memory:"))
     mcp = MCPServer("youtube-video-intelligence")
 
     @mcp.tool(name="find_similar_videos")

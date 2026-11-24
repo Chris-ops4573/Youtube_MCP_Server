@@ -1,6 +1,6 @@
 from datetime import date
 
-from ytmcp.cache import Cache, normalize_query
+from ytmcp.database import Database, normalize_query
 from ytmcp.models import Channel, Video
 from ytmcp.quota import QuotaTracker
 
@@ -20,28 +20,28 @@ def video(vid="aaaaaaaaaaa", **kw):
 
 
 def test_video_roundtrip_keeps_all_fields():
-    cache = Cache()
+    cache = Database()
     v = video(tags=["a", "b"], category_id="27", language="en", duration_seconds=90, is_live=True)
     cache.put_videos([v])
     assert cache.get_videos([v.id], DAY) == {v.id: v}
 
 
 def test_channel_roundtrip_with_hidden_subscribers():
-    cache = Cache()
+    cache = Database()
     c = Channel(id="UC1", title="T", description="D", keywords=["x"], subscriber_count=None)
     cache.put_channels([c])
     assert cache.get_channels(["UC1"], DAY) == {"UC1": c}
 
 
 def test_unknown_and_empty_ids():
-    cache = Cache()
+    cache = Database()
     assert cache.get_videos(["nope"], DAY) == {}
     assert cache.get_videos([], DAY) == {}
 
 
 def test_expired_rows_are_ignored():
     clock = Clock()
-    cache = Cache(now=clock)
+    cache = Database(now=clock)
     cache.put_videos([video()])
     clock.t += DAY + 1
     assert cache.get_videos(["aaaaaaaaaaa"], DAY) == {}
@@ -49,7 +49,7 @@ def test_expired_rows_are_ignored():
 
 def test_put_replaces_and_refreshes():
     clock = Clock()
-    cache = Cache(now=clock)
+    cache = Database(now=clock)
     cache.put_videos([video(duration_seconds=1)])
     clock.t += DAY - 10
     cache.put_videos([video(duration_seconds=2)])
@@ -58,7 +58,7 @@ def test_put_replaces_and_refreshes():
 
 
 def test_search_roundtrip_normalizes_query():
-    cache = Cache()
+    cache = Database()
     cache.put_search("  Rust   Lifetimes ", 25, ["a", "b"])
     assert cache.get_search("rust lifetimes", 25, 3600) == ["a", "b"]
     assert cache.get_search("rust lifetimes", 10, 3600) is None  # different max_results
@@ -67,7 +67,7 @@ def test_search_roundtrip_normalizes_query():
 
 def test_search_expires():
     clock = Clock()
-    cache = Cache(now=clock)
+    cache = Database(now=clock)
     cache.put_search("q", 25, ["a"])
     clock.t += 3601
     assert cache.get_search("q", 25, 3600) is None
@@ -75,7 +75,7 @@ def test_search_expires():
 
 def test_prune_deletes_old_rows_only():
     clock = Clock()
-    cache = Cache(now=clock)
+    cache = Database(now=clock)
     cache.put_videos([video("aaaaaaaaaaa")])
     cache.put_search("q", 25, ["a"])
     clock.t += 2 * DAY
@@ -86,7 +86,7 @@ def test_prune_deletes_old_rows_only():
 
 
 def test_values_are_parameterised_not_injected():
-    cache = Cache()
+    cache = Database()
     evil = "x'; DROP TABLE videos; --"
     cache.put_search(evil, 1, ["a"])
     assert cache.get_search(evil, 1, 3600) == ["a"]
@@ -95,7 +95,7 @@ def test_values_are_parameterised_not_injected():
 
 
 def test_quota_ledger_adds_up():
-    cache = Cache()
+    cache = Database()
     assert cache.get_spent("2026-11-22") == 0
     cache.add_spent("2026-11-22", 100)
     cache.add_spent("2026-11-22", 1)
@@ -105,24 +105,24 @@ def test_quota_ledger_adds_up():
 
 def test_file_database_uses_wal_and_survives_reopen(tmp_path):
     path = tmp_path / "sub" / "cache.db"  # parent folder is created
-    cache = Cache(path)
+    cache = Database(path)
     assert cache.journal_mode() == "wal"
     cache.put_videos([video()])
     cache.close()
-    assert Cache(path).get_videos(["aaaaaaaaaaa"], DAY)
+    assert Database(path).get_videos(["aaaaaaaaaaa"], DAY)
 
 
 def test_quota_survives_restart(tmp_path):
     day = lambda: date(2026, 11, 22)
-    first = QuotaTracker(reserve=0, today=day, cache=Cache(tmp_path / "c.db"))
+    first = QuotaTracker(reserve=0, today=day, cache=Database(tmp_path / "c.db"))
     first.record("search.list")
-    second = QuotaTracker(reserve=0, today=day, cache=Cache(tmp_path / "c.db"))
+    second = QuotaTracker(reserve=0, today=day, cache=Database(tmp_path / "c.db"))
     assert second.spent == 100
 
 
 def test_quota_new_day_starts_at_zero_with_cache():
     days = [date(2026, 11, 22)]
-    cache = Cache()
+    cache = Database()
     quota = QuotaTracker(reserve=0, today=lambda: days[0], cache=cache)
     quota.record("search.list")
     days[0] = date(2026, 11, 23)
@@ -134,7 +134,7 @@ def test_quota_new_day_starts_at_zero_with_cache():
 
 def test_uploads_roundtrip_and_expiry():
     clock = Clock()
-    cache = Cache(now=clock)
+    cache = Database(now=clock)
     assert cache.get_uploads("UC1", 10, 3600) is None
     cache.put_uploads("UC1", 10, ["a", "b"])
     assert cache.get_uploads("UC1", 10, 3600) == ["a", "b"]
@@ -144,14 +144,14 @@ def test_uploads_roundtrip_and_expiry():
 
 
 def test_empty_uploads_are_cached_too():
-    cache = Cache()
+    cache = Database()
     cache.put_uploads("UC1", 10, [])
     assert cache.get_uploads("UC1", 10, 3600) == []
 
 
 def test_prune_removes_old_uploads():
     clock = Clock()
-    cache = Cache(now=clock)
+    cache = Database(now=clock)
     cache.put_uploads("UC1", 10, ["a"])
     clock.t += 2 * DAY
     cache.prune(DAY, 3600)
@@ -159,7 +159,7 @@ def test_prune_removes_old_uploads():
 
 
 def test_channel_fields_roundtrip():
-    cache = Cache()
+    cache = Database()
     c = Channel(id="UC1", title="T", description="D", handle="@t", topics=["Technology"])
     cache.put_channels([c])
     assert cache.get_channels(["UC1"], DAY) == {"UC1": c}

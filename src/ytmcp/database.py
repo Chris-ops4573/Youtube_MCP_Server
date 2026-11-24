@@ -1,4 +1,5 @@
-"""SQLite cache for video/channel metadata, searches and the quota ledger (FR-7.2).
+"""The one SQLite database file: cached video and channel data, searches and upload titles (FR-7.2),
+the daily quota count (FR-7.1) and the playlist proposals (FR-5.4).
 
 One database file in WAL mode (SRS 2.4). All SQL uses parameters, never
 string formatting of values (SRS 5.3). Rows older than their max age are
@@ -43,7 +44,7 @@ def normalize_query(query: str) -> str:
     return " ".join(query.lower().split())
 
 
-class Cache:
+class Database:
     def __init__(self, path: str | Path = ":memory:", now: Callable[[], float] = time.time):
         if str(path) != ":memory:":
             Path(path).parent.mkdir(parents=True, exist_ok=True)

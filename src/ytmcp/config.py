@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ytmcp.auth import AuthService, OAuthClient, OAuthConfig, TokenStore
-from ytmcp.cache import Cache
+from ytmcp.database import Database
 from ytmcp.proposals import ProposalStore
 from ytmcp.providers.base import PlaylistWriter, VideoProvider
 from ytmcp.providers.caching import CachingProvider
@@ -43,10 +43,10 @@ def build_auth_service() -> AuthService:
 
 
 def build_store() -> ProposalStore:
-    return ProposalStore(Cache(default_cache_path()))
+    return ProposalStore(Database(default_cache_path()))
 
 
-def build_provider(cache: Cache | None = None, quota: QuotaTracker | None = None) -> VideoProvider:
+def build_provider(cache: Database | None = None, quota: QuotaTracker | None = None) -> VideoProvider:
     """Pick the provider from YTMCP_PROVIDER. A missing API key is not fatal:
     the server still starts and tools return an API_KEY_MISSING error."""
     if os.environ.get("YTMCP_PROVIDER", "youtube").lower() == "fixture":
@@ -54,7 +54,7 @@ def build_provider(cache: Cache | None = None, quota: QuotaTracker | None = None
     api_key = os.environ.get("YOUTUBE_API_KEY") or None
     if os.environ.get("YTMCP_CACHE", "on").lower() == "off":
         return YouTubeProvider(api_key, quota=quota)
-    cache = cache or Cache(default_cache_path())
+    cache = cache or Database(default_cache_path())
     return CachingProvider(YouTubeProvider(api_key, quota=quota or QuotaTracker(cache=cache)), cache)
 
 
@@ -75,7 +75,7 @@ def build_services() -> Services:
     """Everything the server needs. Reads and writes share ONE quota counter, so the daily
     count is right. Proposals always go in the database file, even with the cache off,
     so a person can confirm one from a terminal."""
-    cache = Cache(default_cache_path())
+    cache = Database(default_cache_path())
     store = ProposalStore(cache)
     if os.environ.get("YTMCP_PROVIDER", "youtube").lower() == "fixture":
         return Services(build_provider(), store, None)
