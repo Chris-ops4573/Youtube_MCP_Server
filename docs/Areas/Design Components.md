@@ -11,7 +11,7 @@ flowchart LR
   Client["AI client"] -->|"MCP over stdio"| Server["server.py"]
   Server --> Tools["tools.py"]
   Tools --> Services["services/"]
-  Services --> Sim["similarity.py and channel_similarity.py"]
+  Services --> Sim["similarity.py"]
   Services --> Caching["CachingProvider"]
   Services -.->|"fixture mode and tests"| Fixture["FixtureProvider"]
   Caching --> Live["YouTubeProvider"]
@@ -42,7 +42,7 @@ flowchart LR
 | Config | Reads the settings and builds the objects for the server and the CLI. It imports neither | `src/ytmcp/config.py` |
 | Tools | Check arguments, format results and errors (UI-1, UI-3) | `src/ytmcp/tools.py` |
 | Services | The feature logic (FR-1, FR-2) | `src/ytmcp/services/` |
-| Similarity | Pure scoring maths, no API calls | `similarity.py`, `channel_similarity.py` |
+| Similarity | Pure scoring maths for videos and channels, no API calls | `similarity.py` |
 | Providers | All YouTube access (SE-6) | `src/ytmcp/providers/` |
 | Cache and quota | SQLite cache and the daily unit count (FR-7) | `cache.py`, `quota.py` |
 | Auth | Google sign-in and token storage (FR-6) | `src/ytmcp/auth/` |

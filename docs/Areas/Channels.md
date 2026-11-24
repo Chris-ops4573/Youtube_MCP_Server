@@ -1,7 +1,7 @@
 # Channels
 
 FR-2: find channels similar to a given channel.
-Files: `src/ytmcp/services/similar_channels.py`, `src/ytmcp/channel_similarity.py`, `src/ytmcp/tools.py`
+Files: `src/ytmcp/services/similar_channels.py`, `src/ytmcp/similarity.py`, `src/ytmcp/tools.py`
 
 ## Input (FR-2.1)
 A channel ID (`UC` + 22 characters), an `@handle`, or a `youtube.com/channel/...` / `youtube.com/@...` URL (`extract_channel_ref` in `ids.py`). A bare name or an old `/c/` URL is rejected with `INVALID_CHANNEL_REFERENCE`. Handles are looked up with `channels.list` + `forHandle`.

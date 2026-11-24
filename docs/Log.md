@@ -16,3 +16,4 @@ Newest at the bottom. Format: `YYYY-MM-DD - who - what changed`
 - 2026-11-24 - Chris - Added the refactor and feature plan, the Architecture Overview and ADR-015 to ADR-018 (planning only, no code changed). See [[Refactor and Feature Plan]], [[Architecture Overview]].
 - 2026-11-24 - Chris - Refactor R1: moved the settings and the building of objects out of server.py, cli.py and cache.py into the new config.py, so server.py no longer imports cli.py. No behavior change. See [[Architecture]], [[Design Components]], [[Refactor and Feature Plan]].
 - 2026-11-24 - Chris - Refactor R2: merged the tools package (four files) into one tools.py, with the shared helpers at the top. No behavior change. See [[Architecture]], [[Design Components]], [[Refactor and Feature Plan]].
+- 2026-11-24 - Chris - Refactor R3: merged channel_similarity.py into similarity.py, so all scoring is in one file. No behavior change. See [[Similarity]], [[Channels]], [[Refactor and Feature Plan]].

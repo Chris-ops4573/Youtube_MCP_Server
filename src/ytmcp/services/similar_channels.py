@@ -2,16 +2,16 @@
 
 import math
 
-from ytmcp.channel_similarity import (
-    ChannelProfile,
-    ScoredChannel,
-    rank_similar_channels,
-)
 from ytmcp.errors import ChannelNotFoundError
 from ytmcp.ids import extract_channel_ref
 from ytmcp.models import Channel
 from ytmcp.providers.base import VideoProvider
 from ytmcp.quota import COSTS, MAX_IDS_PER_CALL
+from ytmcp.similarity import (
+    ChannelProfile,
+    ScoredChannel,
+    rank_similar_channels,
+)
 
 MAX_QUERY_KEYWORDS = 2  # more words make the search too narrow
 DEFAULT_SEARCH_SIZE = 15  # each candidate needs one more call for its recent uploads

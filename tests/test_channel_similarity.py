@@ -1,12 +1,12 @@
 import pytest
 
-from ytmcp.channel_similarity import (
+from ytmcp.models import Channel
+from ytmcp.similarity import (
     DEFAULT_CHANNEL_WEIGHTS,
     ChannelProfile,
     profile_text,
     rank_similar_channels,
 )
-from ytmcp.models import Channel
 
 
 def profile(cid, title="T", description="", keywords=(), topics=(), titles=(), subs=100):
