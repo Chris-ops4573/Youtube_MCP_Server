@@ -29,12 +29,12 @@ from ytmcp.config import build_services
 from ytmcp.proposals import ProposalStore
 from ytmcp.providers.base import PlaylistWriter, VideoProvider
 from ytmcp.tools import (
+    Answer,
     create_playlist_tool,
     propose_playlist_tool,
     similar_channels_tool,
     similar_videos_tool,
 )
-from ytmcp.tools.playlists import Answer
 
 
 class ConfirmPlaylist(BaseModel):

@@ -31,6 +31,6 @@ Tools never show stack traces. Errors look like this (UI-3):
 
 Each error class in `errors.py` has its own `code` and `remediation`.
 
-Files: `src/ytmcp/errors.py`, `src/ytmcp/tools/similar_videos.py`
+Files: `src/ytmcp/errors.py`, `src/ytmcp/tools.py`
 
 Why: [[ADR-003 Structured errors]]. Part of [[Architecture]].
