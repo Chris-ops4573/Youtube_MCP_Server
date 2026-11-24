@@ -6,6 +6,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Stage 1 Review]]
 - [[Stage 2 Review]]
 - [[Development Plan]]
+- [[Refactor and Feature Plan]]
 
 ## Areas
 - [[Architecture]]
@@ -29,6 +30,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Traceability]]
 - [[Glossary]]
 - [[Skill Evaluations]]
+- [[Architecture Overview]]
 
 ## Decisions (ADRs)
 - [[ADR-001 Provider interface]]
@@ -45,6 +47,10 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[ADR-012 Brain checks in a standard library script]]
 - [[ADR-013 Playlist creation needs a person's confirmation]]
 - [[ADR-014 How playlist videos are chosen]]
+- [[ADR-015 Simple module layout and one-way imports]]
+- [[ADR-016 One AccountProvider for the signed-in user]]
+- [[ADR-017 Recommendations from a taste profile]]
+- [[ADR-018 Engagement analysis sources and periods]]
 
 ## Log
 - [[Log]]
