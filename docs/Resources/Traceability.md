@@ -8,7 +8,7 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | FR-1.2 | `src/ytmcp/services/similar_videos.py`, `src/ytmcp/providers/youtube.py` | `tests/test_similar_videos.py`, `tests/test_youtube_provider.py` | [[Providers]] | |
 | FR-1.3 | `src/ytmcp/similarity.py` | `tests/test_similarity.py` | [[Similarity]] | |
 | FR-1.4 | `src/ytmcp/similarity.py` | `tests/test_similarity.py` | [[Similarity]] | |
-| UI-1 | `src/ytmcp/tools.py` | `tests/test_similar_videos_tool.py` | [[Errors]] | |
+| UI-1 | `src/ytmcp/tools.py` | `tests/test_similar_videos_tool.py`, `tests/test_describe_video.py` | [[Errors]] | |
 | UI-3 | `src/ytmcp/tools.py`, `src/ytmcp/errors.py` | `tests/test_similar_videos_tool.py`, `tests/test_server.py` | [[Errors]] | |
 | FR-2.1 (ID, @handle, URL) | `src/ytmcp/ids.py`, `providers/youtube.py` | `tests/test_ids.py`, `tests/test_youtube_provider.py` | [[Channels]] | |
 | FR-2.2 (channel profile) | `src/ytmcp/services/similar_channels.py`, `src/ytmcp/similarity.py` | `tests/test_similar_channels.py`, `tests/test_channel_similarity.py` | [[Channels]] | |

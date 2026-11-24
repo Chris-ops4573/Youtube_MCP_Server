@@ -20,6 +20,9 @@ Score = sum of (weight x signal), each signal is 0 to 1 (FR-1.3):
 - Results exclude the seed and duplicates; ties broken by video ID (deterministic).
 - `low_confidence` is true when tags are missing (FR-1.4).
 
+## Describing one video
+`describe_video(video)` returns one video's title, channel, length, the first 10 tags, category ID, language, a description shortened to 500 characters, its URL and whether it is live. It costs 1 quota unit and does no scoring. The video-to-playlist skill ([[Playlist]]) uses it to understand a video before planning a playlist. All text is cleaned and the result carries the untrusted-text notice ([[Errors]]). Code: `describe_video` in `src/ytmcp/services/similar_videos.py` and `describe_video_tool` in `src/ytmcp/tools.py`.
+
 ## Channels (FR-2.2, FR-2.3)
 Channel scoring is in the same file and uses the same TF-IDF helper, with its own weights. A channel is described by a profile: its title, description, keywords, topics and the titles of its recent uploads. The whole flow (finding candidates, cost) is in [[Channels]].
 
