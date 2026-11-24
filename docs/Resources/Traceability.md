@@ -37,6 +37,7 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | SRS 3.4 (retries, no key in errors) | `src/ytmcp/providers/youtube.py` | `tests/test_youtube_provider.py` | [[Providers]] | |
 | SK-3 (brain-ingest, brain-refine, brain-query) | `.claude/skills/brain-*/`, `scripts/brain.py` | `tests/test_brain.py` | [[Brain]] | |
 | SK-4 (valid SKILL.md, cites a note), TQ-7 (evals) | `scripts/brain.py check`, `.claude/skills/*/evals.md` | `tests/test_brain.py` | [[Skill Evaluations]] | |
+| TQ-8 (defect log) | `docs/Projects/Defect Log.md` | the regression test named in each row | [[Defect Log]] | |
 | CI validates notes and skills (SRS section 6) | `.github/workflows/ci.yml` | CI step `Validate brain notes and skills` | [[Brain]] | |
 | SE-2 (design docs, UML, ER) | docs only | n/a | [[Design Components]], [[Design Classes]], [[Design Sequences]], [[Design Data]] | |
 | SE-3 (ADRs cite notes) | `docs/adr/` | n/a | every ADR is listed in the [[Index]] | |

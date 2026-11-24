@@ -29,3 +29,4 @@ Newest at the bottom. Format: `YYYY-MM-DD - who - what changed`
 - 2026-11-24 - Chris - F4: added the describe_video tool (1 quota unit) for the video-to-playlist skill. See [[Similarity]].
 - 2026-11-24 - Chris - F4: added the video-to-playlist skill (SK-1) with 5 evals; not yet run by a person. See [[Playlist]], [[Skill Evaluations]].
 - 2026-11-24 - Chris - F5: added the quota status, serve and local-check commands (UI-4). See [[Auth]], [[Quota]].
+- 2026-11-24 - Chris - D1: added the Defect Log (TQ-8) with 11 defects found so far and a rule that every new defect gets a row and a test. See [[Defect Log]].

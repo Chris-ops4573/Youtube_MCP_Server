@@ -40,4 +40,5 @@ FR-5 is the riskiest (the server must enforce confirmation before any write), so
 - Code, tests and brain changes go together in the same PR (see AGENTS.md).
 - Before pushing, run `python scripts/local_check.py` (it includes the brain check) and `git status`, so no file is left out of the commit.
 - CI runs lint, the brain and skills check, tests with at least 80% coverage, and a secret scan.
+- Every new defect gets a row in [[Defect Log]] and a regression test (TQ-8).
 
