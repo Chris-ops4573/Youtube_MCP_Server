@@ -15,7 +15,7 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | FR-2.3 (rank, exclude seed, hidden subs) | `src/ytmcp/similarity.py`, `src/ytmcp/tools.py` | `tests/test_channel_similarity.py`, `tests/test_similar_channels_tool.py` | [[Channels]] | |
 | FR-6.1 (OAuth, PKCE, read-only default) | `src/ytmcp/auth/oauth.py`, `pkce.py`, `loopback.py`, `service.py` | `tests/test_oauth.py`, `test_pkce.py`, `test_loopback.py`, `test_auth_service.py` | [[Auth]] | |
 | FR-6.2 (tokens only in keyring, re-auth on expiry) | `src/ytmcp/auth/tokens.py`, `service.py` | `tests/test_tokens.py`, `tests/test_auth_service.py` | [[Auth]] | |
-| UI-4 (CLI: auth part only) | `src/ytmcp/cli.py` | `tests/test_cli.py` | [[Auth]] | |
+| UI-4 (CLI: auth and playlist confirm) | `src/ytmcp/cli.py` | `tests/test_cli.py` | [[Auth]] | |
 | FR-5.1 (validate before any API call, field-level errors) | `src/ytmcp/playlist_planner.py`, `src/ytmcp/tools.py` | `tests/test_playlist_planner.py`, `tests/test_playlist_tools.py` | [[Playlist]] | |
 | FR-5.2, FR-5.3 (drop live/long/short/wrong language, total within 10%, no duplicates, explain) | `src/ytmcp/playlist_planner.py` | `tests/test_playlist_planner.py` | [[ADR-014 How playlist videos are chosen]] | |
 | FR-5.4 (proposal with ID, hash, 15 minute expiry) | `src/ytmcp/proposals.py`, `src/ytmcp/database.py` | `tests/test_proposals.py`, `tests/test_playlist_service.py` | [[Playlist]] | |
@@ -24,7 +24,7 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | UI-2 (proposal shows videos, totals, longest, asks to confirm) | `src/ytmcp/tools.py` | `tests/test_playlist_tools.py` | [[Playlist]] | |
 | FR-6.1 (write permission only when needed) | `src/ytmcp/cli.py`, `src/ytmcp/providers/youtube.py` | `tests/test_cli.py`, `tests/test_playlist_writer.py` | [[Auth]] | |
 | SRS 5.2 (private, create only, no retries) | `src/ytmcp/providers/youtube.py` | `tests/test_playlist_writer.py` | [[Playlist]] | |
-| FR-7.1 (quota pre-check) | `src/ytmcp/quota.py`, `services/similar_videos.py` | `tests/test_quota.py`, `tests/test_similar_videos.py` | [[Quota]] | |
+| FR-7.1 (quota pre-check) | `src/ytmcp/quota.py`, `services/similar_videos.py`, `services/similar_channels.py`, `services/playlists.py` | `tests/test_quota.py`, `tests/test_similar_videos.py`, `tests/test_similar_channels.py`, `tests/test_playlist_service.py` | [[Quota]] | |
 | FR-7.2 (SQLite cache, batching) | `src/ytmcp/database.py`, `providers/caching.py` | `tests/test_database.py`, `tests/test_caching_provider.py` | [[Cache]] | |
 | FR-7.1 (ledger survives restart) | `src/ytmcp/quota.py`, `src/ytmcp/database.py` | `tests/test_database.py` | [[Quota]] | |
 | SRS 3.4 (retries, no key in errors) | `src/ytmcp/providers/youtube.py` | `tests/test_youtube_provider.py` | [[Providers]] | |
@@ -32,7 +32,7 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | SK-4 (valid SKILL.md, cites a note), TQ-7 (evals) | `scripts/brain.py check`, `.claude/skills/*/evals.md` | `tests/test_brain.py` | [[Skill Evaluations]] | |
 | CI validates notes and skills (SRS section 6) | `.github/workflows/ci.yml` | CI step `Validate brain notes and skills` | [[Brain]] | |
 | SE-2 (design docs, UML, ER) | docs only | n/a | [[Design Components]], [[Design Classes]], [[Design Sequences]], [[Design Data]] | |
-| SE-3 (ADRs cite notes) | `docs/adr/` | n/a | [[Index]] (ADR-001 to ADR-011) | |
+| SE-3 (ADRs cite notes) | `docs/adr/` | n/a | every ADR is listed in the [[Index]] | |
 | SE-4 (development plan) | docs only | n/a | [[Development Plan]] | |
 | SE-6 / SI-1 | `src/ytmcp/providers/` | `tests/test_fixture_provider.py` | [[Providers]] | |
 | SK-2 | `scripts/local_check.py`, `.claude/skills/local-check/` | run `python scripts/local_check.py` | [[Testing]] | |

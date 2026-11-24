@@ -23,7 +23,6 @@ from ytmcp.errors import (
 from ytmcp.playlist_planner import Selection, validate_constraints
 from ytmcp.proposals import CONFIRMED, PROPOSAL_TTL_SECONDS, Proposal, ProposalStore
 from ytmcp.providers.base import PlaylistWriter, VideoProvider
-from ytmcp.services import find_similar_channels, find_similar_videos
 from ytmcp.services.playlists import (
     CreateResult,
     create_playlist,
@@ -31,6 +30,8 @@ from ytmcp.services.playlists import (
     prepare_create,
     propose_playlist,
 )
+from ytmcp.services.similar_channels import find_similar_channels
+from ytmcp.services.similar_videos import find_similar_videos
 from ytmcp.similarity import ScoredChannel, ScoredVideo
 
 # --- shared helpers --------------------------------------------------------------------------------

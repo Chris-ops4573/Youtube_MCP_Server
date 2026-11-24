@@ -22,11 +22,11 @@ python scripts/local_check.py   # SK-2: build, lint, tests, server check
 ```
 
 ## Rules (from the SRS)
-- All YouTube access goes through `VideoProvider` (`src/ytmcp/providers/base.py`). (SE-6)
+- All YouTube access goes through the provider interfaces in `src/ytmcp/providers/base.py`: VideoProvider (public data, API key) and PlaylistWriter (the user's account, login). (SE-6)
 - Tools return errors as `{"error": {"code", "message", "remediation"}}`, never stack traces or secrets. (UI-3)
 - Never write to a user's YouTube account without explicit confirmation. (FR-5.5) Only `create_playlist` writes, only after a person confirms (the client asks the user, or `python -m ytmcp playlist confirm <id>`). Never add an argument or any other way for the AI to confirm, never retry a write, never edit or delete, and create playlists private.
 - No secrets or real user data in code, fixtures or logs. Never commit `.env`. (5.3)
-- Cached data expires (24 h metadata, 1 h searches); never store secrets or user data in the cache. (SRS 6)
+- Cached data expires (24 h metadata, 1 h searches, 6 h upload titles); never store secrets or user data in the cache. (SRS 6)
 - Google login tokens live only in the OS keyring. Never print, log, store in files/DB/cache, or put them in errors. (FR-6.2, 5.3)
 - Ask for read-only access by default; write access only at the first confirmed playlist creation. (FR-6.1)
 - Check quota with `provider.ensure_budget(...)` before any API calls. (FR-7.1)

@@ -5,8 +5,11 @@ from ytmcp.errors import ChannelNotFoundError, QuotaExceededError
 from ytmcp.models import Channel
 from ytmcp.providers.youtube import YouTubeProvider
 from ytmcp.quota import QuotaTracker
-from ytmcp.services import build_channel_query, find_similar_channels
-from ytmcp.services.similar_channels import estimate_cost
+from ytmcp.services.similar_channels import (
+    build_channel_query,
+    estimate_cost,
+    find_similar_channels,
+)
 
 RUST_LAB = "UC1111111111111111111111"
 RUST_WEEKLY = "UC3333333333333333333333"
