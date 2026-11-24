@@ -1,6 +1,6 @@
 # Auth
 
-Google sign-in (OAuth) so the server can read the user's own YouTube data later (FR-3, FR-4) and create playlists (FR-5). An API key can only read public data: see [[Providers]].
+Google sign-in (OAuth) so the server can read the user's own YouTube data (FR-3, FR-4) and create playlists (FR-5). An API key can only read public data: see [[Providers]].
 Files: `src/ytmcp/auth/` (`oauth.py`, `pkce.py`, `loopback.py`, `tokens.py`, `service.py`), `src/ytmcp/cli.py`
 
 ## Commands (UI-4)
@@ -50,8 +50,9 @@ A write login also counts as read access.
 - `Token` and `OAuthConfig` hide their values when printed.
 - The redirect page doesn't repeat the code and the receiver only listens on `127.0.0.1`.
 
-## Not built yet
-- Features that use the token (FR-3, FR-4, FR-5). This branch only gets and keeps the token.
-- Real sign-in has not been tried against Google yet: it needs the OAuth client from the setup above. Tests use a fake Google, a fake keyring and no browser.
+## What uses the login
+- Reading your own data: `recommend_videos` ([[Recommendations]]) and `analyze_engagement` ([[Engagement]]), with the read-only scope.
+- Creating playlists: `create_playlist` ([[Playlist]]), with the write scope.
+- The sign-in has been tried against real Google (read and write). Tests use a fake Google, a fake keyring and no browser.
 
 Why: [[ADR-007 OAuth with PKCE and keyring]]. Part of [[Architecture]].

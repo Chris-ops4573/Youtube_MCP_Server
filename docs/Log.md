@@ -31,3 +31,4 @@ Newest at the bottom. Format: `YYYY-MM-DD - who - what changed`
 - 2026-11-24 - Chris - F5: added the quota status, serve and local-check commands (UI-4). See [[Auth]], [[Quota]].
 - 2026-11-24 - Chris - D1: added the Defect Log (TQ-8) with 11 defects found so far and a rule that every new defect gets a row and a test. See [[Defect Log]].
 - 2026-11-24 - Chris - D2: added the README, the User Guide, the Tool Reference and the CHANGELOG (SE-7). See [[User Guide]], [[Tool Reference]].
+- 2026-11-24 - Chris - D3: added the Stage 3 Review and the Stage 4 Checklist, updated the stage statuses, and fixed the Auth note that still said nothing used the login. See [[Stage 3 Review]], [[Stage 4 Checklist]].
