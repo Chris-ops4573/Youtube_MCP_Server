@@ -1,9 +1,12 @@
 # Providers
 
-All YouTube access goes through `VideoProvider` (SE-6, SI-1).
-File: `src/ytmcp/providers/base.py`
+All YouTube access goes through two interfaces in `src/ytmcp/providers/base.py` (SE-6, SI-1):
+- **VideoProvider** reads public data with an API key.
+- **PlaylistWriter** acts as the signed-in user. Today it can only create a playlist and add videos to it ([[Playlist]]).
 
-Methods:
+They are separate on purpose. Reading needs only an API key and is retried. Writing needs the user's login and write permission, is never retried, and can only create, so the dangerous interface stays small.
+
+## VideoProvider methods (public data, API key)
 - `get_videos(ids)` - missing/private/deleted IDs are left out
 - `search_videos(query, max_results)`
 - `get_channels(ids)`
@@ -11,6 +14,12 @@ Methods:
 - `search_channels(query, max_results)` - `search.list type=channel`, then full details (FR-2)
 - `get_recent_uploads(channel_id, max_results)` - titles from the uploads playlist, 1 unit (FR-2.2)
 - `ensure_budget(units)` - quota pre-check (FR-7.1); does nothing for fixtures
+
+## PlaylistWriter methods (the user's account, login)
+- `ensure_write_access()` - raises `WRITE_ACCESS_REQUIRED` unless the login has write permission (FR-6.1)
+- `ensure_budget(units)` - quota pre-check before creating anything: 50 + 50 per video (FR-5.6)
+- `create_playlist(title, description)` - creates a new **private** playlist and returns its ID
+- `add_video(playlist_id, video_id)` - adds one video to a playlist this server created
 
 ## Implementations
 - `YouTubeProvider` (`providers/youtube.py`) - live YouTube Data API v3 with an API key.

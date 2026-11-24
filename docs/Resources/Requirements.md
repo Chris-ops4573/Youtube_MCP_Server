@@ -21,7 +21,7 @@ Progress is tracked in [[Traceability]].
 - UI-2 playlist proposal shows videos and totals, asks to confirm
 - UI-3 errors: code, message, remediation; no stack traces or secrets
 - UI-4 CLI: auth, quota status, serve, local-check
-- SI-1 all YouTube calls via VideoProvider; FixtureProvider for CI
+- SI-1 all YouTube calls via VideoProvider; FixtureProvider for CI (writes: see [[Playlist]])
 
 ## Skills
 - SK-1 video-to-playlist, SK-2 local-check, SK-3 brain-ingest/refine/query, SK-4 every skill has SKILL.md and cites a note
