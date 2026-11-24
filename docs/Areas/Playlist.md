@@ -35,6 +35,9 @@ Why it is built this way: [[ADR-013 Playlist creation needs a person's confirmat
 
 The terminal command refuses to run unless it is attached to a real terminal, so a script, or an AI that runs shell commands for you, cannot confirm for you.
 
+## The video-to-playlist skill (SK-1)
+The skill in `.claude/skills/video-to-playlist/SKILL.md` runs the whole flow from one starting video: `describe_video`, `find_similar_videos`, `propose_playlist`, a question to the user, `create_playlist` and a short summary. It never confirms for the user. Its test cases are in `.claude/skills/video-to-playlist/evals.md`; they need a person ([[Skill Evaluations]]).
+
 ## Write permission (FR-6.1)
 Logins are read-only by default. Before the first playlist, run `python -m ytmcp auth login --write` once ([[Auth]]). If you forget, `create_playlist` tells you, and the proposal stays valid for its 15 minutes.
 

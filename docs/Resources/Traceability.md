@@ -42,10 +42,11 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | SE-3 (ADRs cite notes) | `docs/adr/` | n/a | every ADR is listed in the [[Index]] | |
 | SE-4 (development plan) | docs only | n/a | [[Development Plan]] | |
 | SE-6 / SI-1 | `src/ytmcp/providers/` | `tests/test_fixture_provider.py` | [[Providers]] | |
+| SK-1 | `.claude/skills/video-to-playlist/` | the skill's evals, run by a person ([[Skill Evaluations]]) | [[Playlist]] | |
 | SK-2 | `scripts/local_check.py`, `.claude/skills/local-check/` | run `python scripts/local_check.py` | [[Testing]] | |
 | SRS 5.4 (coverage >= 80%) | `.github/workflows/ci.yml` | CI pytest step | [[Testing]] | |
 | FR-5.2 (durations) | `src/ytmcp/durations.py` | `tests/test_durations.py` | | |
 
-Not started: SK-1. FR-4 is built, tested, and was tried on a real account (read-only). FR-3 is built, tested, and was tried on a real account (read-only). Partly done: UI-4 (the `auth` and `playlist confirm` commands; `quota status`, `serve` and `local-check` are not CLI commands yet). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation has not been tried in a real terminal.
+SK-1 is written and waits for a person to run its evals. FR-4 is built, tested, and was tried on a real account (read-only). FR-3 is built, tested, and was tried on a real account (read-only). Partly done: UI-4 (the `auth` and `playlist confirm` commands; `quota status`, `serve` and `local-check` are not CLI commands yet). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation has not been tried in a real terminal.
 
 Back to [[Requirements]].

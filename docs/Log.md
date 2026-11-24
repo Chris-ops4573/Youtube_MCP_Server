@@ -27,3 +27,4 @@ Newest at the bottom. Format: `YYYY-MM-DD - who - what changed`
 - 2026-11-24 - Chris - F3: added the analyze_engagement tool (FR-4): top channels and categories, a monthly trend of likes (by the date liked), duration preferences, and an optional comparison of two periods, with at most 47 quota units. ADR-018 is now accepted. Also fixed two Development Plan rows. Tested with fakes, not yet with a real account. See [[Engagement]], [[ADR-018 Engagement analysis sources and periods]].
 - 2026-11-24 - Chris - F4: min_video_minutes now defaults to 3 (0 turns it off). See [[Playlist]], [[ADR-019 Leave out short clips by default]].
 - 2026-11-24 - Chris - F4: added the describe_video tool (1 quota unit) for the video-to-playlist skill. See [[Similarity]].
+- 2026-11-24 - Chris - F4: added the video-to-playlist skill (SK-1) with 5 evals; not yet run by a person. See [[Playlist]], [[Skill Evaluations]].

@@ -20,6 +20,7 @@ Two kinds of cases:
 | 2 | 2026-11-23 | brain-refine | 1 to 5 | Claude, on a throwaway copy | Pass for the checker | Cases 1 to 3: each planted mistake (broken link, ADR without Cites, a clean vault) gave the right message and was cleared by the fix, with no edits when clean. Case 4: the unfinished note was flagged. Also caught a missing path and a bad log line. **A person must check that the agent asks instead of inventing text.** |
 | 2 | 2026-11-23 | brain-ingest | 1, 2, 5 | Claude, on a throwaway copy | Pass for the script | Case 1: next number ADR-013, Index and Log updated, the check blocked it until filled in. Case 2: search found the Auth note, so a Glossary line was added and no new note was created. **Cases 3 and 4 (asks before archiving, no invented reasons) need a person.** |
 | 2 | 2026-11-23 | local-check | 1 to 3 | Claude, on a throwaway copy | Pass | An unused import gave FAIL on lint only; a broken test gave FAIL on tests; the other steps still ran. Case 4 holds by design (`YTMCP_PROVIDER=fixture` is forced in the script) but quota use was not measured. |
+| 3 | not yet | video-to-playlist | 1 to 5 | nobody yet | Not run | Written in task F4. Needs a person with a real client and a login that can write. Case 1 creates a real private playlist. |
 
 ## Before Stage 3 starts
 - Cases marked "needs a person" have not been judged by anyone yet. Run them in a fresh session and update this table.
