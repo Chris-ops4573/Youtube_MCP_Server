@@ -53,6 +53,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[ADR-016 One AccountProvider for the signed-in user]]
 - [[ADR-017 Recommendations from a taste profile]]
 - [[ADR-018 Engagement analysis sources and periods]]
+- [[ADR-019 Leave out short clips by default]]
 
 ## Log
 - [[Log]]

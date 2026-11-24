@@ -20,7 +20,7 @@ from ytmcp.errors import (
     PlaylistWritesDisabledError,
     YtmcpError,
 )
-from ytmcp.playlist_planner import Selection, validate_constraints
+from ytmcp.playlist_planner import Selection, clean_text, validate_constraints
 from ytmcp.proposals import CONFIRMED, PROPOSAL_TTL_SECONDS, Proposal, ProposalStore
 from ytmcp.providers.base import AccountProvider, VideoProvider
 from ytmcp.services.engagement import analyze_engagement, validate_arguments
@@ -33,7 +33,7 @@ from ytmcp.services.playlists import (
 )
 from ytmcp.services.recommendations import Recommendations, recommend_videos
 from ytmcp.services.similar_channels import find_similar_channels
-from ytmcp.services.similar_videos import find_similar_videos
+from ytmcp.services.similar_videos import describe_video, find_similar_videos
 from ytmcp.similarity import ScoredChannel, ScoredRecommendation, ScoredVideo
 
 # --- shared helpers --------------------------------------------------------------------------------
@@ -109,6 +109,38 @@ def similar_videos_tool(provider: VideoProvider, video: str, top_n: int = 10) ->
     except YtmcpError as exc:
         return error_response(exc.code, str(exc), exc.remediation)
     return {"results": format_results(results)}
+
+
+DESCRIBE_TAGS = 10
+DESCRIBE_DESCRIPTION_CHARS = 500
+
+
+def describe_video_tool(provider: VideoProvider, video: str) -> dict[str, Any]:
+    """Return one video's details, or {"error": {...}}. Text from YouTube is cleaned."""
+    try:
+        found = describe_video(provider, video)
+    except ValueError:
+        return error_response(
+            "INVALID_VIDEO_REFERENCE",
+            "That is not a valid YouTube video ID or URL.",
+            "Use an 11-character video ID or a watch, youtu.be, shorts or embed URL.",
+        )
+    except YtmcpError as exc:
+        return error_response(exc.code, str(exc), exc.remediation)
+    return {
+        "video": {
+            "title": clean_text(found.title, 300),
+            "channel": clean_text(found.channel_title, 300),
+            "duration": format_duration(found.duration_seconds),
+            "tags": [clean_text(tag, 100) for tag in found.tags[:DESCRIBE_TAGS]],
+            "category_id": found.category_id,
+            "language": found.language,
+            "description": clean_text(found.description, DESCRIBE_DESCRIPTION_CHARS),
+            "url": video_url(found.id),
+            "is_live": found.is_live,
+        },
+        "notice": UNTRUSTED_NOTICE,
+    }
 
 
 # --- channels: find_similar_channels (FR-2) ---------------------------------------------------------

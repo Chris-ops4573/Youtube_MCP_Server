@@ -18,6 +18,7 @@ MAX_TOPIC_CHARS = 100
 MAX_TITLE_CHARS = 150  # YouTube's own limit for a playlist title
 SEARCH_SIZE = 50  # one page of search results
 SHORT_CLIP_SECONDS = 180  # YouTube Shorts can be up to 3 minutes
+DEFAULT_MIN_VIDEO_MINUTES = 3  # used when min_video_minutes is not given; 0 turns it off
 
 _LANGUAGE = re.compile(r"^[a-z]{2,3}$")
 
@@ -95,15 +96,22 @@ def validate_constraints(
             longest = max_video_minutes  # type: ignore[assignment]
 
     shortest: int | None = None
-    if min_video_minutes is not None:
-        if not _is_whole_number(min_video_minutes) or min_video_minutes < 1:  # type: ignore[operator]
-            fields["min_video_minutes"] = "must be a whole number of minutes, at least 1"
-        elif total and min_video_minutes > total:  # type: ignore[operator]
-            fields["min_video_minutes"] = "cannot be longer than total_minutes"
-        elif longest is not None and min_video_minutes > longest:  # type: ignore[operator]
-            fields["min_video_minutes"] = "cannot be longer than max_video_minutes"
-        else:
-            shortest = min_video_minutes  # type: ignore[assignment]
+    if min_video_minutes is None:
+        # Default: leave out clips under DEFAULT_MIN_VIDEO_MINUTES, unless that cannot fit the settings
+        fits = (not total or DEFAULT_MIN_VIDEO_MINUTES <= total) and (
+            longest is None or DEFAULT_MIN_VIDEO_MINUTES <= longest
+        )
+        shortest = DEFAULT_MIN_VIDEO_MINUTES if fits else None
+    elif not _is_whole_number(min_video_minutes) or min_video_minutes < 0:  # type: ignore[operator]
+        fields["min_video_minutes"] = "must be a whole number of minutes, 0 or more (0 = no minimum)"
+    elif min_video_minutes == 0:
+        shortest = None  # the person asked for short clips to stay
+    elif total and min_video_minutes > total:  # type: ignore[operator]
+        fields["min_video_minutes"] = "cannot be longer than total_minutes"
+    elif longest is not None and min_video_minutes > longest:  # type: ignore[operator]
+        fields["min_video_minutes"] = "cannot be longer than max_video_minutes"
+    else:
+        shortest = min_video_minutes  # type: ignore[assignment]
 
     lang: str | None = None
     if language is not None:
@@ -218,7 +226,7 @@ def select_videos(candidates: list[Video], constraints: Constraints) -> Selectio
     if short_clips and not constraints.min_video_minutes:
         notes.append(
             f"{short_clips} video(s) are under 3 minutes and may be Shorts or short clips."
-            " Use min_video_minutes to leave them out."
+            " Set min_video_minutes to 3 or more to leave them out."
         )
 
     return Selection(

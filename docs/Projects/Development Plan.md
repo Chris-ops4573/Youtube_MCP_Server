@@ -19,8 +19,8 @@ SE-4. What gets built, in what order, and how we work. Stage deliverables come f
 | 4 | FR-6 OAuth sign-in | OAuth client | done (core) |
 | 5 | FR-3 recommendations | FR-6 | built and tried on a real account |
 | 6 | FR-5 playlist creation (UI-2) | FR-6, write scope | built and tested for real |
-| 7 | FR-4 engagement analysis | FR-6 | built; not yet tried on a real account |
-| 8 | SK-1 video-to-playlist | FR-5 | not started |
+| 7 | FR-4 engagement analysis | FR-6 | built and tried on a real account |
+| 8 | SK-1 video-to-playlist | FR-5 | built; its evals have not been run by a person |
 | 9 | Rest of the CLI (UI-4) | none | not started |
 | 10 | SK-3 brain skills, CI note and skill checks | none | done |
 

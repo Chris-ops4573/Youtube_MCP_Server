@@ -48,6 +48,7 @@ def step_tests() -> tuple[bool, str]:
 
 EXPECTED_TOOLS = (
     "find_similar_videos",
+    "describe_video",
     "find_similar_channels",
     "propose_playlist",
     "create_playlist",
@@ -72,6 +73,9 @@ async def _call_server(database: str) -> str:
         is_error = getattr(result, "is_error", getattr(result, "isError", False))  # mcp 2.x / 1.x
         if is_error or "results" not in str(result.content):
             raise RuntimeError(f"unexpected tool result: {result.content}")
+        described = await session.call_tool("describe_video", {"video": FIXTURE_VIDEO_ID})
+        if getattr(described, "is_error", False) or "video" not in str(described.content):
+            raise RuntimeError(f"unexpected describe result: {described.content}")
         channels = await session.call_tool("find_similar_channels", {"channel": FIXTURE_CHANNEL})
         if getattr(channels, "is_error", False) or "results" not in str(channels.content):
             raise RuntimeError(f"unexpected channel result: {channels.content}")

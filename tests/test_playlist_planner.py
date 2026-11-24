@@ -30,7 +30,7 @@ def fields_of(**kwargs):
 
 def test_minimal_valid_constraints_get_a_default_title():
     c = validate_constraints("rust", 60)
-    assert c == Constraints("rust", 60, None, None, "rust (60 min)")
+    assert c == Constraints("rust", 60, None, None, "rust (60 min)", 3)
 
 
 def test_all_fields_are_used():
@@ -230,7 +230,7 @@ def cons_min(total=60, minv=None, maxv=None):
     return Constraints("rust", total, maxv, None, f"rust ({total} min)", minv)
 
 
-@pytest.mark.parametrize("minv", [0, -1, "3", 1.5, True, 61])
+@pytest.mark.parametrize("minv", [-1, "3", 1.5, True, 61])
 def test_bad_min_video_minutes(minv):
     assert "min_video_minutes" in fields_of(min_video_minutes=minv)
 
@@ -245,12 +245,18 @@ def test_min_may_equal_the_max_and_the_total():
 
 
 def test_min_video_minutes_is_optional_and_remembered():
-    assert validate_constraints("x", 60).min_video_minutes is None
-    assert validate_constraints("x", 60, min_video_minutes=3).min_video_minutes == 3
+    assert validate_constraints("x", 60).min_video_minutes == 3  # the default
+    assert validate_constraints("x", 60, min_video_minutes=5).min_video_minutes == 5
+    assert validate_constraints("x", 60, min_video_minutes=0).min_video_minutes is None  # 0 = no minimum
+
+
+def test_the_default_minimum_is_skipped_when_it_cannot_fit():
+    assert validate_constraints("x", 60, max_video_minutes=2).min_video_minutes is None
+    assert validate_constraints("x", 5, max_video_minutes=3).min_video_minutes == 3
 
 
 def test_a_bad_min_is_reported_together_with_other_problems():
-    assert set(fields_of(topic="", min_video_minutes=0)) == {"topic", "min_video_minutes"}
+    assert set(fields_of(topic="", min_video_minutes=-1)) == {"topic", "min_video_minutes"}
 
 
 def test_videos_shorter_than_the_minimum_are_left_out_and_explained():

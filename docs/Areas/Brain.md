@@ -19,8 +19,8 @@ The Obsidian vault in `docs/` is the project's memory. Agents read it before wor
 - File paths written in `backticks` must exist, so notes cannot describe deleted code.
 - No `TODO` left behind.
 
-## The three skills (SK-3)
-They live in `.claude/skills/`. Each one has an `evals.md` with test cases (TQ-7). Results are in [[Skill Evaluations]].
+## The brain skills (SK-3)
+The project also has two other skills: `local-check` ([[Testing]]) and `video-to-playlist` ([[Playlist]]). The brain skills live in `.claude/skills/`. Each one has an `evals.md` with test cases (TQ-7). Results are in [[Skill Evaluations]].
 
 | Skill | Use it to |
 |---|---|

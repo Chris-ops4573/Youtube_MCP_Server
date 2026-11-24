@@ -15,7 +15,7 @@ def test_server_registers_the_tool(provider):
     server = create_server(provider)
     tools = asyncio.run(server.list_tools())
     assert [t.name for t in tools] == [
-        "find_similar_videos", "find_similar_channels", "propose_playlist", "create_playlist",
+        "find_similar_videos", "describe_video", "find_similar_channels", "propose_playlist", "create_playlist",
         "recommend_videos", "analyze_engagement",
     ]
 

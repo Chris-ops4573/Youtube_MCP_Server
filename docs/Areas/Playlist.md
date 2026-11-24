@@ -6,7 +6,7 @@ Files: `src/ytmcp/playlist_planner.py` (choose videos), `src/ytmcp/proposals.py`
 ## Two tools
 | Tool | What it does | Changes YouTube? |
 |---|---|---|
-| `propose_playlist(topic, total_minutes, max_video_minutes, min_video_minutes, language, title)` | Finds videos and saves a **proposal** | No |
+| `propose_playlist(topic, total_minutes, max_video_minutes, min_video_minutes, language, title)` (`min_video_minutes` defaults to 3; 0 = no minimum) | Finds videos and saves a **proposal** | No |
 | `create_playlist(proposal_id, content_hash)` | Creates the playlist from a proposal, after a person confirms | Yes: one new private playlist |
 
 There is no tool to edit or delete anything (SRS 5.2).
@@ -14,7 +14,7 @@ There is no tool to edit or delete anything (SRS 5.2).
 ## How it works
 1. **Check the settings first** (FR-5.1): every field is validated before any API call, and all problems are listed together, field by field (`INVALID_CONSTRAINTS`). `total_minutes` is 5 to 1440 (24 h, assumed: TBD-6).
 2. **Find videos** with one search of up to 50 results. Cost: 101 units, checked before the search ([[Quota]]).
-3. **Choose videos** (FR-5.2, FR-5.3): see [[ADR-014 How playlist videos are chosen]]. `min_video_minutes` leaves out Shorts and other short clips; if the result still has clips under 3 minutes and no minimum was set, the proposal says so in its notes, so the AI can propose again with a minimum.
+3. **Choose videos** (FR-5.2, FR-5.3): see [[ADR-014 How playlist videos are chosen]]. `min_video_minutes` leaves out Shorts and other short clips. It is 3 unless given (0 keeps short clips: [[ADR-019 Leave out short clips by default]]); if the result still has clips under 3 minutes because the minimum was 0 or could not fit, the proposal says so in its notes.
 4. **Save a proposal** (FR-5.4) with a random ID, a short fingerprint of its content (`content_hash`) and a **15 minute** expiry. The AI is told to show it and ask. Nothing is created yet (UI-2).
 5. **A person confirms** (FR-5.5), in one of two ways:
    - **The client asks the user** (MCP elicitation): "Create the PRIVATE playlist ...?". The answer comes from the client, not from the AI.
@@ -34,6 +34,9 @@ Why it is built this way: [[ADR-013 Playlist creation needs a person's confirmat
 | Write with a read-only login | `WRITE_ACCESS_REQUIRED` and the fix |
 
 The terminal command refuses to run unless it is attached to a real terminal, so a script, or an AI that runs shell commands for you, cannot confirm for you.
+
+## The video-to-playlist skill (SK-1)
+The skill in `.claude/skills/video-to-playlist/SKILL.md` runs the whole flow from one starting video: `describe_video`, `find_similar_videos`, `propose_playlist`, a question to the user, `create_playlist` and a short summary. It never confirms for the user. Its test cases are in `.claude/skills/video-to-playlist/evals.md`; they need a person ([[Skill Evaluations]]).
 
 ## Write permission (FR-6.1)
 Logins are read-only by default. Before the first playlist, run `python -m ytmcp auth login --write` once ([[Auth]]). If you forget, `create_playlist` tells you, and the proposal stays valid for its 15 minutes.
@@ -59,7 +62,7 @@ In the SQLite file (`src/ytmcp/database.py`), in the `proposals` table, even wit
 - **Not yet tried:** the terminal confirmation in a real terminal, and a real AI client's own question (the test client used the real protocol, but it was a test client).
 
 ## Known limits
-- **Short clips:** results come in search relevance order, so a topic like "tutorial" can include 20 second Shorts. Use `min_video_minutes` (3 or more) to leave them out. It is off by default, because the SRS does not ask for it; the proposal warns when short clips are present.
+- **Short clips:** results come in search relevance order, so a topic like "tutorial" can include 20 second Shorts. `min_video_minutes` leaves them out and now defaults to 3; pass 0 to keep them (the proposal then warns).
 - Which MCP clients can ask the question themselves is not known; the terminal path covers the rest. Under the newer 2026 protocol the server cannot ask mid-call, so it always uses the terminal path.
 - A client that answers the question automatically cannot be told apart from a person ([[ADR-013 Playlist creation needs a person's confirmation]]).
 - Only one search (50 candidates) is made, so very long playlists on narrow topics may fall short. The notes say so.

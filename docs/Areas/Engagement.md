@@ -67,6 +67,6 @@ The cost follows the sources you choose: 22 for likes only, 4 for subscriptions 
 ## Known limits
 - Likes beyond the newest 500, and videos beyond the first 50 of each of 10 playlists, are not read.
 - Category names come from YouTube's list for one region (US). An ID that is not in the list shows as "Category 99" and a video with no category as "Unknown".
-- Tested with fakes and over the real MCP protocol. **It has not been tried on a real account yet.**
+- Tested with fakes and over the real MCP protocol, and tried once on a real account (read-only): the totals, category names, trend months and comparison all came back as expected.
 
 Why: [[ADR-018 Engagement analysis sources and periods]]. Part of [[Architecture]].

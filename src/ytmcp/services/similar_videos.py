@@ -1,4 +1,4 @@
-"""Find videos similar to a given video (FR-1)."""
+"""Find videos similar to a given video (FR-1), and describe one video."""
 
 import math
 
@@ -22,6 +22,17 @@ def build_query(seed: Video) -> str:
     """Build a search query from the seed's title and its top tags."""
     words = f"{seed.title} {' '.join(seed.tags[:MAX_QUERY_TAGS])}".lower().split()
     return " ".join(dict.fromkeys(words))  # drop repeats, keep order
+
+
+def describe_video(provider: VideoProvider, video_ref: str) -> Video:
+    """Return one video's details (1 quota unit). Raises ValueError for an invalid reference
+    and VideoNotFoundError if the video is private, deleted or missing."""
+    video_id = extract_video_id(video_ref)
+    provider.ensure_budget(COSTS["videos.list"])
+    videos = provider.get_videos([video_id])
+    if not videos:
+        raise VideoNotFoundError(f"Video {video_id} is private, deleted or does not exist")
+    return videos[0]
 
 
 def find_similar_videos(
