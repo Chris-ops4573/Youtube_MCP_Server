@@ -21,6 +21,7 @@ Methods:
   - Retries at most 3 times (waits 1s, 2s, 4s) on network errors, 5xx and rate limits. `quotaExceeded` is never retried (SRS 3.4).
   - Every call is counted in [[Quota]].
   - The API key never appears in error messages.
+- `YouTubePlaylistWriter` (also in `providers/youtube.py`, so all the YouTube HTTP code is in one file) - creates playlists with the user's Google login (FR-5). It implements `PlaylistWriter`, not `VideoProvider`: it can only create, is never retried, and has a 15 second timeout (reads use 10). See [[Playlist]].
 - `CachingProvider` (`providers/caching.py`) - wraps another provider and serves repeats from SQLite. See [[Cache]].
 - `FixtureProvider` (`providers/fixture.py`) - reads `tests/fixtures/*.json`; no API calls.
 

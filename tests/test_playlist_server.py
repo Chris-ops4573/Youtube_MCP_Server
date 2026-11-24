@@ -24,7 +24,7 @@ from ytmcp.cache import Cache
 from ytmcp.config import build_services
 from ytmcp.proposals import ProposalStore
 from ytmcp.providers.fixture import FixtureProvider
-from ytmcp.providers.playlists import YouTubePlaylistWriter
+from ytmcp.providers.youtube import YouTubePlaylistWriter
 from ytmcp.server import ConfirmPlaylist, ask_user, create_server
 
 IDS = ["aaaaaaaaaaa", "bbbbbbbbbbb"]

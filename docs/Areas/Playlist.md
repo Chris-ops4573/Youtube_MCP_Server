@@ -1,7 +1,7 @@
 # Playlist
 
 FR-5: make a private playlist on the user's YouTube account, only after a person confirms.
-Files: `src/ytmcp/playlist_planner.py` (choose videos), `src/ytmcp/proposals.py` (saved proposals), `src/ytmcp/services/playlists.py` (the steps), `src/ytmcp/providers/playlists.py` (the YouTube writer), `src/ytmcp/tools.py` (what the AI client sees)
+Files: `src/ytmcp/playlist_planner.py` (choose videos), `src/ytmcp/proposals.py` (saved proposals), `src/ytmcp/services/playlists.py` (the steps), `src/ytmcp/providers/youtube.py` (the YouTube writer, next to the reads), `src/ytmcp/tools.py` (what the AI client sees)
 
 ## Two tools
 | Tool | What it does | Changes YouTube? |
