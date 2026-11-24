@@ -6,6 +6,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Stage 1 Review]]
 - [[Stage 2 Review]]
 - [[Development Plan]]
+- [[Defect Log]]
 - [[Refactor and Feature Plan]]
 
 ## Areas
