@@ -26,10 +26,10 @@ flowchart LR
   Services --> Planner["playlist_planner.py"]
   Services --> Store["ProposalStore"]
   Store --> DB
-  Services --> Writer["YouTubePlaylistWriter"]
-  Writer --> Quota
-  Writer -->|"HTTPS and your OAuth token"| YT
-  Writer -.->|"asks for a write token"| Auth
+  Services --> Account["YouTubeAccount"]
+  Account --> Quota
+  Account -->|"HTTPS and your OAuth token"| YT
+  Account -.->|"asks for a write token"| Auth
   CLI -->|"playlist confirm"| Store
   Server --> Config["config.py (builds the objects)"]
   CLI --> Config
@@ -56,7 +56,7 @@ flowchart LR
 - Only stdio is used to talk to the AI client ([[ADR-009 Stdio transport only]]).
 
 ## Playlists (built)
-FR-5 adds `propose_playlist` and `create_playlist`. The writer is separate from the read providers: reading uses the API key, writing uses the user's own login. Only `create_playlist` ever writes, and only after a person confirms: see [[Playlist]] and [[Design Sequences]].
+FR-5 adds `propose_playlist` and `create_playlist`. The account provider is separate from the read providers: reading public data uses the API key, acting as the user (creating a playlist) uses the user's own login. Only `create_playlist` ever writes, and only after a person confirms: see [[Playlist]] and [[Design Sequences]].
 
 ## Not built yet (planned)
 FR-3 recommendations and FR-4 engagement analysis will be new **services and tools** in the same layers. They add one more provider capability: reading the user's own data with the OAuth token.

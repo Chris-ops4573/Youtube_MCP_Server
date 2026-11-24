@@ -2,7 +2,7 @@
 
 All YouTube access goes through two interfaces in `src/ytmcp/providers/base.py` (SE-6, SI-1):
 - **VideoProvider** reads public data with an API key.
-- **PlaylistWriter** acts as the signed-in user. Today it can only create a playlist and add videos to it ([[Playlist]]).
+- **AccountProvider** acts as the signed-in user. Today it can only create a playlist and add videos to it ([[Playlist]]).
 
 They are separate on purpose. Reading needs only an API key and is retried. Writing needs the user's login and write permission, is never retried, and can only create, so the dangerous interface stays small.
 
@@ -15,7 +15,7 @@ They are separate on purpose. Reading needs only an API key and is retried. Writ
 - `get_recent_uploads(channel_id, max_results)` - titles from the uploads playlist, 1 unit (FR-2.2)
 - `ensure_budget(units)` - quota pre-check (FR-7.1); does nothing for fixtures
 
-## PlaylistWriter methods (the user's account, login)
+## AccountProvider methods (the user's account, login)
 - `ensure_write_access()` - raises `WRITE_ACCESS_REQUIRED` unless the login has write permission (FR-6.1)
 - `ensure_budget(units)` - quota pre-check before creating anything: 50 + 50 per video (FR-5.6)
 - `create_playlist(title, description)` - creates a new **private** playlist and returns its ID
@@ -30,7 +30,7 @@ They are separate on purpose. Reading needs only an API key and is retried. Writ
   - Retries at most 3 times (waits 1s, 2s, 4s) on network errors, 5xx and rate limits. `quotaExceeded` is never retried (SRS 3.4).
   - Every call is counted in [[Quota]].
   - The API key never appears in error messages.
-- `YouTubePlaylistWriter` (also in `providers/youtube.py`, so all the YouTube HTTP code is in one file) - creates playlists with the user's Google login (FR-5). It implements `PlaylistWriter`, not `VideoProvider`: it can only create, is never retried, and has a 15 second timeout (reads use 10). See [[Playlist]].
+- `YouTubeAccount` (also in `providers/youtube.py`, so all the YouTube HTTP code is in one file) - creates playlists with the user's Google login (FR-5). It implements `AccountProvider`, not `VideoProvider`: it can only create, is never retried, and has a 15 second timeout (reads use 10). See [[Playlist]].
 - `CachingProvider` (`providers/caching.py`) - wraps another provider and serves repeats from SQLite. See [[Cache]].
 - `FixtureProvider` (`providers/fixture.py`) - reads `tests/fixtures/*.json`; no API calls.
 

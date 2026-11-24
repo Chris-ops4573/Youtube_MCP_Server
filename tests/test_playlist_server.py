@@ -9,7 +9,7 @@ import json
 from types import SimpleNamespace
 
 import pytest
-from fake_playlists import FakeWriter, ListProvider
+from fake_playlists import FakeAccount, ListProvider
 from fake_playlists import make_video as v
 from mcp import Client, types
 from mcp.server.elicitation import (
@@ -24,7 +24,7 @@ from ytmcp.config import build_services
 from ytmcp.database import Database
 from ytmcp.proposals import ProposalStore
 from ytmcp.providers.fixture import FixtureProvider
-from ytmcp.providers.youtube import YouTubePlaylistWriter
+from ytmcp.providers.youtube import YouTubeAccount
 from ytmcp.server import ConfirmPlaylist, ask_user, create_server
 
 IDS = ["aaaaaaaaaaa", "bbbbbbbbbbb"]
@@ -33,7 +33,7 @@ IDS = ["aaaaaaaaaaa", "bbbbbbbbbbb"]
 def make(writer=None):
     store = ProposalStore(Database(":memory:"))
     provider = ListProvider([v(IDS[0], 30, "Rust A"), v(IDS[1], 30, "Rust B")])
-    writer = writer if writer is not None else FakeWriter()
+    writer = writer if writer is not None else FakeAccount()
     return create_server(provider, store, writer), store, writer
 
 
@@ -285,7 +285,7 @@ def test_fixture_mode_has_no_writer_so_no_real_playlists(monkeypatch, tmp_path):
     monkeypatch.setenv("YTMCP_CACHE_PATH", str(tmp_path / "c.db"))
     services = build_services()
     assert isinstance(services.provider, FixtureProvider)
-    assert services.writer is None
+    assert services.account is None
     assert isinstance(services.store, ProposalStore)
 
 
@@ -296,9 +296,9 @@ def test_live_mode_shares_one_quota_between_reading_and_writing(monkeypatch, tmp
     monkeypatch.setenv("YTMCP_CACHE", cache_setting)
     monkeypatch.setenv("YTMCP_CACHE_PATH", str(tmp_path / "c.db"))
     services = build_services()
-    assert isinstance(services.writer, YouTubePlaylistWriter)
+    assert isinstance(services.account, YouTubeAccount)
     inner = getattr(services.provider, "_inner", services.provider)
-    assert services.writer._quota is inner._quota  # one daily count, not two
+    assert services.account._quota is inner._quota  # one daily count, not two
     assert (tmp_path / "c.db").exists()  # proposals live in the file even with the cache off
 
 

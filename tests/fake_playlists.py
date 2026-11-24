@@ -1,7 +1,7 @@
 """Fakes for the playlist tests: no network, no YouTube, no real login (TQ-5)."""
 
 from ytmcp.models import Video
-from ytmcp.providers.base import PlaylistWriter, VideoProvider
+from ytmcp.providers.base import AccountProvider, VideoProvider
 
 
 def make_video(vid, minutes, title=None, language="en", live=False, channel="Chan", seconds=None):
@@ -51,7 +51,7 @@ class ListProvider(VideoProvider):
         return []
 
 
-class FakeWriter(PlaylistWriter):
+class FakeAccount(AccountProvider):
     """Records every call in order, and can be told to fail in specific ways."""
 
     def __init__(self, create_error=None, video_errors=None, budget_error=None, access_error=None):

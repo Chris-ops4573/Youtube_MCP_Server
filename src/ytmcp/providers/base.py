@@ -37,9 +37,10 @@ class VideoProvider(ABC):
         """
 
 
-class PlaylistWriter(ABC):
-    """Creates playlists on YouTube (FR-5). Separate from VideoProvider on purpose: reading uses
-    an API key, writing uses the user's own login. Nothing here can edit or delete (SRS 5.2)."""
+class AccountProvider(ABC):
+    """Everything done as the signed-in user, with the user's own login (SE-6). Today that is
+    creating playlists (FR-5). Separate from VideoProvider on purpose: VideoProvider reads public
+    data with an API key. Nothing here can edit or delete (SRS 5.2)."""
 
     @abstractmethod
     def ensure_write_access(self) -> None:

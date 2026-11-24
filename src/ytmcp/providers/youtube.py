@@ -5,7 +5,7 @@ is needed. Every call is counted against the daily quota (FR-7.1). Failed calls 
 at most 3 times with backoff; quotaExceeded is never retried (SRS 3.4). The API key is only
 ever put in the request URL, never in errors or logs.
 
-Writes (YouTubePlaylistWriter, FR-5): create playlists with the user's Google login. The only
+Writes (YouTubeAccount, FR-5): create playlists with the user's Google login. The only
 two calls are playlists.insert and playlistItems.insert: this can create, never edit or
 delete (SRS 5.2). Writes are NOT retried. After an unclear failure (a timeout, say) the
 playlist may already exist, and a retry would make a duplicate. The login token is only ever
@@ -32,7 +32,7 @@ from ytmcp.errors import (
     YouTubeChannelRequiredError,
 )
 from ytmcp.models import Channel, Video
-from ytmcp.providers.base import PlaylistWriter, VideoProvider
+from ytmcp.providers.base import AccountProvider, VideoProvider
 from ytmcp.quota import MAX_IDS_PER_CALL, QuotaTracker
 
 API_URL = "https://www.googleapis.com/youtube/v3"
@@ -262,7 +262,7 @@ def urllib_post_json(
             return exc.code, {}
 
 
-class YouTubePlaylistWriter(PlaylistWriter):
+class YouTubeAccount(AccountProvider):
     def __init__(
         self,
         get_token: Callable[[str], str],

@@ -100,18 +100,18 @@ classDiagram
 ```
 
 ## Playlists (FR-5)
-The writer is separate from `VideoProvider`. It can only create ([[Playlist]]).
+The account provider is separate from `VideoProvider`. Today it can only create ([[Playlist]]).
 
 ```mermaid
 classDiagram
-  class PlaylistWriter {
+  class AccountProvider {
     <<abstract>>
     +ensure_write_access()
     +ensure_budget(units)
     +create_playlist(title, description) str
     +add_video(playlist_id, video_id)
   }
-  class YouTubePlaylistWriter
+  class YouTubeAccount
   class ProposalStore {
     +save(proposal)
     +get(proposal_id) Proposal
@@ -143,9 +143,9 @@ classDiagram
     +bool meets_target
     +list notes
   }
-  PlaylistWriter <|-- YouTubePlaylistWriter
-  YouTubePlaylistWriter --> QuotaTracker : counts every call
-  YouTubePlaylistWriter --> AuthService : gets a write token
+  AccountProvider <|-- YouTubeAccount
+  YouTubeAccount --> QuotaTracker : counts every call
+  YouTubeAccount --> AuthService : gets a write token
   ProposalStore --> Database : proposals table
   ProposalStore --> Proposal
   Constraints ..> Selection : select_videos

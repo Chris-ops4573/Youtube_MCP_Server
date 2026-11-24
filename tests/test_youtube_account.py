@@ -9,7 +9,7 @@ from ytmcp.errors import (
     YouTubeApiError,
     YouTubeChannelRequiredError,
 )
-from ytmcp.providers.youtube import YouTubePlaylistWriter
+from ytmcp.providers.youtube import YouTubeAccount
 from ytmcp.quota import QuotaTracker
 
 TOKEN = "SECRET-ACCESS-TOKEN"
@@ -41,7 +41,7 @@ def make(queue=None, token_source=None, quota=None):
 
     post = FakePost(queue)
     quota = quota or QuotaTracker(reserve=0)
-    writer = YouTubePlaylistWriter(token_source or get_token, quota, post=post)
+    writer = YouTubeAccount(token_source or get_token, quota, post=post)
     return writer, post, quota, scopes_asked
 
 
@@ -217,5 +217,5 @@ def test_ensure_budget_uses_the_shared_quota():
 
 
 def test_the_writer_can_only_create_it_has_no_way_to_edit_or_delete():
-    public = {n for n in dir(YouTubePlaylistWriter) if not n.startswith("_")}
+    public = {n for n in dir(YouTubeAccount) if not n.startswith("_")}
     assert public == {"add_video", "create_playlist", "ensure_budget", "ensure_write_access"}
