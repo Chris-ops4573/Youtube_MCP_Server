@@ -14,7 +14,6 @@ from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-from ytmcp.channel_similarity import ScoredChannel
 from ytmcp.errors import (
     ConfirmationRequiredError,
     InvalidConstraintsError,
@@ -32,7 +31,7 @@ from ytmcp.services.playlists import (
     prepare_create,
     propose_playlist,
 )
-from ytmcp.similarity import ScoredVideo
+from ytmcp.similarity import ScoredChannel, ScoredVideo
 
 # --- shared helpers --------------------------------------------------------------------------------
 
