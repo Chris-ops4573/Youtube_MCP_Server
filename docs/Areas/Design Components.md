@@ -9,7 +9,7 @@ Everything runs as **one local process** on the user's computer. The AI client t
 ```mermaid
 flowchart LR
   Client["AI client"] -->|"MCP over stdio"| Server["server.py"]
-  Server --> Tools["tools/"]
+  Server --> Tools["tools.py"]
   Tools --> Services["services/"]
   Services --> Sim["similarity.py and channel_similarity.py"]
   Services --> Caching["CachingProvider"]
@@ -40,7 +40,7 @@ flowchart LR
 |---|---|---|
 | MCP server | Registers the tools and asks the user to confirm a playlist | `src/ytmcp/server.py` |
 | Config | Reads the settings and builds the objects for the server and the CLI. It imports neither | `src/ytmcp/config.py` |
-| Tools | Check arguments, format results and errors (UI-1, UI-3) | `src/ytmcp/tools/` |
+| Tools | Check arguments, format results and errors (UI-1, UI-3) | `src/ytmcp/tools.py` |
 | Services | The feature logic (FR-1, FR-2) | `src/ytmcp/services/` |
 | Similarity | Pure scoring maths, no API calls | `similarity.py`, `channel_similarity.py` |
 | Providers | All YouTube access (SE-6) | `src/ytmcp/providers/` |

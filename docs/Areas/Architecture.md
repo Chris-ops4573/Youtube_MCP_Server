@@ -5,7 +5,7 @@ Diagrams (components, classes, sequences, data): [[Design Components]], [[Design
 A request flows through these layers:
 
 ```
-AI client -> server.py -> tools/ -> services/ -> providers/ (YouTube data)
+AI client -> server.py -> tools.py -> services/ -> providers/ (YouTube data)
                                             \-> similarity.py (scoring)
 ```
 
@@ -13,7 +13,7 @@ AI client -> server.py -> tools/ -> services/ -> providers/ (YouTube data)
 |---|---|---|
 | Server | `src/ytmcp/server.py` | Registers the MCP tools and asks the user to confirm a playlist |
 | Config | `src/ytmcp/config.py` | Reads the settings and builds the objects for server.py and cli.py (the wiring). It imports neither |
-| Tools | `src/ytmcp/tools/` | Formats results and errors for the AI client - see [[Errors]] |
+| Tools | `src/ytmcp/tools.py` | Formats results and errors for the AI client - see [[Errors]] |
 | Services | `src/ytmcp/services/` | The feature logic (FR-1 videos, FR-2 [[Channels]]) |
 | Providers | `src/ytmcp/providers/` | All YouTube access - see [[Providers]] |
 | Auth | `src/ytmcp/auth/` | Google sign-in and token storage - see [[Auth]] |

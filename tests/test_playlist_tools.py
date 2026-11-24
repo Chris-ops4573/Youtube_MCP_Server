@@ -10,8 +10,7 @@ from ytmcp.cache import Cache
 from ytmcp.errors import QuotaExceededError, WriteAccessRequiredError, YouTubeApiError
 from ytmcp.proposals import ProposalStore
 from ytmcp.providers.youtube import YouTubeProvider
-from ytmcp.tools import create_playlist_tool, propose_playlist_tool
-from ytmcp.tools.playlists import UNTRUSTED_NOTICE
+from ytmcp.tools import UNTRUSTED_NOTICE, create_playlist_tool, propose_playlist_tool
 
 NOW = 1_000_000.0
 IDS = ["aaaaaaaaaaa", "bbbbbbbbbbb", "ccccccccccc"]
