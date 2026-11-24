@@ -18,6 +18,8 @@ COSTS: dict[str, int] = {
     "videos.list": 1,
     "channels.list": 1,
     "playlistItems.list": 1,
+    "playlists.insert": 50,
+    "playlistItems.insert": 50,
 }
 
 MAX_IDS_PER_CALL = 50  # videos.list / channels.list accept up to 50 IDs

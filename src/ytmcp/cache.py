@@ -6,6 +6,7 @@ treated as missing and pruned, so stale YouTube data is not kept (SRS 6, Legal).
 """
 
 import json
+import os
 import sqlite3
 import threading
 import time
@@ -26,9 +27,23 @@ CREATE TABLE IF NOT EXISTS searches (
 CREATE TABLE IF NOT EXISTS uploads (
     channel_id TEXT NOT NULL, max_results INTEGER NOT NULL, titles TEXT NOT NULL,
     fetched_at REAL NOT NULL, PRIMARY KEY (channel_id, max_results));
+CREATE TABLE IF NOT EXISTS proposals (
+    id TEXT PRIMARY KEY, content_hash TEXT NOT NULL, title TEXT NOT NULL,
+    description TEXT NOT NULL, videos TEXT NOT NULL, constraints TEXT NOT NULL,
+    created_at REAL NOT NULL, expires_at REAL NOT NULL, status TEXT NOT NULL,
+    playlist_id TEXT);
 CREATE TABLE IF NOT EXISTS quota_usage (
     day TEXT PRIMARY KEY, units INTEGER NOT NULL);
 """
+
+
+PROPOSAL_KEEP_SECONDS = 24 * 3600
+
+
+def default_cache_path() -> Path:
+    """Where the database lives: YTMCP_CACHE_PATH, or .cache/ytmcp.db in the project."""
+    env = os.environ.get("YTMCP_CACHE_PATH")
+    return Path(env) if env else Path(__file__).resolve().parents[2] / ".cache" / "ytmcp.db"
 
 
 def normalize_query(query: str) -> str:
@@ -120,6 +135,45 @@ class Cache:
                 (channel_id, max_results, json.dumps(titles), self._now()),
             )
 
+    # --- playlist proposals (FR-5.4) -------------------------------------------
+
+    def put_proposal(self, row: dict) -> None:
+        with self._lock, self._conn:
+            self._conn.execute(
+                "INSERT INTO proposals (id, content_hash, title, description, videos, constraints,"
+                " created_at, expires_at, status, playlist_id)"
+                " VALUES (:id, :content_hash, :title, :description, :videos, :constraints,"
+                " :created_at, :expires_at, :status, :playlist_id)",
+                row,
+            )
+
+    def get_proposal(self, proposal_id: str) -> dict | None:
+        with self._lock:
+            cursor = self._conn.execute("SELECT * FROM proposals WHERE id = ?", (proposal_id,))
+            row = cursor.fetchone()
+            names = [d[0] for d in cursor.description]
+        return dict(zip(names, row, strict=True)) if row else None
+
+    def change_proposal_status(
+        self,
+        proposal_id: str,
+        new_status: str,
+        allowed_from: tuple[str, ...],
+        not_expired_at: float | None = None,
+        playlist_id: str | None = None,
+    ) -> bool:
+        """Move a proposal to a new status only if it is in one of `allowed_from` (and, when
+        `not_expired_at` is given, has not expired). One atomic statement, so two callers
+        can never both succeed. Returns whether this call made the change."""
+        marks = ",".join("?" * len(allowed_from))
+        sql = f"UPDATE proposals SET status = ?, playlist_id = COALESCE(?, playlist_id) WHERE id = ? AND status IN ({marks})"
+        args: list = [new_status, playlist_id, proposal_id, *allowed_from]
+        if not_expired_at is not None:
+            sql += " AND expires_at > ?"
+            args.append(not_expired_at)
+        with self._lock, self._conn:
+            return self._conn.execute(sql, args).rowcount == 1
+
     # --- quota ledger (used by QuotaTracker) --------------------------------
 
     def get_spent(self, day: str) -> int:
@@ -153,4 +207,7 @@ class Cache:
             )
             self._conn.execute(
                 "DELETE FROM uploads WHERE fetched_at < ?", (now - metadata_max_age,)
+            )
+            self._conn.execute(  # old proposals are no use to anyone
+                "DELETE FROM proposals WHERE created_at < ?", (now - PROPOSAL_KEEP_SECONDS,)
             )

@@ -44,21 +44,26 @@ Notes:
 - `quota_usage` has one row per Pacific-time day. It is the only table that is never expired ([[Quota]]).
 - `prune` runs at startup and deletes rows older than their limit.
 
-## Planned table (FR-5.4, not built)
-Proposals are stored so the server can check them at confirmation time.
+## Playlist proposals (FR-5.4)
+The same database file also holds the saved proposals, so the server and the terminal command (`python -m ytmcp playlist confirm`) see the same data. This is true even when the cache is switched off. See [[Playlist]].
 
 ```mermaid
 erDiagram
   proposals {
     text id PK
     text content_hash
+    text title
+    text description
+    text videos
     text constraints
-    text video_ids
     real created_at
     real expires_at
     text status
+    text playlist_id
   }
 ```
+
+`status` is one of `proposed`, `confirmed`, `creating`, `created`, `partial`, `failed`, `declined`. Changes happen in single database statements that only succeed from the right status, so two callers can never both create from one proposal.
 
 ## How long data is kept
 YouTube's API terms require refreshing or deleting stale data (SRS section 6).
@@ -69,7 +74,7 @@ YouTube's API terms require refreshing or deleting stale data (SRS section 6).
 | Video and channel searches | 1 hour |
 | Recent upload titles | 6 hours |
 | Quota count | per day, small |
-| Proposals (planned) | 15 minutes |
+| Proposals | usable for 15 minutes, deleted after a day |
 
 ## Where each kind of data lives
 | Data | Where | Why there |
@@ -80,4 +85,4 @@ YouTube's API terms require refreshing or deleting stale data (SRS section 6).
 | Video, channel, search data, quota count | SQLite file | cache and ledger (FR-7) |
 | Sample data for tests | `tests/fixtures/` | no live calls, no real user data (TQ-5) |
 
-No real user data (likes, subscriptions, playlists) is stored anywhere yet. When FR-3 and FR-4 arrive, that data must stay in memory or in the cache with the same expiry rules, and never in fixtures or logs.
+No real user data (likes, subscriptions, existing playlists) is stored anywhere yet. A proposal holds only public video titles and the title the user asked for. When FR-3 and FR-4 arrive, that data must stay in memory or in the cache with the same expiry rules, and never in fixtures or logs.

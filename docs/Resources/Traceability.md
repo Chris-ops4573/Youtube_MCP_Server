@@ -16,6 +16,14 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | FR-6.1 (OAuth, PKCE, read-only default) | `src/ytmcp/auth/oauth.py`, `pkce.py`, `loopback.py`, `service.py` | `tests/test_oauth.py`, `test_pkce.py`, `test_loopback.py`, `test_auth_service.py` | [[Auth]] | |
 | FR-6.2 (tokens only in keyring, re-auth on expiry) | `src/ytmcp/auth/tokens.py`, `service.py` | `tests/test_tokens.py`, `tests/test_auth_service.py` | [[Auth]] | |
 | UI-4 (CLI: auth part only) | `src/ytmcp/cli.py` | `tests/test_cli.py` | [[Auth]] | |
+| FR-5.1 (validate before any API call, field-level errors) | `src/ytmcp/playlist_planner.py`, `src/ytmcp/tools/playlists.py` | `tests/test_playlist_planner.py`, `tests/test_playlist_tools.py` | [[Playlist]] | |
+| FR-5.2, FR-5.3 (drop live/long/short/wrong language, total within 10%, no duplicates, explain) | `src/ytmcp/playlist_planner.py` | `tests/test_playlist_planner.py` | [[ADR-014 How playlist videos are chosen]] | |
+| FR-5.4 (proposal with ID, hash, 15 minute expiry) | `src/ytmcp/proposals.py`, `src/ytmcp/cache.py` | `tests/test_proposals.py`, `tests/test_playlist_service.py` | [[Playlist]] | |
+| FR-5.5 (confirmation enforced on the server) | `src/ytmcp/services/playlists.py`, `src/ytmcp/tools/playlists.py`, `src/ytmcp/server.py`, `src/ytmcp/cli.py` | `tests/test_playlist_server.py`, `tests/test_playlist_service.py`, `tests/test_cli.py` | [[ADR-013 Playlist creation needs a person's confirmation]] | |
+| FR-5.6 (quota estimate, partial failures, signup required) | `src/ytmcp/services/playlists.py`, `src/ytmcp/providers/playlists.py` | `tests/test_playlist_service.py`, `tests/test_playlist_writer.py` | [[Playlist]] | |
+| UI-2 (proposal shows videos, totals, longest, asks to confirm) | `src/ytmcp/tools/playlists.py` | `tests/test_playlist_tools.py` | [[Playlist]] | |
+| FR-6.1 (write permission only when needed) | `src/ytmcp/cli.py`, `src/ytmcp/providers/playlists.py` | `tests/test_cli.py`, `tests/test_playlist_writer.py` | [[Auth]] | |
+| SRS 5.2 (private, create only, no retries) | `src/ytmcp/providers/playlists.py` | `tests/test_playlist_writer.py` | [[Playlist]] | |
 | FR-7.1 (quota pre-check) | `src/ytmcp/quota.py`, `services/similar_videos.py` | `tests/test_quota.py`, `tests/test_similar_videos.py` | [[Quota]] | |
 | FR-7.2 (SQLite cache, batching) | `src/ytmcp/cache.py`, `providers/caching.py` | `tests/test_cache.py`, `tests/test_caching_provider.py` | [[Cache]] | |
 | FR-7.1 (ledger survives restart) | `src/ytmcp/quota.py`, `src/ytmcp/cache.py` | `tests/test_cache.py` | [[Quota]] | |
@@ -31,6 +39,6 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | SRS 5.4 (coverage >= 80%) | `.github/workflows/ci.yml` | CI pytest step | [[Testing]] | |
 | FR-5.2 (durations) | `src/ytmcp/durations.py` | `tests/test_durations.py` | | |
 
-Not started: FR-3 to FR-5, UI-2, SK-1. Partly done: UI-4 (only the `auth` commands).
+Not started: FR-3, FR-4, SK-1. Partly done: UI-4 (the `auth` and `playlist confirm` commands; `quota status`, `serve` and `local-check` are not CLI commands yet). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation has not been tried in a real terminal.
 
 Back to [[Requirements]].

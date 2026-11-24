@@ -23,6 +23,14 @@ flowchart LR
   Auth --> KR[("OS keyring")]
   Auth -->|"HTTPS OAuth with PKCE"| Google["Google OAuth"]
   Auth -.->|"redirect to 127.0.0.1"| Browser["Browser"]
+  Services --> Planner["playlist_planner.py"]
+  Services --> Store["ProposalStore"]
+  Store --> DB
+  Services --> Writer["YouTubePlaylistWriter"]
+  Writer --> Quota
+  Writer -->|"HTTPS and your OAuth token"| YT
+  Writer -.->|"asks for a write token"| Auth
+  CLI -->|"playlist confirm"| Store
 ```
 
 ## What each part is for
@@ -44,5 +52,8 @@ flowchart LR
 - Tokens only ever go to the OS keyring ([[ADR-007 OAuth with PKCE and keyring]]).
 - Only stdio is used to talk to the AI client ([[ADR-009 Stdio transport only]]).
 
+## Playlists (built)
+FR-5 adds `propose_playlist` and `create_playlist`. The writer is separate from the read providers: reading uses the API key, writing uses the user's own login. Only `create_playlist` ever writes, and only after a person confirms: see [[Playlist]] and [[Design Sequences]].
+
 ## Not built yet (planned)
-FR-3 recommendations, FR-4 engagement analysis and FR-5 playlist creation will be new **services and tools** in the same layers. They add one more provider capability (reading the user's own data with the OAuth token) and a **proposal store**. See [[Design Sequences]] and [[Design Data]].
+FR-3 recommendations and FR-4 engagement analysis will be new **services and tools** in the same layers. They add one more provider capability: reading the user's own data with the OAuth token.

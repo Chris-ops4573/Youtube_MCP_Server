@@ -44,8 +44,13 @@ def format_results(results: list[ScoredVideo]) -> list[dict[str, Any]]:
     ]
 
 
-def error_response(code: str, message: str, remediation: str) -> dict[str, Any]:
-    return {"error": {"code": code, "message": message, "remediation": remediation}}
+def error_response(
+    code: str, message: str, remediation: str, fields: dict[str, str] | None = None
+) -> dict[str, Any]:
+    error: dict[str, Any] = {"code": code, "message": message, "remediation": remediation}
+    if fields:
+        error["fields"] = fields
+    return {"error": error}
 
 
 def similar_videos_tool(provider: VideoProvider, video: str, top_n: int = 10) -> dict[str, Any]:

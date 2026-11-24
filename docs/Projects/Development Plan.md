@@ -18,7 +18,7 @@ SE-4. What gets built, in what order, and how we work. Stage deliverables come f
 | 3 | FR-2 similar channels | API key | done |
 | 4 | FR-6 OAuth sign-in | OAuth client | done (core) |
 | 5 | FR-3 recommendations | FR-6 | not started |
-| 6 | FR-5 playlist creation (UI-2) | FR-6, write scope | not started |
+| 6 | FR-5 playlist creation (UI-2) | FR-6, write scope | built and tested for real |
 | 7 | FR-4 engagement analysis | FR-6 | not started |
 | 8 | SK-1 video-to-playlist | FR-5 | not started |
 | 9 | Rest of the CLI (UI-4) | none | not started |

@@ -74,3 +74,83 @@ class AuthFailedError(YtmcpError):
         "Run `python -m ytmcp auth login` again. If it keeps failing, check your "
         "OAuth client settings in .env."
     )
+
+
+class InvalidConstraintsError(YtmcpError):
+    """Playlist constraints failed validation (FR-5.1). `fields` maps each bad field to why."""
+
+    code = "INVALID_CONSTRAINTS"
+    remediation = "Fix the fields listed under `fields` and try again."
+
+    def __init__(self, message: str, fields: dict[str, str]):
+        super().__init__(message)
+        self.fields = fields
+
+
+class NoVideosFoundError(YtmcpError):
+    """No video matched the topic and constraints."""
+
+    code = "NO_VIDEOS_FOUND"
+    remediation = "Try a broader topic, a longer maximum video length, or no language filter."
+
+
+class ProposalNotFoundError(YtmcpError):
+    code = "PROPOSAL_NOT_FOUND"
+    remediation = "Create a new proposal with propose_playlist."
+
+
+class ProposalExpiredError(YtmcpError):
+    code = "PROPOSAL_EXPIRED"
+    remediation = "Proposals last 15 minutes. Create a new one with propose_playlist."
+
+
+class ProposalMismatchError(YtmcpError):
+    """The content hash does not match the saved proposal (FR-5.5)."""
+
+    code = "PROPOSAL_MISMATCH"
+    remediation = "Use the proposal_id and content_hash exactly as returned by propose_playlist."
+
+
+class ProposalUsedError(YtmcpError):
+    """The proposal was already created, is being created, failed or was declined."""
+
+    code = "PROPOSAL_ALREADY_USED"
+    remediation = "Create a new proposal with propose_playlist if you want another playlist."
+
+
+class ConfirmationRequiredError(YtmcpError):
+    """A person has not confirmed this proposal (FR-5.5)."""
+
+    code = "CONFIRMATION_REQUIRED"
+
+    def __init__(self, proposal_id: str):
+        super().__init__("A person has to confirm this playlist before it can be created.")
+        self.remediation = (
+            "This client cannot ask the user directly. Ask the user to run "
+            f"`python -m ytmcp playlist confirm {proposal_id}` in a terminal, then call "
+            "create_playlist again with the same proposal_id and content_hash."
+        )
+
+
+class WriteAccessRequiredError(YtmcpError):
+    """Creating playlists needs a Google login with write permission (FR-6.1)."""
+
+    code = "WRITE_ACCESS_REQUIRED"
+    remediation = (
+        "Run `python -m ytmcp auth login --write` to allow creating playlists, then call "
+        "create_playlist again. The proposal stays valid for its 15 minutes."
+    )
+
+
+class YouTubeChannelRequiredError(YtmcpError):
+    """The Google account has no YouTube channel, so it cannot own playlists (FR-5.6)."""
+
+    code = "YOUTUBE_CHANNEL_REQUIRED"
+    remediation = "Create a YouTube channel for this Google account at youtube.com, then try again."
+
+
+class PlaylistWritesDisabledError(YtmcpError):
+    """Playlist creation is switched off (fixture mode)."""
+
+    code = "PLAYLIST_WRITES_DISABLED"
+    remediation = "Set YTMCP_PROVIDER=youtube in .env and restart the server to create real playlists."
