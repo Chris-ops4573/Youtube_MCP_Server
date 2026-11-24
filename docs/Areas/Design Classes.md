@@ -99,8 +99,8 @@ classDiagram
   TokenStore --> Token : keeps in OS keyring
 ```
 
-## Playlists (FR-5)
-The account provider is separate from `VideoProvider`. Today it can only create ([[Playlist]]).
+## The signed-in user's account (FR-3, FR-4, FR-5)
+The account provider is separate from `VideoProvider`. It reads the user's likes, subscriptions and playlists, and creates playlists ([[Playlist]]).
 
 ```mermaid
 classDiagram
@@ -108,10 +108,22 @@ classDiagram
     <<abstract>>
     +ensure_write_access()
     +ensure_budget(units)
+    +liked_videos(limit) list~LikedVideo~
+    +subscriptions(limit) list~Subscription~
+    +playlist_video_ids(max_playlists) set~str~
     +create_playlist(title, description) str
     +add_video(playlist_id, video_id)
   }
   class YouTubeAccount
+  class LikedVideo {
+    +str video_id
+    +str liked_at
+  }
+  class Subscription {
+    +str channel_id
+    +str title
+    +str subscribed_at
+  }
   class ProposalStore {
     +save(proposal)
     +get(proposal_id) Proposal
@@ -144,6 +156,8 @@ classDiagram
     +list notes
   }
   AccountProvider <|-- YouTubeAccount
+  AccountProvider ..> LikedVideo
+  AccountProvider ..> Subscription
   YouTubeAccount --> QuotaTracker : counts every call
   YouTubeAccount --> AuthService : gets a write token
   ProposalStore --> Database : proposals table

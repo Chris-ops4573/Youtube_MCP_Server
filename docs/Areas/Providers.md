@@ -2,9 +2,9 @@
 
 All YouTube access goes through two interfaces in `src/ytmcp/providers/base.py` (SE-6, SI-1):
 - **VideoProvider** reads public data with an API key.
-- **AccountProvider** acts as the signed-in user. Today it can only create a playlist and add videos to it ([[Playlist]]).
+- **AccountProvider** acts as the signed-in user: it reads the user's likes, subscriptions and playlists (FR-3, FR-4) and creates playlists ([[Playlist]]).
 
-They are separate on purpose. Reading needs only an API key and is retried. Writing needs the user's login and write permission, is never retried, and can only create, so the dangerous interface stays small.
+They are separate on purpose. VideoProvider needs only an API key. AccountProvider needs the user's login: reading uses the read-only scope and is retried like every other read; writing needs write permission, is never retried, and can only create, so the dangerous part stays small.
 
 ## VideoProvider methods (public data, API key)
 - `get_videos(ids)` - missing/private/deleted IDs are left out
@@ -16,6 +16,9 @@ They are separate on purpose. Reading needs only an API key and is retried. Writ
 - `ensure_budget(units)` - quota pre-check (FR-7.1); does nothing for fixtures
 
 ## AccountProvider methods (the user's account, login)
+- `liked_videos(limit)` - the likes playlist, newest first, with the date each video was liked ([[ADR-010 Like dates from the likes playlist]]). Costs 1 unit for the channel lookup plus 1 per page of 50. Private and deleted videos are skipped
+- `subscriptions(limit)` - the channels the user subscribes to, 50 per page, 1 unit per page
+- `playlist_video_ids(max_playlists)` - IDs of the videos in the user's own playlists (the first 50 of each): 1 unit plus 1 per playlist
 - `ensure_write_access()` - raises `WRITE_ACCESS_REQUIRED` unless the login has write permission (FR-6.1)
 - `ensure_budget(units)` - quota pre-check before creating anything: 50 + 50 per video (FR-5.6)
 - `create_playlist(title, description)` - creates a new **private** playlist and returns its ID
@@ -30,7 +33,9 @@ They are separate on purpose. Reading needs only an API key and is retried. Writ
   - Retries at most 3 times (waits 1s, 2s, 4s) on network errors, 5xx and rate limits. `quotaExceeded` is never retried (SRS 3.4).
   - Every call is counted in [[Quota]].
   - The API key never appears in error messages.
-- `YouTubeAccount` (also in `providers/youtube.py`, so all the YouTube HTTP code is in one file) - creates playlists with the user's Google login (FR-5). It implements `AccountProvider`, not `VideoProvider`: it can only create, is never retried, and has a 15 second timeout (reads use 10). See [[Playlist]].
+- `YouTubeAccount` (also in `providers/youtube.py`, so all the YouTube HTTP code is in one file) - acts as the user with their Google login. It implements `AccountProvider`, not `VideoProvider`.
+  - **Reads** use the read-only scope and the same retry function as `YouTubeProvider` (3 retries, `quotaExceeded` never retried, every page counted in [[Quota]]). Not being signed in passes through as `AUTH_REQUIRED`, and Google rejecting the token (401) also means sign in again.
+  - **Writes** (FR-5) use the write scope, can only create, are never retried, and have a 15 second timeout (reads use 10). See [[Playlist]].
 - `CachingProvider` (`providers/caching.py`) - wraps another provider and serves repeats from SQLite. See [[Cache]].
 - `FixtureProvider` (`providers/fixture.py`) - reads `tests/fixtures/*.json`; no API calls.
 

@@ -24,6 +24,7 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | UI-2 (proposal shows videos, totals, longest, asks to confirm) | `src/ytmcp/tools.py` | `tests/test_playlist_tools.py` | [[Playlist]] | |
 | FR-6.1 (write permission only when needed) | `src/ytmcp/cli.py`, `src/ytmcp/providers/youtube.py` | `tests/test_cli.py`, `tests/test_youtube_account.py` | [[Auth]] | |
 | SRS 5.2 (private, create only, no retries) | `src/ytmcp/providers/youtube.py` | `tests/test_youtube_account.py` | [[Playlist]] | |
+| FR-3.1 (reading likes, subscriptions and playlists, read-only scope) | `src/ytmcp/providers/youtube.py`, `src/ytmcp/providers/base.py` | `tests/test_youtube_account.py` | [[Providers]] | |
 | FR-7.1 (quota pre-check) | `src/ytmcp/quota.py`, `services/similar_videos.py`, `services/similar_channels.py`, `services/playlists.py` | `tests/test_quota.py`, `tests/test_similar_videos.py`, `tests/test_similar_channels.py`, `tests/test_playlist_service.py` | [[Quota]] | |
 | FR-7.2 (SQLite cache, batching) | `src/ytmcp/database.py`, `providers/caching.py` | `tests/test_database.py`, `tests/test_caching_provider.py` | [[Cache]] | |
 | FR-7.1 (ledger survives restart) | `src/ytmcp/quota.py`, `src/ytmcp/database.py` | `tests/test_database.py` | [[Quota]] | |
@@ -39,6 +40,6 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | SRS 5.4 (coverage >= 80%) | `.github/workflows/ci.yml` | CI pytest step | [[Testing]] | |
 | FR-5.2 (durations) | `src/ytmcp/durations.py` | `tests/test_durations.py` | | |
 
-Not started: FR-3, FR-4, SK-1. Partly done: UI-4 (the `auth` and `playlist confirm` commands; `quota status`, `serve` and `local-check` are not CLI commands yet). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation has not been tried in a real terminal.
+Not started: FR-3 (only the reading of the account, FR-3.1, is built), FR-4, SK-1. Partly done: UI-4 (the `auth` and `playlist confirm` commands; `quota status`, `serve` and `local-check` are not CLI commands yet). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation has not been tried in a real terminal.
 
 Back to [[Requirements]].

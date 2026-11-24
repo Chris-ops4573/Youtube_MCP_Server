@@ -244,3 +244,64 @@ def test_playlist_items_cost_one_unit():
     provider, _, _ = make(quota=quota)
     provider.get_recent_uploads(RUST_LAB)
     assert quota.spent == 1
+
+
+# --- the real HTTP function, against a tiny local server (no internet) --------------------------------------------
+
+
+@pytest.fixture
+def local_api():
+    """A throwaway HTTP server on 127.0.0.1 that answers /ok, /bad and /boom like YouTube would."""
+    import json
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path == "/ok":
+                status, body = 200, {"auth": self.headers.get("Authorization")}
+            elif self.path == "/bad":
+                status, body = 403, {"error": {"errors": [{"reason": "quotaExceeded"}]}}
+            else:
+                status, body = 500, None
+            payload = json.dumps(body).encode() if body is not None else b"<html>not json</html>"
+            self.send_response(status)
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+
+        def log_message(self, format, *args):
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    yield f"http://127.0.0.1:{server.server_port}"
+    server.shutdown()
+    server.server_close()
+    thread.join(timeout=5)
+
+
+def test_urllib_fetch_without_headers_still_works_as_before(local_api):
+    from ytmcp.providers.youtube import urllib_fetch
+
+    assert urllib_fetch(f"{local_api}/ok") == (200, {"auth": None})
+
+
+def test_urllib_fetch_can_send_headers(local_api):
+    from ytmcp.providers.youtube import urllib_fetch
+
+    status, body = urllib_fetch(f"{local_api}/ok", {"Authorization": "Bearer abc"})
+    assert (status, body) == (200, {"auth": "Bearer abc"})
+
+
+def test_urllib_fetch_returns_the_error_body_and_status(local_api):
+    from ytmcp.providers.youtube import urllib_fetch
+
+    assert urllib_fetch(f"{local_api}/bad") == (403, {"error": {"errors": [{"reason": "quotaExceeded"}]}})
+
+
+def test_urllib_fetch_survives_an_error_page_that_is_not_json(local_api):
+    from ytmcp.providers.youtube import urllib_fetch
+
+    assert urllib_fetch(f"{local_api}/boom") == (500, {})
