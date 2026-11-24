@@ -15,7 +15,7 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | FR-2.3 (rank, exclude seed, hidden subs) | `src/ytmcp/similarity.py`, `src/ytmcp/tools.py` | `tests/test_channel_similarity.py`, `tests/test_similar_channels_tool.py` | [[Channels]] | |
 | FR-6.1 (OAuth, PKCE, read-only default) | `src/ytmcp/auth/oauth.py`, `pkce.py`, `loopback.py`, `service.py` | `tests/test_oauth.py`, `test_pkce.py`, `test_loopback.py`, `test_auth_service.py` | [[Auth]] | |
 | FR-6.2 (tokens only in keyring, re-auth on expiry) | `src/ytmcp/auth/tokens.py`, `service.py` | `tests/test_tokens.py`, `tests/test_auth_service.py` | [[Auth]] | |
-| UI-4 (CLI: auth and playlist confirm) | `src/ytmcp/cli.py` | `tests/test_cli.py` | [[Auth]] | |
+| UI-4 (CLI: auth, playlist confirm, quota status, serve, local-check) | `src/ytmcp/cli.py`, `src/ytmcp/config.py` | `tests/test_cli.py`, `tests/test_cli_commands.py` | [[Auth]] | |
 | FR-5.1 (validate before any API call, field-level errors) | `src/ytmcp/playlist_planner.py`, `src/ytmcp/tools.py` | `tests/test_playlist_planner.py`, `tests/test_playlist_tools.py` | [[Playlist]] | |
 | FR-5.2, FR-5.3 (drop live/long/short/wrong language, total within 10%, no duplicates, explain) | `src/ytmcp/playlist_planner.py` | `tests/test_playlist_planner.py` | [[ADR-014 How playlist videos are chosen]] | |
 | FR-5.4 (proposal with ID, hash, 15 minute expiry) | `src/ytmcp/proposals.py`, `src/ytmcp/database.py` | `tests/test_proposals.py`, `tests/test_playlist_service.py` | [[Playlist]] | |
@@ -47,6 +47,6 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | SRS 5.4 (coverage >= 80%) | `.github/workflows/ci.yml` | CI pytest step | [[Testing]] | |
 | FR-5.2 (durations) | `src/ytmcp/durations.py` | `tests/test_durations.py` | | |
 
-SK-1 is written and waits for a person to run its evals. FR-4 is built, tested, and was tried on a real account (read-only). FR-3 is built, tested, and was tried on a real account (read-only). Partly done: UI-4 (the `auth` and `playlist confirm` commands; `quota status`, `serve` and `local-check` are not CLI commands yet). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation has not been tried in a real terminal.
+SK-1 is written and waits for a person to run its evals. FR-4 is built, tested, and was tried on a real account (read-only). FR-3 is built, tested, and was tried on a real account (read-only). UI-4 is built (all five command groups). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation has not been tried in a real terminal.
 
 Back to [[Requirements]].

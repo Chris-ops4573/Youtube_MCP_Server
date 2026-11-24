@@ -17,6 +17,7 @@ ruff check .      # lint
 cp .env.example .env    # then add your YOUTUBE_API_KEY
 python -m ytmcp.server   # run the MCP server (YTMCP_PROVIDER=fixture for sample data)
 python -m ytmcp auth login|status|logout   # Google sign-in (FR-6)
+python -m ytmcp quota status   # today's quota use; also: serve, local-check
 python scripts/brain.py check|search "words"|new adr "Title"   # the brain (notes + skills)
 python scripts/local_check.py   # SK-2: build, lint, tests, server check
 ```

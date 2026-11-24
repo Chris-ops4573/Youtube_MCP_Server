@@ -37,6 +37,9 @@ Our count is only what this server believes it spent. To check it against Google
 - One `find_similar_channels` costs **118** units (15 candidates): see [[Channels]].
 - One `propose_playlist` costs **101** units (a search plus video details). `create_playlist` costs **50 + 50 per video** (550 for 10 videos), checked before anything is created and shared with the reads in one counter: see [[Playlist]].
 
+## Looking at it
+`python -m ytmcp quota status` reads the same database file and prints the day (Pacific time), units used of 10,000, the reserve, units left and the time until the reset. It only counts calls this server made: other apps that use the same API key are not included, so the Google Cloud console is the full picture (TBD-8).
+
 ## Saved across restarts
 With the cache on, each call is also written to the `quota_usage` table (one row per Pacific-time day), so the count survives restarts. See [[Cache]]. With `YTMCP_CACHE=off` it is memory only.
 

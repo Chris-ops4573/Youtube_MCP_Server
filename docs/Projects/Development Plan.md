@@ -21,7 +21,7 @@ SE-4. What gets built, in what order, and how we work. Stage deliverables come f
 | 6 | FR-5 playlist creation (UI-2) | FR-6, write scope | built and tested for real |
 | 7 | FR-4 engagement analysis | FR-6 | built and tried on a real account |
 | 8 | SK-1 video-to-playlist | FR-5 | built; its evals have not been run by a person |
-| 9 | Rest of the CLI (UI-4) | none | not started |
+| 9 | Rest of the CLI (UI-4) | none | built |
 | 10 | SK-3 brain skills, CI note and skill checks | none | done |
 
 FR-5 is the riskiest (the server must enforce confirmation before any write), so it gets the most review and negative tests. See [[Design Sequences]].

@@ -12,7 +12,7 @@ Runs on every PR to `main`: ruff lint, pytest with the coverage gate, gitleaks s
 
 ## local-check skill (SK-2)
 - Skill: `.claude/skills/local-check/SKILL.md`
-- Script: `python scripts/local_check.py`
+- Script: `python scripts/local_check.py` (or `python -m ytmcp local-check`, which runs it)
 - Steps, each reported PASS/FAIL:
   1. build - the `ytmcp` package imports
   2. lint - `ruff check .`

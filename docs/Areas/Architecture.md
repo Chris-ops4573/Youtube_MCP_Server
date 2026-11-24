@@ -11,7 +11,7 @@ AI client -> server.py -> tools.py -> services/ -> providers/ (YouTube data)
 
 | Layer | Files | Job |
 |---|---|---|
-| Entry points | `src/ytmcp/server.py`, `src/ytmcp/cli.py` | server.py registers the MCP tools and asks the user to confirm a playlist. cli.py has the `python -m ytmcp auth ...` and `playlist confirm` commands |
+| Entry points | `src/ytmcp/server.py`, `src/ytmcp/cli.py` | server.py registers the MCP tools and asks the user to confirm a playlist. cli.py has the `python -m ytmcp` commands: `auth`, `playlist confirm`, `quota status`, `serve` and `local-check` |
 | Wiring | `src/ytmcp/config.py` | Reads the settings and builds the objects for both entry points. It imports neither |
 | Tools | `src/ytmcp/tools.py` | Checks arguments and formats results and errors for the AI client - see [[Errors]] |
 | Services | `src/ytmcp/services/similar_videos.py`, `src/ytmcp/services/similar_channels.py`, `src/ytmcp/services/playlists.py` | The steps of each feature: FR-1, FR-2 ([[Channels]]) and FR-5 ([[Playlist]]) |
