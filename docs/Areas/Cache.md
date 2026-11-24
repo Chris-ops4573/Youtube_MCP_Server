@@ -30,7 +30,7 @@ Expired rows are ignored, and deleted at startup (`prune`).
 ## Database
 - Default `.cache/ytmcp.db` in the project (git-ignored). Change with `YTMCP_CACHE_PATH`; turn off with `YTMCP_CACHE=off` (see `.env.example`).
 - WAL mode (SRS 2.4). All SQL uses parameters, never string-built values (SRS 5.3); a test checks this.
-- Tables: `videos`, `channels`, `searches`, `uploads`, `quota_usage`.
+- Tables: `videos`, `channels`, `searches`, `uploads`, `quota_usage`, and `proposals` (playlist proposals, not a cache: they are kept even with `YTMCP_CACHE=off`, see [[Playlist]]).
 - `quota_usage` keeps the daily unit count, so [[Quota]] survives restarts.
 - No real user data is stored: only public video and channel metadata.
 

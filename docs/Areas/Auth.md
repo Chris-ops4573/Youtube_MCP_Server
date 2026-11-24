@@ -6,6 +6,7 @@ Files: `src/ytmcp/auth/` (`oauth.py`, `pkce.py`, `loopback.py`, `tokens.py`, `se
 ## Commands (UI-4, auth part)
 ```bash
 python -m ytmcp auth login    # opens the browser, asks for read-only access
+python -m ytmcp auth login --write   # also allows creating playlists (needed before the first one)
 python -m ytmcp auth status   # signed in? what access? (never prints tokens)
 python -m ytmcp auth logout   # tells Google to cancel the login, deletes the saved one
 ```
@@ -23,7 +24,7 @@ python -m ytmcp auth logout   # tells Google to cancel the login, deletes the sa
 | Scope | Used for |
 |---|---|
 | `youtube.readonly` (default) | likes, subscriptions, playlists |
-| `youtube` (write) | creating playlists only, asked for at the first confirmed creation (FR-5, not built yet) |
+| `youtube` (write) | creating playlists only. Request it once with `python -m ytmcp auth login --write`: see [[Playlist]] |
 
 A write login also counts as read access.
 

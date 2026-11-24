@@ -16,6 +16,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[Cache]]
 - [[Channels]]
 - [[Auth]]
+- [[Playlist]]
 - [[Testing]]
 - [[Brain]]
 - [[Design Components]]
@@ -42,6 +43,8 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[ADR-010 Like dates from the likes playlist]]
 - [[ADR-011 Metadata only, no transcripts]]
 - [[ADR-012 Brain checks in a standard library script]]
+- [[ADR-013 Playlist creation needs a person's confirmation]]
+- [[ADR-014 How playlist videos are chosen]]
 
 ## Log
 - [[Log]]

@@ -7,7 +7,7 @@ from ytmcp.quota import COSTS, QuotaTracker
 
 
 def test_costs_match_srs():
-    assert COSTS == {"search.list": 100, "videos.list": 1, "channels.list": 1, "playlistItems.list": 1}
+    assert COSTS == {"search.list": 100, "videos.list": 1, "channels.list": 1, "playlistItems.list": 1, "playlists.insert": 50, "playlistItems.insert": 50}
 
 
 def test_remaining_excludes_reserve():

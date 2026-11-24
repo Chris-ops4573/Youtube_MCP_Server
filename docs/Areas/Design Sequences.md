@@ -101,43 +101,59 @@ sequenceDiagram
   end
 ```
 
-## 4. Create a playlist (PLANNED, FR-5, not built)
-The server, not the AI client, enforces confirmation (FR-5.5). Text from YouTube videos is untrusted, so it can never trigger a write.
+## 4. Create a playlist (built, FR-5)
+A person must approve, and the AI has no way to approve (FR-5.5). There are two ways a person confirms: the client asks the user, or the user confirms in a terminal. See [[ADR-013 Playlist creation needs a person's confirmation]] and [[Playlist]].
 
 ```mermaid
 sequenceDiagram
   actor U as User
   participant AI as AI client
   participant S as MCP server
-  participant P as Proposal store
+  participant DB as SQLite proposals
+  participant T as Terminal
   participant G as YouTube API
-  U->>AI: Make me a 2 hour Rust playlist
-  AI->>S: propose_playlist(constraints)
-  S->>S: validate constraints and pick videos
-  S->>P: save proposal (id, content hash, 15 minute expiry)
-  S-->>AI: proposal with videos and totals
-  AI-->>U: show the proposal and ask to confirm
-  U->>AI: Yes, create it
-  AI->>S: create_playlist(proposal_id, confirm)
-  S->>P: load the proposal
-  Note over S,P: Refuse if unknown, expired, changed or not confirmed
+  U->>AI: Make me a 1 hour Rust playlist
+  AI->>S: propose_playlist(topic, total_minutes, ...)
+  S->>S: validate the settings, no API call yet
+  S->>G: search.list and videos.list (101 units)
+  S->>S: pick videos within 10 percent of the target
+  S->>DB: save the proposal (id, hash, 15 minute expiry)
+  S-->>AI: the proposal, nothing created yet
+  AI-->>U: show the videos and totals and ask
+  AI->>S: create_playlist(proposal_id, content_hash)
+  S->>DB: load it, check expiry, hash and not used
+  alt the client supports elicitation
+    S->>U: Create the PRIVATE playlist? (asked through the client)
+    U-->>S: yes or no
+  else the client cannot ask
+    S-->>AI: CONFIRMATION_REQUIRED with the terminal command
+    U->>T: python -m ytmcp playlist confirm id
+    T->>DB: mark confirmed (needs a real terminal)
+    AI->>S: create_playlist again
+  end
   S->>S: check quota (50 plus 50 per video) and write permission
+  S->>DB: claim the proposal, only one caller can
   S->>G: playlists.insert (private)
-  S->>G: playlistItems.insert for each video
-  S-->>AI: created, or a report of partial failures
+  S->>G: playlistItems.insert for each video, no retries
+  S->>DB: save the result
+  S-->>AI: the playlist URL, or a report of partial failures
 ```
 
-### Proposal states (PLANNED)
-No write to YouTube happens before `Creating`. Declining or timing out creates nothing.
+### Proposal states
+No write to YouTube happens before `Creating`. A proposal can be used once.
 
 ```mermaid
 stateDiagram-v2
   [*] --> Proposed: propose_playlist
   Proposed --> Expired: 15 minutes pass
-  Proposed --> Declined: user declines
-  Proposed --> Creating: create_playlist with confirmation
+  Proposed --> Declined: user says no
+  Proposed --> Confirmed: person confirms in the terminal
+  Proposed --> Creating: user says yes to the client question
+  Confirmed --> Expired: 15 minutes pass
+  Confirmed --> Declined: user says no
+  Confirmed --> Creating: create_playlist
   Creating --> Created: all videos added
-  Creating --> PartiallyCreated: some inserts failed
+  Creating --> PartiallyCreated: some videos not added
   Creating --> Failed: playlist not created
   Expired --> [*]
   Declined --> [*]

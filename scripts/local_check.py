@@ -8,6 +8,7 @@ import asyncio
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from mcp import ClientSession, StdioServerParameters
@@ -45,14 +46,24 @@ def step_tests() -> tuple[bool, str]:
     return run([sys.executable, "-m", "pytest", "-q", "--cov=src", "--cov-fail-under=80"])
 
 
-async def _call_server() -> str:
+EXPECTED_TOOLS = (
+    "find_similar_videos",
+    "find_similar_channels",
+    "propose_playlist",
+    "create_playlist",
+)
+
+
+async def _call_server(database: str) -> str:
+    # the child gets its own throwaway database, so the check never touches your real one
+    env = {**ENV, "YTMCP_CACHE_PATH": database}
     params = StdioServerParameters(
-        command=sys.executable, args=["-m", "ytmcp.server"], env=ENV, cwd=ROOT
+        command=sys.executable, args=["-m", "ytmcp.server"], env=env, cwd=ROOT
     )
     async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
         await session.initialize()
         tools = [t.name for t in (await session.list_tools()).tools]
-        for name in ("find_similar_videos", "find_similar_channels"):
+        for name in EXPECTED_TOOLS:
             if name not in tools:
                 raise RuntimeError(f"{name} not registered, got {tools}")
         result = await session.call_tool("find_similar_videos", {"video": FIXTURE_VIDEO_ID})
@@ -62,12 +73,18 @@ async def _call_server() -> str:
         channels = await session.call_tool("find_similar_channels", {"channel": FIXTURE_CHANNEL})
         if getattr(channels, "is_error", False) or "results" not in str(channels.content):
             raise RuntimeError(f"unexpected channel result: {channels.content}")
-        return f"tools: {tools}; both returned results"
+        # propose_playlist only plans: it creates nothing. create_playlist is never called here.
+        plan = await session.call_tool("propose_playlist", {"topic": "rust", "total_minutes": 25})
+        if getattr(plan, "is_error", False) or "proposal_id" not in str(plan.content):
+            raise RuntimeError(f"unexpected proposal result: {plan.content}")
+        return f"tools: {tools}; the read-only tools returned results"
 
 
 def step_server() -> tuple[bool, str]:
     try:
-        detail = asyncio.run(asyncio.wait_for(_call_server(), SERVER_TIMEOUT_SECONDS))
+        with tempfile.TemporaryDirectory() as folder:
+            database = str(Path(folder) / "check.db")
+            detail = asyncio.run(asyncio.wait_for(_call_server(database), SERVER_TIMEOUT_SECONDS))
         return True, detail
     except Exception as exc:  # noqa: BLE001 - any failure is reported as FAIL
         while isinstance(exc, ExceptionGroup):  # show the real error, not the group
@@ -80,7 +97,7 @@ STEPS = [
     ("lint", step_lint),
     ("brain notes and skills", step_brain),
     ("tests (coverage >= 80%)", step_tests),
-    ("server + both tools", step_server),
+    ("server + read-only tools", step_server),
 ]
 
 

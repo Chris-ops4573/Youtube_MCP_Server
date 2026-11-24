@@ -9,18 +9,18 @@ File: `src/ytmcp/quota.py`
 | videos.list | 1 |
 | channels.list | 1 |
 | playlistItems.list | 1 |
+| playlists.insert | 50 |
+| playlistItems.insert | 50 |
 
 (Costs from SRS 2.5; re-check in Google's Quota Calculator, TBD-8.)
 
-Planned calls for FR-3, FR-4 and FR-5 (not in `quota.py` yet; add when they are built). These are the published costs, **not yet confirmed** in the Quota Calculator:
+Planned calls for FR-3 and FR-4 (not in `quota.py` yet; add when they are built). These are the published costs, **not yet confirmed** in the Quota Calculator:
 
 | API method | Cost | Used by |
 |---|---|---|
 | subscriptions.list | 1 | FR-3, FR-4 |
 | playlists.list | 1 | FR-3, FR-4 |
 | videoCategories.list | 1 | FR-4 (category names) |
-| playlists.insert | 50 | FR-5 |
-| playlistItems.insert | 50 each | FR-5 |
 
 Reading about 4,000 likes is about 80 `playlistItems.list` calls (50 per call): see [[ADR-010 Like dates from the likes playlist]]. A playlist of 10 videos costs 50 + 10 x 50 = 550 units (FR-5.6).
 
@@ -37,6 +37,7 @@ Our count is only what this server believes it spent. To check it against Google
 - Every API call (including retries) is recorded.
 - One `find_similar_videos` costs **102** units: videos.list (seed) + search.list + videos.list (candidates). SRS 5.1 limit is 210.
 - One `find_similar_channels` costs **118** units (15 candidates): see [[Channels]].
+- One `propose_playlist` costs **101** units (a search plus video details). `create_playlist` costs **50 + 50 per video** (550 for 10 videos), checked before anything is created and shared with the reads in one counter: see [[Playlist]].
 
 ## Saved across restarts
 With the cache on, each call is also written to the `quota_usage` table (one row per Pacific-time day), so the count survives restarts. See [[Cache]]. With `YTMCP_CACHE=off` it is memory only.

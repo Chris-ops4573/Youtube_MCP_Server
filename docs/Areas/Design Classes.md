@@ -99,6 +99,58 @@ classDiagram
   TokenStore --> Token : keeps in OS keyring
 ```
 
+## Playlists (FR-5)
+The writer is separate from `VideoProvider`. It can only create ([[Playlist]]).
+
+```mermaid
+classDiagram
+  class PlaylistWriter {
+    <<abstract>>
+    +ensure_write_access()
+    +ensure_budget(units)
+    +create_playlist(title, description) str
+    +add_video(playlist_id, video_id)
+  }
+  class YouTubePlaylistWriter
+  class ProposalStore {
+    +save(proposal)
+    +get(proposal_id) Proposal
+    +confirm(proposal_id, now) bool
+    +claim(proposal_id, now, from_status) bool
+    +finish(proposal_id, status, playlist_id)
+    +decline(proposal_id) bool
+  }
+  class Proposal {
+    +str id
+    +str content_hash
+    +str title
+    +str description
+    +tuple videos
+    +dict constraints
+    +float expires_at
+    +str status
+  }
+  class Constraints {
+    +str topic
+    +int total_minutes
+    +int max_video_minutes
+    +str language
+    +str title
+  }
+  class Selection {
+    +list videos
+    +int total_seconds
+    +bool meets_target
+    +list notes
+  }
+  PlaylistWriter <|-- YouTubePlaylistWriter
+  YouTubePlaylistWriter --> QuotaTracker : counts every call
+  YouTubePlaylistWriter --> AuthService : gets a write token
+  ProposalStore --> Cache : proposals table
+  ProposalStore --> Proposal
+  Constraints ..> Selection : select_videos
+```
+
 ## Errors
 Every error has a stable `code` and a `remediation` the tool returns to the AI client (UI-3). See [[Errors]].
 
@@ -116,6 +168,16 @@ classDiagram
   YtmcpError <|-- OAuthConfigError
   YtmcpError <|-- AuthRequiredError
   YtmcpError <|-- AuthFailedError
+  YtmcpError <|-- InvalidConstraintsError
+  YtmcpError <|-- NoVideosFoundError
+  YtmcpError <|-- ProposalNotFoundError
+  YtmcpError <|-- ProposalExpiredError
+  YtmcpError <|-- ProposalMismatchError
+  YtmcpError <|-- ProposalUsedError
+  YtmcpError <|-- ConfirmationRequiredError
+  YtmcpError <|-- WriteAccessRequiredError
+  YtmcpError <|-- YouTubeChannelRequiredError
+  YtmcpError <|-- PlaylistWritesDisabledError
 ```
 
 The services and tools are plain functions, not classes (`find_similar_videos`, `find_similar_channels`, `similar_videos_tool`, `similar_channels_tool`), so they are not drawn here. Their flow is in [[Design Sequences]].
