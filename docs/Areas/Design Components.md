@@ -31,12 +31,15 @@ flowchart LR
   Writer -->|"HTTPS and your OAuth token"| YT
   Writer -.->|"asks for a write token"| Auth
   CLI -->|"playlist confirm"| Store
+  Server --> Config["config.py (builds the objects)"]
+  CLI --> Config
 ```
 
 ## What each part is for
 | Part | Job | Code |
 |---|---|---|
-| MCP server | Registers the tools, nothing else | `src/ytmcp/server.py` |
+| MCP server | Registers the tools and asks the user to confirm a playlist | `src/ytmcp/server.py` |
+| Config | Reads the settings and builds the objects for the server and the CLI. It imports neither | `src/ytmcp/config.py` |
 | Tools | Check arguments, format results and errors (UI-1, UI-3) | `src/ytmcp/tools/` |
 | Services | The feature logic (FR-1, FR-2) | `src/ytmcp/services/` |
 | Similarity | Pure scoring maths, no API calls | `similarity.py`, `channel_similarity.py` |

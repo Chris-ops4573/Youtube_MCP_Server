@@ -19,12 +19,13 @@ from mcp.server.elicitation import (
 )
 from mcp.shared.exceptions import MCPError
 
-from ytmcp import server as server_module
+from ytmcp import config
 from ytmcp.cache import Cache
+from ytmcp.config import build_services
 from ytmcp.proposals import ProposalStore
 from ytmcp.providers.fixture import FixtureProvider
 from ytmcp.providers.playlists import YouTubePlaylistWriter
-from ytmcp.server import ConfirmPlaylist, ask_user, build_services, create_server
+from ytmcp.server import ConfirmPlaylist, ask_user, create_server
 
 IDS = ["aaaaaaaaaaa", "bbbbbbbbbbb"]
 
@@ -309,8 +310,6 @@ def test_the_token_comes_from_the_login_service_for_the_requested_scope(monkeypa
             calls.append(scope)
             return "tok"
 
-    import ytmcp.cli
-
-    monkeypatch.setattr(ytmcp.cli, "build_auth_service", lambda: FakeAuth())
-    assert server_module._access_token("scope-x") == "tok"
+    monkeypatch.setattr(config, "build_auth_service", lambda: FakeAuth())
+    assert config.access_token("scope-x") == "tok"
     assert calls == ["scope-x"]

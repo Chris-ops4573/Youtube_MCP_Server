@@ -6,7 +6,6 @@ treated as missing and pruned, so stale YouTube data is not kept (SRS 6, Legal).
 """
 
 import json
-import os
 import sqlite3
 import threading
 import time
@@ -38,12 +37,6 @@ CREATE TABLE IF NOT EXISTS quota_usage (
 
 
 PROPOSAL_KEEP_SECONDS = 24 * 3600
-
-
-def default_cache_path() -> Path:
-    """Where the database lives: YTMCP_CACHE_PATH, or .cache/ytmcp.db in the project."""
-    env = os.environ.get("YTMCP_CACHE_PATH")
-    return Path(env) if env else Path(__file__).resolve().parents[2] / ".cache" / "ytmcp.db"
 
 
 def normalize_query(query: str) -> str:

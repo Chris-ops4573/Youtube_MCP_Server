@@ -2,18 +2,10 @@
 
 Run with:  python -m ytmcp.server
 
-Provider is picked with YTMCP_PROVIDER (read from the environment or .env):
-- "youtube" (default): live YouTube Data API, needs YOUTUBE_API_KEY
-- "fixture": sample data from tests/fixtures (no API calls, no quota)
-
-The live provider is wrapped in a SQLite cache (YTMCP_CACHE_PATH, default
-.cache/ytmcp.db). Set YTMCP_CACHE=off to turn the cache off. Playlist proposals
-are always kept in that same database file, so a person can confirm one from a terminal.
+This file registers the MCP tools and asks the user to confirm a playlist. The settings
+and the building of the objects (provider, quota, database, login) are in config.py.
 """
 
-import os
-from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 from dotenv import load_dotenv
@@ -32,14 +24,10 @@ try:  # mcp 2.x
 except ImportError:  # mcp 1.x
     from mcp.server.fastmcp import Context
 
-from ytmcp.cache import Cache, default_cache_path
+from ytmcp.cache import Cache
+from ytmcp.config import build_services
 from ytmcp.proposals import ProposalStore
 from ytmcp.providers.base import PlaylistWriter, VideoProvider
-from ytmcp.providers.caching import CachingProvider
-from ytmcp.providers.fixture import FixtureProvider
-from ytmcp.providers.playlists import YouTubePlaylistWriter
-from ytmcp.providers.youtube import YouTubeProvider
-from ytmcp.quota import QuotaTracker
 from ytmcp.tools import (
     create_playlist_tool,
     propose_playlist_tool,
@@ -175,54 +163,6 @@ def create_server(
         return await create_playlist_tool(writer, store, proposal_id, content_hash, ask)
 
     return mcp
-
-
-def _default_fixtures_dir() -> Path:
-    env = os.environ.get("YTMCP_FIXTURES_DIR")
-    if env:
-        return Path(env)
-    return Path(__file__).resolve().parents[2] / "tests" / "fixtures"
-
-
-def build_provider(cache: Cache | None = None, quota: QuotaTracker | None = None) -> VideoProvider:
-    """Pick the provider from YTMCP_PROVIDER. A missing API key is not fatal:
-    the server still starts and tools return an API_KEY_MISSING error."""
-    if os.environ.get("YTMCP_PROVIDER", "youtube").lower() == "fixture":
-        return FixtureProvider(_default_fixtures_dir())
-    api_key = os.environ.get("YOUTUBE_API_KEY") or None
-    if os.environ.get("YTMCP_CACHE", "on").lower() == "off":
-        return YouTubeProvider(api_key, quota=quota)
-    cache = cache or Cache(default_cache_path())
-    return CachingProvider(YouTubeProvider(api_key, quota=quota or QuotaTracker(cache=cache)), cache)
-
-
-def _access_token(scope: str) -> str:
-    """A valid Google login token for `scope`, built when needed so a missing OAuth setup
-    only affects playlist creation."""
-    from ytmcp.cli import build_auth_service  # imported here: cli imports a lot
-
-    return build_auth_service().get_access_token(scope)
-
-
-@dataclass
-class Services:
-    provider: VideoProvider
-    store: ProposalStore
-    writer: PlaylistWriter | None  # None in fixture mode: no real playlists
-
-
-def build_services() -> Services:
-    """Everything the server needs. Reads and writes share ONE quota counter, so the daily
-    count is right. Proposals always go in the database file, even with the cache off,
-    so a person can confirm one from a terminal."""
-    cache = Cache(default_cache_path())
-    store = ProposalStore(cache)
-    if os.environ.get("YTMCP_PROVIDER", "youtube").lower() == "fixture":
-        return Services(build_provider(), store, None)
-    cache_on = os.environ.get("YTMCP_CACHE", "on").lower() != "off"
-    quota = QuotaTracker(cache=cache) if cache_on else QuotaTracker()
-    provider = build_provider(cache, quota)
-    return Services(provider, store, YouTubePlaylistWriter(_access_token, quota))
 
 
 def main() -> None:
