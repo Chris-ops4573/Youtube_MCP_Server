@@ -7,8 +7,8 @@ SE-4. What gets built, in what order, and how we work. Stage deliverables come f
 |---|---|---|
 | 1 Requirements | SRS, vault with 10+ notes, AGENTS.md, CI | done, see [[Stage 1 Review]] |
 | 2 Design | Design docs, brain-refine, brain-query, local-check | built; waiting on TBD-8 and a person to judge the skill evals, see [[Stage 2 Review]] |
-| 3 Build and test | Tests, video-to-playlist, defect log | in progress (FR-5 built) |
-| 4 Release | Live demo, release tag | not started |
+| 3 Build and test | Tests, video-to-playlist, defect log | built; waiting on a person to judge the skill evals, see [[Stage 3 Review]] |
+| 4 Release | Live demo, release tag | checklist written, see [[Stage 4 Checklist]]; the tag is created by a person |
 
 ## Features, in planned order
 | Order | Feature | Needs | Status |
