@@ -187,3 +187,11 @@ def test_end_to_end_second_channel_request_is_free():
     second = find_similar_channels(provider, RUST_LAB)
     assert [r.profile.channel.id for r in first] == [r.profile.channel.id for r in second]
     assert quota.spent == spent
+
+
+def test_category_names_pass_straight_through_to_the_live_provider():
+    provider, fake, quota, _ = make()
+    assert provider.category_names()["27"] == "Education"
+    provider.category_names()
+    assert fake.resources() == ["videoCategories", "videoCategories"]  # one unit each time: not worth a cache table
+    assert quota.spent == 2

@@ -30,6 +30,7 @@ from ytmcp.proposals import ProposalStore
 from ytmcp.providers.base import AccountProvider, VideoProvider
 from ytmcp.tools import (
     Answer,
+    analyze_engagement_tool,
     create_playlist_tool,
     propose_playlist_tool,
     recommend_videos_tool,
@@ -183,6 +184,38 @@ def create_server(
         remediation if the user is not signed in or has no likes or subscriptions.
         """
         return recommend_videos_tool(provider, account, top_n)
+
+    @mcp.tool(
+        name="analyze_engagement",
+        annotations=types.ToolAnnotations(
+            read_only_hint=True, destructive_hint=False, open_world_hint=True
+        ),
+    )
+    def analyze_engagement_fn(
+        sources: list[str] | None = None,
+        period_months: int = 12,
+        compare: bool = False,
+    ) -> dict[str, Any]:
+        """Statistics about the user's own YouTube likes, subscriptions and playlists.
+
+        Needs the user to be signed in (python -m ytmcp auth login). It reads their data
+        read-only, never changes anything, and costs up to about 47 quota units.
+
+        Args:
+            sources: Which to analyse: any of "likes", "subscriptions", "playlists"
+                (default: all three).
+            period_months: How many recent months the monthly trend covers (1 to 60,
+                default 12).
+            compare: If true, also compare the last period_months months with the same
+                number of months before them. Needs "likes" in sources.
+
+        Returns top channels and categories with counts and shares, a monthly trend of likes
+        (using the date each video was liked), duration preferences, and optionally a
+        comparison of two periods. It is based on likes, subscriptions and playlists only:
+        YouTube does not share watch history. Returns an error with a code, message and
+        remediation if an argument is invalid or the user is not signed in.
+        """
+        return analyze_engagement_tool(provider, account, sources, period_months, compare)
 
     return mcp
 

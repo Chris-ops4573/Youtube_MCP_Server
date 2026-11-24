@@ -305,3 +305,34 @@ def test_urllib_fetch_survives_an_error_page_that_is_not_json(local_api):
     from ytmcp.providers.youtube import urllib_fetch
 
     assert urllib_fetch(f"{local_api}/boom") == (500, {})
+
+
+# --- category names (FR-4) ----------------------------------------------------------------------------------------------
+
+
+def test_category_names_maps_ids_to_names_and_costs_one_unit():
+    quota = QuotaTracker(reserve=0)
+    provider, fake, _ = make(quota=quota)
+    assert provider.category_names() == {"1": "Film & Animation", "27": "Education", "28": "Science & Technology"}
+    assert fake.resources() == ["videoCategories"]
+    assert fake.calls[0][1]["part"] == "snippet" and fake.calls[0][1]["regionCode"] == "US"
+    assert quota.spent == 1
+
+
+def test_category_names_can_use_another_region():
+    provider, fake, _ = make()
+    provider.category_names("IN")
+    assert fake.calls[0][1]["regionCode"] == "IN"
+
+
+def test_category_names_with_odd_items():
+    body = {"items": [{"id": "5"}, {"snippet": {"title": "No id"}}, {"id": "6", "snippet": {"title": "Six"}}]}
+    provider, _, _ = make(queue=[(200, body)])
+    assert provider.category_names() == {"5": "", "6": "Six"}
+
+
+def test_category_names_needs_the_api_key():
+    provider, fake, _ = make(key=None)
+    with pytest.raises(ApiKeyMissingError):
+        provider.category_names()
+    assert fake.calls == []

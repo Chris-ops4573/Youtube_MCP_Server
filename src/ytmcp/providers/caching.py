@@ -79,6 +79,9 @@ class CachingProvider(VideoProvider):
         self._cache.put_search(key, max_results, [c.id for c in channels])
         return channels
 
+    def category_names(self, region: str = "US") -> dict[str, str]:
+        return self._inner.category_names(region)
+
     def get_recent_uploads(self, channel_id: str, max_results: int = 10) -> list[str]:
         titles = self._cache.get_uploads(channel_id, max_results, self._uploads_max_age)
         if titles is None:

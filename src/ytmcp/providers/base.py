@@ -30,6 +30,14 @@ class VideoProvider(ABC):
     def get_recent_uploads(self, channel_id: str, max_results: int = 10) -> list[str]:
         """Titles of the channel's most recent public uploads, newest first."""
 
+    def category_names(self, region: str = "US") -> dict[str, str]:
+        """Names of the video categories, by category ID (1 quota unit).
+
+        Providers that cannot look them up return an empty dict, and the callers then show
+        a generic label instead of the name.
+        """
+        return {}
+
     def ensure_budget(self, units: int) -> None:
         """Raise QuotaExceededError if `units` quota units are not available (FR-7.1).
 

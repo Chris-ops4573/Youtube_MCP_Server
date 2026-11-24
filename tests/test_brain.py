@@ -102,7 +102,7 @@ def test_the_real_vault_has_the_three_brain_skills():
         ("why stdio only", "ADR-009 Stdio transport only"),
         ("how many quota units does find_similar_channels cost", ("Quota", "Channels")),  # either answers it
         ("where are google login tokens stored", "Auth"),
-        ("like dates for engagement trends", "ADR-010 Like dates from the likes playlist"),
+        ("like dates for engagement trends", ("ADR-010 Like dates from the likes playlist", "Engagement")),  # either answers it
         ("python version and libraries", "ADR-008 Python 3.11 and libraries"),
     ],
 )

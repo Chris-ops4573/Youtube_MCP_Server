@@ -248,6 +248,15 @@ class YouTubeProvider(VideoProvider):
         ids = [i["id"]["channelId"] for i in body.get("items", []) if i.get("id", {}).get("channelId")]
         return self.get_channels(ids)[:max_results]
 
+    def category_names(self, region: str = "US") -> dict[str, str]:
+        """videoCategories.list: category ID -> name, 1 unit."""
+        body = self._get("videoCategories.list", {"part": "snippet", "regionCode": region})
+        return {
+            item["id"]: item.get("snippet", {}).get("title", "")
+            for item in body.get("items", [])
+            if item.get("id")
+        }
+
     def get_recent_uploads(self, channel_id: str, max_results: int = 10) -> list[str]:
         """Read the channel's uploads playlist (UC... -> UU...): 1 unit, not search's 100."""
         if not channel_id.startswith("UC"):

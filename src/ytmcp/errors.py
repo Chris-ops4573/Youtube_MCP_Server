@@ -171,3 +171,14 @@ class NotEnoughHistoryError(YtmcpError):
 
     code = "NOT_ENOUGH_HISTORY"
     remediation = "Like some videos or subscribe to some channels on YouTube first, then try again."
+
+
+class InvalidArgumentError(YtmcpError):
+    """A tool argument failed validation. `fields` maps each bad argument to why (FR-4)."""
+
+    code = "INVALID_ARGUMENT"
+    remediation = "Fix the arguments listed under `fields` and try again."
+
+    def __init__(self, message: str, fields: dict[str, str]):
+        super().__init__(message)
+        self.fields = fields

@@ -196,3 +196,30 @@ sequenceDiagram
   end
   T-->>AI: JSON with counts only about the user's data
 ```
+
+## 6. Analyse engagement (built, FR-4)
+Reads only the sources the user chose, then works out statistics. See [[Engagement]].
+
+```mermaid
+sequenceDiagram
+  actor AI as AI client
+  participant T as tool
+  participant S as service
+  participant P as VideoProvider
+  participant A as AccountProvider
+  participant G as YouTube API
+  AI->>T: analyze_engagement(sources, period_months, compare)
+  T->>T: check the arguments, no API call yet
+  T->>S: analyze_engagement
+  S->>P: ensure_budget(up to 47 units)
+  Note over S,P: QuotaExceededError here means no call is made
+  S->>A: liked_videos(500), subscriptions(200), playlist_video_ids(10)
+  A->>G: read-only login: likes, subscriptions, playlists
+  S->>P: get_videos(liked and saved IDs)
+  P->>G: videos.list (cached)
+  S->>P: category_names()
+  P->>G: videoCategories.list (1 unit)
+  S->>S: top lists, monthly trend, duration split, optional comparison
+  S-->>T: statistics, caveats and the watch history note
+  T-->>AI: JSON with statistics only
+```

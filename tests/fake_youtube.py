@@ -40,6 +40,8 @@ class FakeYouTube:
             if playlist is None:
                 return 404, {"error": {"errors": [{"reason": "playlistNotFound"}]}}
             return 200, playlist
+        if resource == "videoCategories":
+            return 200, sample("video_categories")
         if "forHandle" in params:
             wanted = params["forHandle"].lower()
             items = [
