@@ -123,8 +123,8 @@ def create_server(
             total_minutes: Wanted total length in minutes (5 to 1440). The result will
                 be within 10 percent of it when enough videos exist.
             max_video_minutes: Leave out videos longer than this (optional).
-            min_video_minutes: Leave out videos shorter than this (optional). Use 3 or
-                more to skip YouTube Shorts and other very short clips.
+            min_video_minutes: Leave out videos shorter than this. Default 3, which skips
+                YouTube Shorts and other very short clips. Use 0 to keep short clips.
             language: Only videos in this language, for example "en" (optional).
             title: Playlist title (optional).
 

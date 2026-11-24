@@ -20,7 +20,7 @@ FR-4 asks for the top channels and categories, monthly trends that say which dat
 - A person with more than 500 likes gets the newest 500, and the output says so.
 - An explicit pair of date ranges was rejected: it is more flexible but needs more validation and has more ways to go wrong.
 - Category names need one extra call (cached).
-- Built in task F3 of [[Refactor and Feature Plan]]. It is tested with fakes and over the real MCP protocol, not yet on a real account.
+- Built in task F3 of [[Refactor and Feature Plan]]. It is tested with fakes and over the real MCP protocol, and was tried on a real account.
 - Category names come from a new `category_names` method on the video provider. It has a default that returns nothing, so providers that cannot look names up need no change, and the report then shows "Category <id>".
 
 Cites: [[ADR-010 Like dates from the likes playlist]], [[Quota]]

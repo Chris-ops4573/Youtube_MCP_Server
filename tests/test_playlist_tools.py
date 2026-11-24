@@ -270,8 +270,8 @@ def test_the_minimum_leaves_out_short_clips_and_says_so(store):
     assert "Left out 2 video(s) shorter than 3 min." in p["notes"]
 
 
-def test_without_a_minimum_short_clips_trigger_a_warning_the_ai_can_act_on(store):
-    p = propose(store, provider=ListProvider(mixed()), total_minutes=20)["proposal"]
+def test_asking_for_no_minimum_keeps_short_clips_and_warns_the_ai_can_act_on_it(store):
+    p = propose(store, provider=ListProvider(mixed()), total_minutes=20, min_video_minutes=0)["proposal"]
     assert any("min_video_minutes" in note for note in p["notes"])
 
 
@@ -282,8 +282,10 @@ def test_the_minimum_is_saved_with_the_proposal(store):
 
 def test_a_bad_minimum_is_a_field_error_and_makes_no_api_call(store):
     provider = ListProvider(mixed())
-    out = propose(store, provider=provider, total_minutes=20, min_video_minutes=0)
-    assert out["error"]["fields"] == {"min_video_minutes": "must be a whole number of minutes, at least 1"}
+    out = propose(store, provider=provider, total_minutes=20, min_video_minutes=-1)
+    assert out["error"]["fields"] == {
+        "min_video_minutes": "must be a whole number of minutes, 0 or more (0 = no minimum)"
+    }
     assert provider.searches == []
 
 
