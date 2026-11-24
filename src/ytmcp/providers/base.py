@@ -35,3 +35,24 @@ class VideoProvider(ABC):
 
         Providers that do not use quota (e.g. fixtures) keep this no-op.
         """
+
+
+class PlaylistWriter(ABC):
+    """Creates playlists on YouTube (FR-5). Separate from VideoProvider on purpose: reading uses
+    an API key, writing uses the user's own login. Nothing here can edit or delete (SRS 5.2)."""
+
+    @abstractmethod
+    def ensure_write_access(self) -> None:
+        """Raise WriteAccessRequiredError unless the user has signed in with write permission."""
+
+    @abstractmethod
+    def ensure_budget(self, units: int) -> None:
+        """Raise QuotaExceededError if `units` quota units are not available (FR-5.6)."""
+
+    @abstractmethod
+    def create_playlist(self, title: str, description: str) -> str:
+        """Create a new PRIVATE playlist and return its ID."""
+
+    @abstractmethod
+    def add_video(self, playlist_id: str, video_id: str) -> None:
+        """Add one video to a playlist created by this server."""
