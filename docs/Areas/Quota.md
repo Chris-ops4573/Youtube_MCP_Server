@@ -37,6 +37,7 @@ Our count is only what this server believes it spent. To check it against Google
 - Every API call (including retries) is recorded.
 - One `find_similar_videos` costs **102** units: videos.list (seed) + search.list + videos.list (candidates). SRS 5.1 limit is 210.
 - Reading the signed-in user's account: `liked_videos` costs 1 (channel lookup) plus 1 per page of 50, `subscriptions` costs 1 per page of 50, and `playlist_video_ids` costs 1 plus 1 per playlist. Every page and every retry is counted: see [[Providers]].
+- One `recommend_videos` costs **127** units, almost all of it the one search: see [[Recommendations]].
 - One `find_similar_channels` costs **118** units (15 candidates): see [[Channels]].
 - One `propose_playlist` costs **101** units (a search plus video details). `create_playlist` costs **50 + 50 per video** (550 for 10 videos), checked before anything is created and shared with the reads in one counter: see [[Playlist]].
 

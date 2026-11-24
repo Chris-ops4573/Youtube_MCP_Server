@@ -5,9 +5,11 @@ computed locally from metadata. Everything here is a pure function over `Video`
 and `Channel` objects: no API calls, no quota, fully deterministic.
 """
 
+import re
+from collections import Counter
 from dataclasses import dataclass
 
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from ytmcp.models import Channel, Video
@@ -227,4 +229,114 @@ def rank_similar_channels(
         )
 
     scored.sort(key=lambda s: (-s.score, s.profile.channel.id))
+    return scored[:top_n]
+
+
+# --- taste profile for recommendations (FR-3.2) -----------------------------
+# The user's likes and subscriptions become a taste profile, and candidate videos are scored
+# against it. Still pure: no API calls, deterministic.
+
+# Must sum to 1. Starting guesses; tuned later on real examples (TBD-2).
+DEFAULT_TASTE_WEIGHTS: dict[str, float] = {
+    "text": 0.60,
+    "category": 0.20,
+    "channel": 0.20,
+}
+
+LIKED_OFTEN_SHARE = 0.20  # a category is "liked often" when it is 20% of the user's likes
+_WORD = re.compile(r"[^\W\d_]{3,}")  # words made of 3 or more letters
+
+
+@dataclass(frozen=True)
+class TasteProfile:
+    text: str  # liked titles and tags (subscription titles when there are no likes)
+    top_terms: list[str]  # the most common words: they become the search query
+    category_share: dict[str, float]  # category ID -> share of the user's likes
+    channel_ids: frozenset[str]  # channels the user liked a video from, or subscribes to
+
+
+@dataclass(frozen=True)
+class RecommendationBreakdown:
+    """Each signal is in [0, 1] before weighting."""
+
+    text: float
+    category: float
+    channel: float
+
+
+@dataclass(frozen=True)
+class ScoredRecommendation:
+    video: Video
+    score: float
+    breakdown: RecommendationBreakdown
+    reason: str  # a short explanation from metadata (FR-3.3)
+
+
+def _words(text: str) -> list[str]:
+    return [w for w in _WORD.findall(text.lower()) if w not in ENGLISH_STOP_WORDS]
+
+
+def build_taste_profile(
+    liked: list[Video],
+    subscription_titles: list[str],
+    subscribed_channel_ids: list[str],
+    term_count: int = 3,
+) -> TasteProfile:
+    """Describe what the user likes. With no liked videos, subscription titles stand in."""
+    liked_text = " ".join(f"{v.title} {' '.join(v.tags)}" for v in liked)
+    text = liked_text if liked_text.strip() else " ".join(subscription_titles)
+    counts = Counter(_words(text))
+    ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))  # ties: alphabetical
+    categories = Counter(v.category_id for v in liked if v.category_id)
+    return TasteProfile(
+        text=text,
+        top_terms=[word for word, _ in ranked[:term_count]],
+        category_share={cid: n / len(liked) for cid, n in categories.items()},
+        channel_ids=frozenset([v.channel_id for v in liked if v.channel_id] + subscribed_channel_ids),
+    )
+
+
+def reason_for(profile: TasteProfile, video: Video) -> str:
+    """One short reason, the first that applies (FR-3.3)."""
+    if video.channel_id in profile.channel_ids:
+        return f"From a channel you like or subscribe to: {video.channel_title}"
+    title_words = set(_words(video.title))
+    matched = [term for term in profile.top_terms if term in title_words]
+    if matched:
+        return f"Matches your interests: {', '.join(matched)}"
+    share = profile.category_share.get(video.category_id or "", 0.0)
+    if share >= LIKED_OFTEN_SHARE:
+        return f"In a category you like often ({round(share * 100)}% of your likes)"
+    return "Similar to videos you liked"
+
+
+def rank_for_profile(
+    profile: TasteProfile,
+    candidates: list[Video],
+    top_n: int = 10,
+    weights: dict[str, float] | None = None,
+) -> list[ScoredRecommendation]:
+    """Rank candidate videos for a taste profile, best first. Duplicates are dropped and ties
+    are broken by video ID, so results are deterministic."""
+    weights = weights or DEFAULT_TASTE_WEIGHTS
+    if abs(sum(weights.values()) - 1.0) > 1e-9:
+        raise ValueError("Similarity weights must sum to 1")
+
+    unique: dict[str, Video] = {}
+    for candidate in candidates:
+        unique.setdefault(candidate.id, candidate)
+    pool = list(unique.values())
+
+    texts = tfidf_similarities(profile.text, [_text_of(v) for v in pool])
+    scored = []
+    for video, text in zip(pool, texts, strict=True):
+        breakdown = RecommendationBreakdown(
+            text=text,
+            category=profile.category_share.get(video.category_id or "", 0.0),
+            channel=1.0 if video.channel_id in profile.channel_ids else 0.0,
+        )
+        score = sum(weights[name] * getattr(breakdown, name) for name in weights)
+        scored.append(ScoredRecommendation(video, score, breakdown, reason_for(profile, video)))
+
+    scored.sort(key=lambda s: (-s.score, s.video.id))
     return scored[:top_n]

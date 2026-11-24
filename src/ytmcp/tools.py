@@ -30,9 +30,10 @@ from ytmcp.services.playlists import (
     prepare_create,
     propose_playlist,
 )
+from ytmcp.services.recommendations import Recommendations, recommend_videos
 from ytmcp.services.similar_channels import find_similar_channels
 from ytmcp.services.similar_videos import find_similar_videos
-from ytmcp.similarity import ScoredChannel, ScoredVideo
+from ytmcp.similarity import ScoredChannel, ScoredRecommendation, ScoredVideo
 
 # --- shared helpers --------------------------------------------------------------------------------
 
@@ -289,3 +290,48 @@ async def create_playlist_tool(
     except YtmcpError as exc:
         return _error(exc)
     return format_created(proposal, result)
+
+
+# --- recommendations: recommend_videos (FR-3) --------------------------------------------------------
+
+
+def format_recommendations(results: list[ScoredRecommendation]) -> list[dict[str, Any]]:
+    return [
+        {
+            "rank": rank,
+            "title": item.video.title,
+            "channel": item.video.channel_title,
+            "duration": format_duration(item.video.duration_seconds),
+            "score": round(item.score, 3),
+            "url": video_url(item.video.id),
+            "reason": item.reason,
+            "score_breakdown": {k: round(v, 3) for k, v in vars(item.breakdown).items()},
+        }
+        for rank, item in enumerate(results, start=1)
+    ]
+
+
+def recommend_videos_tool(
+    provider: VideoProvider, account: AccountProvider | None, top_n: int = 10
+) -> dict[str, Any]:
+    """Run FR-3 and return either {"results": [...], ...} or {"error": {...}}. Only counts are
+    reported about the user's own data (never the liked videos themselves)."""
+    if not 1 <= top_n <= MAX_TOP_N:
+        return error_response(
+            "INVALID_ARGUMENT",
+            f"top_n must be between 1 and {MAX_TOP_N}.",
+            f"Ask for between 1 and {MAX_TOP_N} results.",
+        )
+    try:
+        found: Recommendations = recommend_videos(provider, account, top_n=top_n)
+    except YtmcpError as exc:
+        return error_response(exc.code, str(exc), exc.remediation)
+    return {
+        "results": format_recommendations(found.results),
+        "based_on": {
+            "likes": found.likes,
+            "subscriptions": found.subscriptions,
+            "playlist_videos": found.playlist_videos,
+        },
+        "low_confidence": found.low_confidence,
+    }

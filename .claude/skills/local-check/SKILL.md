@@ -18,7 +18,7 @@ Runs the SK-2 steps from the SRS and reports PASS or FAIL for each one.
    - **lint**: `ruff check .`
    - **brain**: `python scripts/brain.py check` validates the notes in `docs/` and every skill (the same check CI runs)
    - **tests**: `pytest` with coverage of at least 80% (TQ, SRS 5.4)
-   - **server**: starts `python -m ytmcp.server` over stdio and calls the read-only `find_similar_videos`, `find_similar_channels` and `propose_playlist` tools on fixture data (it never calls `create_playlist`)
+   - **server**: starts `python -m ytmcp.server` over stdio and calls the read-only `find_similar_videos`, `find_similar_channels` and `propose_playlist` tools on fixture data (it never calls `create_playlist`, and it only checks that `recommend_videos` is registered)
 3. If a step fails, show its output and suggest a fix. Do not change code unless the user asks.
 
 Uses fixtures only, no live YouTube calls and no quota (TQ-5).

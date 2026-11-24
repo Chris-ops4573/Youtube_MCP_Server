@@ -154,3 +154,20 @@ class PlaylistWritesDisabledError(YtmcpError):
 
     code = "PLAYLIST_WRITES_DISABLED"
     remediation = "Set YTMCP_PROVIDER=youtube in .env and restart the server to create real playlists."
+
+
+class AccountUnavailableError(YtmcpError):
+    """This feature needs the user's Google account, but the server is in fixture mode."""
+
+    code = "ACCOUNT_NOT_AVAILABLE"
+    remediation = (
+        "This uses your own YouTube data. Set YTMCP_PROVIDER=youtube in .env (not fixture mode), "
+        "sign in with `python -m ytmcp auth login`, and restart the server."
+    )
+
+
+class NotEnoughHistoryError(YtmcpError):
+    """The user has no likes or subscriptions to build a taste profile from (FR-3)."""
+
+    code = "NOT_ENOUGH_HISTORY"
+    remediation = "Like some videos or subscribe to some channels on YouTube first, then try again."

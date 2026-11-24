@@ -161,3 +161,38 @@ stateDiagram-v2
   PartiallyCreated --> [*]
   Failed --> [*]
 ```
+
+## 5. Recommend videos (built, FR-3)
+Reads the user's own account with the read-only login, builds a taste profile, searches once. See [[Recommendations]].
+
+```mermaid
+sequenceDiagram
+  actor AI as AI client
+  participant T as tool
+  participant S as service
+  participant P as VideoProvider
+  participant A as AccountProvider
+  participant G as YouTube API
+  AI->>T: recommend_videos(top_n)
+  T->>S: recommend_videos
+  S->>P: ensure_budget(127 units)
+  Note over S,P: QuotaExceededError here means no call is made
+  S->>A: liked_videos(250)
+  A->>G: channels.list and playlistItems.list (read-only login)
+  S->>A: subscriptions(200)
+  A->>G: subscriptions.list
+  alt no likes and no subscriptions
+    S-->>T: NOT_ENOUGH_HISTORY
+  else
+    S->>A: playlist_video_ids(10)
+    A->>G: playlists.list and playlistItems.list
+    S->>P: get_videos(liked IDs)
+    P->>G: videos.list (cached)
+    S->>S: build the taste profile (top words, categories, channels)
+    S->>P: search_videos(top words, 50)
+    P->>G: search.list (100 units) and videos.list
+    S->>S: drop liked and saved videos, score, add a reason to each
+    S-->>T: results and counts
+  end
+  T-->>AI: JSON with counts only about the user's data
+```

@@ -51,6 +51,7 @@ EXPECTED_TOOLS = (
     "find_similar_channels",
     "propose_playlist",
     "create_playlist",
+    "recommend_videos",
 )
 
 

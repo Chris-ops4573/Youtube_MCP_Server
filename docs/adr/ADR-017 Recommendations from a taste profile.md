@@ -1,6 +1,6 @@
 # ADR-017 Recommendations from a taste profile
 
-Status: Proposed
+Status: Accepted
 
 ## Context
 FR-3 asks for recommendations built from the user's likes, subscriptions and playlists, read with the read-only scope and capped per source to limit quota. Candidates must exclude videos the user already liked or saved, and each result needs a short reason based on metadata. YouTube has no recommendation endpoint, so the ranking is computed locally, as in [[ADR-002 Metadata similarity]].
@@ -13,11 +13,13 @@ FR-3 asks for recommendations built from the user's likes, subscriptions and pla
 - **Score:** 0.6 x text similarity + 0.2 x category share + 0.2 x same-channel. These weights are guesses, tuned later (TBD-2).
 - **Reasons:** one per result, the first that applies: a liked or subscribed channel; shared interest words; a category the user likes often; otherwise similar to liked videos.
 - **Low confidence** when there are fewer than 5 likes. With no likes and no subscriptions the tool answers NOT_ENOUGH_HISTORY.
+- **Privacy:** the tool reports only counts about the user's data (likes, subscriptions, videos found in playlists), never the liked videos themselves.
 
 ## Consequences
 - About 74 requests a day fit in the 9,500 usable units, almost all of the cost being the one search.
 - Quality depends on the likes. One search with three words can under-represent a varied taste.
 - The weights are untuned. Real examples are needed before TBD-2 can be closed.
-- Status changes to Accepted when the feature is built (task F2 in [[Refactor and Feature Plan]]).
+- Built in task F2 of [[Refactor and Feature Plan]]. It is tested with fakes and over the real MCP protocol, not yet against a real account.
+- The number of playlists read is not reported, only the videos found in them, because the account interface returns video IDs only.
 
 Cites: [[Similarity]], [[Quota]], [[ADR-010 Like dates from the likes playlist]]

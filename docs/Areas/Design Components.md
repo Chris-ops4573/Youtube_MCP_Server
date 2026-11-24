@@ -58,5 +58,8 @@ flowchart LR
 ## Playlists (built)
 FR-5 adds `propose_playlist` and `create_playlist`. The account provider is separate from the read providers: reading public data uses the API key, acting as the user (reading likes, subscriptions and playlists, and creating a playlist) uses the user's own login. Only `create_playlist` ever writes, and only after a person confirms: see [[Playlist]] and [[Design Sequences]].
 
+## Recommendations (built)
+FR-3 adds `recommend_videos`: a service that reads the account through the account provider, builds a taste profile (in similarity.py) and searches once. See [[Recommendations]] and [[Design Sequences]].
+
 ## Not built yet (planned)
-FR-3 recommendations and FR-4 engagement analysis will be new **services and tools** in the same layers. The account provider already reads the likes, subscriptions and playlists they need.
+FR-4 engagement analysis will be a new **service and tool** in the same layers. The account provider already reads the likes, subscriptions and playlists it needs.

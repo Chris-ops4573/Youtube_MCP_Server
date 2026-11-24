@@ -34,4 +34,7 @@ Channel scoring is in the same file and uses the same TF-IDF helper, with its ow
 - Subscriber counts are never used for ranking (SRS 5.5), so a hidden count cannot change a score.
 - `low_confidence` is true when the seed or a candidate has no keywords and no topics.
 
+## Taste profile for recommendations (FR-3.2)
+The same file also scores videos against a taste profile built from the user's likes and subscriptions. The weights are text 0.60, category 0.20 and channel 0.20 (starting guesses, TBD-2). The whole flow, the reasons and the cost are in [[Recommendations]].
+
 Part of [[Architecture]].
