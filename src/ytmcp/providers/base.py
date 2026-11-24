@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from ytmcp.models import Channel, Video
+from ytmcp.models import Channel, LikedVideo, Subscription, Video
 
 
 class VideoProvider(ABC):
@@ -37,9 +37,23 @@ class VideoProvider(ABC):
         """
 
 
-class PlaylistWriter(ABC):
-    """Creates playlists on YouTube (FR-5). Separate from VideoProvider on purpose: reading uses
-    an API key, writing uses the user's own login. Nothing here can edit or delete (SRS 5.2)."""
+class AccountProvider(ABC):
+    """Everything done as the signed-in user, with the user's own login (SE-6): reading the
+    account (likes, subscriptions, playlists: FR-3, FR-4) and creating playlists (FR-5).
+    Separate from VideoProvider on purpose: VideoProvider reads public data with an API key.
+    Nothing here can edit or delete (SRS 5.2)."""
+
+    @abstractmethod
+    def liked_videos(self, limit: int) -> list[LikedVideo]:
+        """The newest `limit` videos the user liked, newest first, with the date liked."""
+
+    @abstractmethod
+    def subscriptions(self, limit: int) -> list[Subscription]:
+        """Up to `limit` channels the user subscribes to."""
+
+    @abstractmethod
+    def playlist_video_ids(self, max_playlists: int) -> set[str]:
+        """IDs of videos in up to `max_playlists` of the user's own playlists (first 50 of each)."""
 
     @abstractmethod
     def ensure_write_access(self) -> None:

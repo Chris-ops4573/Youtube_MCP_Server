@@ -23,7 +23,7 @@ python -m ytmcp auth logout   # tells Google to cancel the login, deletes the sa
 ## Access levels
 | Scope | Used for |
 |---|---|
-| `youtube.readonly` (default) | likes, subscriptions, playlists |
+| `youtube.readonly` (default) | reading likes, subscriptions and playlists, done by `YouTubeAccount` ([[Providers]]); FR-3 and FR-4 are built on it |
 | `youtube` (write) | creating playlists only. Request it once with `python -m ytmcp auth login --write`: see [[Playlist]] |
 
 A write login also counts as read access.

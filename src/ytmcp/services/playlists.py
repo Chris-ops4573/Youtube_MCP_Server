@@ -41,7 +41,7 @@ from ytmcp.proposals import (
     content_hash,
     new_proposal_id,
 )
-from ytmcp.providers.base import PlaylistWriter, VideoProvider
+from ytmcp.providers.base import AccountProvider, VideoProvider
 from ytmcp.quota import COSTS, MAX_IDS_PER_CALL
 
 
@@ -136,7 +136,7 @@ def decline(store: ProposalStore, proposal_id: str) -> None:
 
 
 def create_playlist(
-    writer: PlaylistWriter,
+    account: AccountProvider,
     store: ProposalStore,
     proposal_id: str,
     given_hash: str,
@@ -154,13 +154,13 @@ def create_playlist(
         raise ConfirmationRequiredError(proposal.id)
 
     # both of these run before the proposal is used up, so the user can fix them and retry
-    writer.ensure_budget(estimate_create_cost(len(proposal.videos)))  # FR-5.6
-    writer.ensure_write_access()  # FR-6.1
+    account.ensure_budget(estimate_create_cost(len(proposal.videos)))  # FR-5.6
+    account.ensure_write_access()  # FR-6.1
 
     if not store.claim(proposal.id, now, from_status):
         raise ProposalUsedError("That proposal was already used or has just expired.")
     try:
-        playlist_id = writer.create_playlist(proposal.title, proposal.description)
+        playlist_id = account.create_playlist(proposal.title, proposal.description)
     except Exception:
         store.finish(proposal.id, FAILED)  # the playlist may or may not exist: do not retry
         raise
@@ -171,7 +171,7 @@ def create_playlist(
     stopped: str | None = None
     for index, video in enumerate(proposal.videos):
         try:
-            writer.add_video(playlist_id, video.id)
+            account.add_video(playlist_id, video.id)
             added.append(video.id)
         except YouTubeApiError as exc:  # this video only (deleted, already there, ...)
             failed.append((video.id, exc.reason or "error"))

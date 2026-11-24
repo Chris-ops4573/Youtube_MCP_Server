@@ -22,7 +22,7 @@ from ytmcp.errors import (
 )
 from ytmcp.playlist_planner import Selection, validate_constraints
 from ytmcp.proposals import CONFIRMED, PROPOSAL_TTL_SECONDS, Proposal, ProposalStore
-from ytmcp.providers.base import PlaylistWriter, VideoProvider
+from ytmcp.providers.base import AccountProvider, VideoProvider
 from ytmcp.services.playlists import (
     CreateResult,
     create_playlist,
@@ -263,7 +263,7 @@ def format_created(proposal: Proposal, result: CreateResult) -> dict[str, Any]:
 
 
 async def create_playlist_tool(
-    writer: PlaylistWriter | None,
+    account: AccountProvider | None,
     store: ProposalStore,
     proposal_id: str,
     given_hash: str,
@@ -272,7 +272,7 @@ async def create_playlist_tool(
 ) -> dict[str, Any]:
     """Run FR-5.5 and FR-5.6. A person must approve: either by answering the client's question
     now, or by confirming this proposal in a terminal beforehand. The AI cannot approve."""
-    if writer is None:
+    if account is None:
         return _error(PlaylistWritesDisabledError("Playlist creation is switched off."))
     try:
         proposal = prepare_create(store, proposal_id, given_hash, now())
@@ -285,7 +285,7 @@ async def create_playlist_tool(
                 decline(store, proposal.id)
                 return {"cancelled": True, "message": "You said no. No playlist was created."}
             approved = True
-        result = create_playlist(writer, store, proposal.id, given_hash, approved, now())
+        result = create_playlist(account, store, proposal.id, given_hash, approved, now())
     except YtmcpError as exc:
         return _error(exc)
     return format_created(proposal, result)

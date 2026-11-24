@@ -27,7 +27,7 @@ except ImportError:  # mcp 1.x
 from ytmcp.config import build_services
 from ytmcp.database import Database
 from ytmcp.proposals import ProposalStore
-from ytmcp.providers.base import PlaylistWriter, VideoProvider
+from ytmcp.providers.base import AccountProvider, VideoProvider
 from ytmcp.tools import (
     Answer,
     create_playlist_tool,
@@ -66,7 +66,7 @@ async def ask_user(ctx: Any, message: str) -> Answer:
 def create_server(
     provider: VideoProvider,
     store: ProposalStore | None = None,
-    writer: PlaylistWriter | None = None,
+    account: AccountProvider | None = None,
 ) -> Any:
     store = store or ProposalStore(Database(":memory:"))
     mcp = MCPServer("youtube-video-intelligence")
@@ -160,7 +160,7 @@ def create_server(
         async def ask(message: str) -> Answer:
             return await ask_user(ctx, message)
 
-        return await create_playlist_tool(writer, store, proposal_id, content_hash, ask)
+        return await create_playlist_tool(account, store, proposal_id, content_hash, ask)
 
     return mcp
 
@@ -168,7 +168,7 @@ def create_server(
 def main() -> None:
     load_dotenv()  # reads .env if present; real environment variables win
     services = build_services()
-    create_server(services.provider, services.store, services.writer).run()
+    create_server(services.provider, services.store, services.account).run()
 
 
 if __name__ == "__main__":

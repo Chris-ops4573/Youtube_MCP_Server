@@ -2,7 +2,7 @@ import asyncio
 import json
 
 import pytest
-from fake_playlists import FakeWriter, ListProvider
+from fake_playlists import FakeAccount, ListProvider
 from fake_playlists import make_video as v
 
 from ytmcp import proposals
@@ -80,7 +80,7 @@ def test_a_shortfall_is_explained_in_the_notes(store):
 
 
 def test_nothing_is_written_to_youtube_by_proposing(store):
-    writer = FakeWriter()
+    writer = FakeAccount()
     propose(store)
     assert writer.events == []
 
@@ -130,7 +130,7 @@ def proposal_of(store):
 
 def test_the_user_accepting_the_clients_question_creates_the_playlist(store):
     pid, h = proposal_of(store)
-    writer = FakeWriter()
+    writer = FakeAccount()
     out, asked = create(store, writer, pid, h, "accept")
     created = out["created"]
     assert created == {
@@ -143,13 +143,13 @@ def test_the_user_accepting_the_clients_question_creates_the_playlist(store):
 
 def test_the_question_names_the_playlist_the_count_and_that_it_is_private(store):
     pid, h = proposal_of(store)
-    _, asked = create(store, FakeWriter(), pid, h)
+    _, asked = create(store, FakeAccount(), pid, h)
     assert "PRIVATE" in asked[0] and "'rust (60 min)'" in asked[0] and "3 videos" in asked[0] and "60 min" in asked[0]
 
 
 def test_the_user_saying_no_creates_nothing_and_ends_the_proposal(store):
     pid, h = proposal_of(store)
-    writer = FakeWriter()
+    writer = FakeAccount()
     out, _ = create(store, writer, pid, h, "decline")
     assert out == {"cancelled": True, "message": "You said no. No playlist was created."}
     assert writer.events == []
@@ -160,7 +160,7 @@ def test_the_user_saying_no_creates_nothing_and_ends_the_proposal(store):
 
 def test_a_client_that_cannot_ask_gets_the_terminal_instructions_and_nothing_is_written(store):
     pid, h = proposal_of(store)
-    writer = FakeWriter()
+    writer = FakeAccount()
     out, _ = create(store, writer, pid, h, "unsupported")
     err = out["error"]
     assert err["code"] == "CONFIRMATION_REQUIRED"
@@ -172,7 +172,7 @@ def test_a_client_that_cannot_ask_gets_the_terminal_instructions_and_nothing_is_
 def test_a_terminal_confirmed_proposal_is_created_without_asking_again(store):
     pid, h = proposal_of(store)
     store.confirm(pid, NOW)
-    out, asked = create(store, FakeWriter(), pid, h, "unsupported")
+    out, asked = create(store, FakeAccount(), pid, h, "unsupported")
     assert out["created"]["status"] == "created"
     assert asked == []
 
@@ -181,28 +181,28 @@ def test_the_ai_has_no_way_to_approve_in_the_tool_arguments():
     import inspect
 
     assert list(inspect.signature(create_playlist_tool).parameters) == [
-        "writer", "store", "proposal_id", "given_hash", "ask_user", "now",
+        "account", "store", "proposal_id", "given_hash", "ask_user", "now",
     ]
 
 
 def test_the_person_is_never_asked_about_a_bad_proposal(store):
     pid, h = proposal_of(store)
     for bad_id, bad_hash, code in [("nope", h, "PROPOSAL_NOT_FOUND"), (pid, "0" * 16, "PROPOSAL_MISMATCH")]:
-        out, asked = create(store, FakeWriter(), bad_id, bad_hash)
+        out, asked = create(store, FakeAccount(), bad_id, bad_hash)
         assert out["error"]["code"] == code
         assert asked == []
 
 
 def test_an_expired_proposal_is_refused_without_asking(store):
     pid, h = proposal_of(store)
-    out, asked = create(store, FakeWriter(), pid, h, now=NOW + 900)
+    out, asked = create(store, FakeAccount(), pid, h, now=NOW + 900)
     assert out["error"]["code"] == "PROPOSAL_EXPIRED" and asked == []
 
 
 def test_a_used_proposal_is_refused(store):
     pid, h = proposal_of(store)
-    create(store, FakeWriter(), pid, h)
-    out, asked = create(store, FakeWriter(), pid, h)
+    create(store, FakeAccount(), pid, h)
+    out, asked = create(store, FakeAccount(), pid, h)
     assert out["error"]["code"] == "PROPOSAL_ALREADY_USED" and asked == []
 
 
@@ -219,20 +219,20 @@ def test_playlist_writes_can_be_switched_off(store):
 
 def test_missing_write_permission_tells_the_user_how_to_fix_it(store):
     pid, h = proposal_of(store)
-    out, _ = create(store, FakeWriter(access_error=WriteAccessRequiredError("not signed in")), pid, h)
+    out, _ = create(store, FakeAccount(access_error=WriteAccessRequiredError("not signed in")), pid, h)
     assert out["error"]["code"] == "WRITE_ACCESS_REQUIRED"
     assert "auth login --write" in out["error"]["remediation"]
 
 
 def test_not_enough_quota_is_reported(store):
     pid, h = proposal_of(store)
-    out, _ = create(store, FakeWriter(budget_error=QuotaExceededError("needs 200")), pid, h)
+    out, _ = create(store, FakeAccount(budget_error=QuotaExceededError("needs 200")), pid, h)
     assert out["error"]["code"] == "QUOTA_EXCEEDED"
 
 
 def test_partial_failures_are_reported_with_titles_urls_and_reasons(store):
     pid, h = proposal_of(store)
-    writer = FakeWriter(video_errors={IDS[1]: YouTubeApiError("gone", reason="videoNotFound")})
+    writer = FakeAccount(video_errors={IDS[1]: YouTubeApiError("gone", reason="videoNotFound")})
     created = create(store, writer, pid, h)[0]["created"]
     assert created["status"] == "partial" and created["videos_added"] == 2
     assert created["videos_failed"] == [
@@ -243,7 +243,7 @@ def test_partial_failures_are_reported_with_titles_urls_and_reasons(store):
 
 def test_running_out_of_quota_midway_is_reported(store):
     pid, h = proposal_of(store)
-    writer = FakeWriter(video_errors={IDS[1]: QuotaExceededError("used up")})
+    writer = FakeAccount(video_errors={IDS[1]: QuotaExceededError("used up")})
     created = create(store, writer, pid, h)[0]["created"]
     assert created["status"] == "partial"
     assert created["videos_added"] == 1 and created["videos_not_attempted"] == 2
@@ -252,7 +252,7 @@ def test_running_out_of_quota_midway_is_reported(store):
 
 def test_errors_never_include_a_traceback(store):
     pid, h = proposal_of(store)
-    out, _ = create(store, FakeWriter(create_error=YouTubeApiError("boom", reason="x")), pid, h)
+    out, _ = create(store, FakeAccount(create_error=YouTubeApiError("boom", reason="x")), pid, h)
     assert "Traceback" not in json.dumps(out)
     assert out["error"]["code"] == "YOUTUBE_API_ERROR"
 

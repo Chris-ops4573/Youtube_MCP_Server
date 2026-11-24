@@ -18,10 +18,10 @@ from pathlib import Path
 from ytmcp.auth import AuthService, OAuthClient, OAuthConfig, TokenStore
 from ytmcp.database import Database
 from ytmcp.proposals import ProposalStore
-from ytmcp.providers.base import PlaylistWriter, VideoProvider
+from ytmcp.providers.base import AccountProvider, VideoProvider
 from ytmcp.providers.caching import CachingProvider
 from ytmcp.providers.fixture import FixtureProvider
-from ytmcp.providers.youtube import YouTubePlaylistWriter, YouTubeProvider
+from ytmcp.providers.youtube import YouTubeAccount, YouTubeProvider
 from ytmcp.quota import QuotaTracker
 
 
@@ -68,7 +68,7 @@ def access_token(scope: str) -> str:
 class Services:
     provider: VideoProvider
     store: ProposalStore
-    writer: PlaylistWriter | None  # None in fixture mode: no real playlists
+    account: AccountProvider | None  # None in fixture mode: no real playlists
 
 
 def build_services() -> Services:
@@ -82,4 +82,4 @@ def build_services() -> Services:
     cache_on = os.environ.get("YTMCP_CACHE", "on").lower() != "off"
     quota = QuotaTracker(cache=cache) if cache_on else QuotaTracker()
     provider = build_provider(cache, quota)
-    return Services(provider, store, YouTubePlaylistWriter(access_token, quota))
+    return Services(provider, store, YouTubeAccount(access_token, quota))
