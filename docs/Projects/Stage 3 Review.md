@@ -32,7 +32,7 @@ The full row-by-row trace to code and tests is in [[Traceability]].
 | TBD-2 | Similarity weights | **Open.** Starting guesses (0.4, 0.2, 0.1, 0.05, 0.1, 0.15 for videos; 0.6 text, 0.25 keywords, 0.15 topics for channels; 0.6, 0.2, 0.2 for recommendations). Real runs gave sensible results but nothing was tuned |
 | TBD-5 | Non-English tokenising | **Open.** The stop words are English only |
 | TBD-6 | Quota reserve and maximum playlist length | **Assumed:** a 500 unit reserve and 24 hours, both enforced |
-| TBD-7 | Team details on the SRS cover | **Open.** Needs a person |
+| TBD-7 | Team details on the SRS cover | **Done.** The names are on the cover page |
 | TBD-8 | Re-check API unit costs | **Open.** Needs a person to confirm in Google's Quota Calculator: see [[Quota]] |
 
 ## Known limitations
@@ -50,6 +50,6 @@ Four skills were first checked by the assistant that wrote them (Stage 2), and a
 
 ## What a person must do before Stage 4
 1. Try the `video-to-playlist` case that needs a client that asks the user, if one is available, or leave it written down as not tried ([[Skill Evaluations]]).
-2. Confirm the API unit costs (TBD-8) and fill in the team details (TBD-7).
+2. Confirm the API unit costs (TBD-8). The team details (TBD-7) are done.
 3. Delete the private test playlists left on YouTube from the real tests.
 4. Work through [[Stage 4 Checklist]].

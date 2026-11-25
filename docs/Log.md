@@ -34,3 +34,4 @@ Newest at the bottom. Format: `YYYY-MM-DD - who - what changed`
 - 2026-11-24 - Chris - D3: added the Stage 3 Review and the Stage 4 Checklist, updated the stage statuses, and fixed the Auth note that still said nothing used the login. See [[Stage 3 Review]], [[Stage 4 Checklist]].
 - 2026-11-26 - Chris - Recorded the Stage 3 skill evaluation results (brain skills and local-check judged by a person; video-to-playlist run once with a real client using the terminal confirmation), and replaced the brain-query case 4 question that had stopped working. See [[Skill Evaluations]], [[Stage 3 Review]].
 - 2026-11-26 - Chris - Recorded the video-to-playlist decline case as a pass (real client, nothing created). See [[Skill Evaluations]].
+- 2026-11-26 - Chris - Closed TBD-7: the team names are on the SRS cover page. See [[Requirements]], [[Stage 3 Review]].
