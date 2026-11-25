@@ -8,7 +8,7 @@ Stage 4 = Release: a live demo and the release tag. Written so one person can fo
 - [ ] Signed in with write access: `python -m ytmcp auth login --write` (the 7 day Testing-mode limit means signing in again if it was a while ago)
 - [ ] `python -m ytmcp quota status` shows plenty of units left; the demo uses about 500 (see the costs in [[Tool Reference]])
 - [ ] The AI client is connected to the server with the snippet in the README, and the tools are listed
-- [ ] The skill cases in [[Skill Evaluations]] have been judged by a person
+- [ ] The open skill cases in [[Skill Evaluations]] are tried or written down as not tried
 - [ ] The open TBDs are closed or written down as open in [[Stage 3 Review]]
 
 ## Live demo script

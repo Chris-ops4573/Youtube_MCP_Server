@@ -59,7 +59,8 @@ In the SQLite file (`src/ytmcp/database.py`), in the `proposals` table, even wit
 - **Real creation** (after `python -m ytmcp auth login --write`): a 10 minute proposal of 6 videos (4 of them were clips under a minute: this led to `min_video_minutes`). The server asked the question, the client said yes, and the playlist was created in 8.7 s (350 units expected: 50 + 6 x 50).
 - **Checked on YouTube itself:** the playlist is private, has the right title and description, and holds the same 6 videos in the same order as the proposal. Using the same proposal again was refused (`PROPOSAL_ALREADY_USED`), so no duplicate.
 - **With `min_video_minutes=3`:** the same request gave 4 proper videos totalling 19:58 instead of 7 videos with 4 short clips, and 12 short clips were reported as left out. A second real playlist was created, private, and read back from YouTube with the same videos in the same order.
-- **Not yet tried:** the terminal confirmation in a real terminal, and a real AI client's own question (the test client used the real protocol, but it was a test client).
+- **Tried with a real AI client (2026-11-26):** Claude Code in VS Code cannot ask the user a question, so `create_playlist` answered with the terminal route. The AI did not confirm for the user; the person ran `python -m ytmcp playlist confirm` in a real terminal and typed yes, and the private playlist was created. A second request (30 minutes, English only, no video longer than 10 minutes) produced exactly those settings and a 33 minute playlist.
+- **Not yet tried:** a client that does ask the user a question (the tests use the real protocol with a test client, so the code path is covered).
 
 ## Known limits
 - **Short clips:** results come in search relevance order, so a topic like "tutorial" can include 20 second Shorts. `min_video_minutes` leaves them out and now defaults to 3; pass 0 to keep them (the proposal then warns).
