@@ -41,7 +41,7 @@ Progress is tracked in [[Traceability]].
 | TBD-5 | Non-English tokenising | Open (Stage 3) |
 | TBD-6 | Quota reserve (500) and max playlist length (24 h) | Open (Stage 3). Both are assumed values; the 24 h limit is enforced in [[Playlist]] |
 | TBD-7 | Team details on the SRS cover | Done: the team names and roll numbers are on the cover page of the SRS file in `docs/requirements/` |
-| TBD-8 | Re-check API unit costs | Open. Needs a person to confirm, see [[Quota]] |
+| TBD-8 | Re-check API unit costs | Done: confirmed by a person against Google's Quota Calculator on 2026-11-26, see [[Quota]] |
 | TBD-9 | Transcripts for summaries | Decided: metadata only, [[ADR-011 Metadata only, no transcripts]] |
 
 See also [[Glossary]].
