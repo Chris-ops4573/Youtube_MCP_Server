@@ -15,12 +15,12 @@ File: `src/ytmcp/quota.py`
 | playlists.insert | 50 |
 | playlistItems.insert | 50 |
 
-(Costs from SRS 2.5; re-check in Google's Quota Calculator, TBD-8.)
+(Costs from SRS 2.5, confirmed by a person in Google's Quota Calculator on 2026-11-26: TBD-8.)
 
 Reading about 4,000 likes is about 80 `playlistItems.list` calls (50 per call): see [[ADR-010 Like dates from the likes playlist]]. A playlist of 10 videos costs 50 + 10 x 50 = 550 units (FR-5.6).
 
-## Closing TBD-8 (a person has to do this)
-Our count is only what this server believes it spent. To check it against Google:
+## Checking the count against Google (TBD-8, done)
+The unit costs were confirmed by a person on 2026-11-26. Our count is still only what this server believes it spent. To check it against Google again:
 1. In Google Cloud Console open the project, then APIs & Services, YouTube Data API v3, Quotas and System Limits. Note today's "Queries per day" usage.
 2. Run one fresh `find_similar_channels` request (expected cost: 118 units) with an empty cache (`YTMCP_CACHE=off` or a new `YTMCP_CACHE_PATH`).
 3. Look at the console again (it can lag a few minutes). The difference should be 118.
