@@ -20,7 +20,7 @@ SE-4. What gets built, in what order, and how we work. Stage deliverables come f
 | 5 | FR-3 recommendations | FR-6 | built and tried on a real account |
 | 6 | FR-5 playlist creation (UI-2) | FR-6, write scope | built and tested for real |
 | 7 | FR-4 engagement analysis | FR-6 | built and tried on a real account |
-| 8 | SK-1 video-to-playlist | FR-5 | built; run once with a real client, two evals still open |
+| 8 | SK-1 video-to-playlist | FR-5 | built; run with a real client (terminal confirmation and decline pass); one eval needs a client that asks the user |
 | 9 | Rest of the CLI (UI-4) | none | built |
 | 10 | SK-3 brain skills, CI note and skill checks | none | done |
 
