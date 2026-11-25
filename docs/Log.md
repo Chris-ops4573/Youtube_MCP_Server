@@ -32,3 +32,4 @@ Newest at the bottom. Format: `YYYY-MM-DD - who - what changed`
 - 2026-11-24 - Chris - D1: added the Defect Log (TQ-8) with 11 defects found so far and a rule that every new defect gets a row and a test. See [[Defect Log]].
 - 2026-11-24 - Chris - D2: added the README, the User Guide, the Tool Reference and the CHANGELOG (SE-7). See [[User Guide]], [[Tool Reference]].
 - 2026-11-24 - Chris - D3: added the Stage 3 Review and the Stage 4 Checklist, updated the stage statuses, and fixed the Auth note that still said nothing used the login. See [[Stage 3 Review]], [[Stage 4 Checklist]].
+- 2026-11-26 - Chris - Recorded the Stage 3 skill evaluation results (brain skills and local-check judged by a person; video-to-playlist run once with a real client using the terminal confirmation), and replaced the brain-query case 4 question that had stopped working. See [[Skill Evaluations]], [[Stage 3 Review]].

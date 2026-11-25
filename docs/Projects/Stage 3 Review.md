@@ -5,7 +5,7 @@ Stage 3 = Build and test. Deliverables from the SRS (section 6): tests, video-to
 ## Deliverables
 - [x] Tests (TQ-1 to TQ-6): 858 tests using fixtures only, coverage 97.97% (the gate is 80%), run in CI with lint. See [[Testing]]
 - [x] `video-to-playlist` skill (SK-1): `.claude/skills/video-to-playlist/`, see [[Playlist]]
-- [ ] Skill cases that need a person to run them, including the new `video-to-playlist` cases: see [[Skill Evaluations]]
+- [x] The brain skills and local-check were judged by a person on 2026-11-26; the `video-to-playlist` skill was run for real once (terminal confirmation), with two cases still open: see [[Skill Evaluations]]
 - [x] Defect log (TQ-8): [[Defect Log]]
 - [x] Release documents (SE-7): README, [[User Guide]], [[Tool Reference]] and the changelog
 - [x] The brain check and the skill check pass in CI (SRS section 6): see [[Brain]]
@@ -42,14 +42,14 @@ The full row-by-row trace to code and tests is in [[Traceability]].
 - Only the newest 500 likes (engagement) or 250 likes (recommendations) are read, and the output says when that cuts off a period.
 - A client that answers questions automatically looks like a person to the server, so the confirmation is only as strong as the client.
 - The newer MCP protocol version has no questions to the user, so there the confirmation always uses the terminal command.
-- The terminal confirmation has not been tried in a real terminal, and the `video-to-playlist` skill has not been run with a real AI client.
+- The terminal confirmation was tried in a real terminal with a real client, which cannot ask the user a question. A client that does ask has not been tried, and neither has the decline case of the `video-to-playlist` skill.
 - Most recommendations are Shorts when most of a person's likes are Shorts. A minimum length for recommendations is possible later; it was not asked for.
 
 ## Skill evaluation status
-Four skills were checked by the assistant that wrote them (a self-check). `video-to-playlist` has not been run. The SRS wants a human to review AI-generated work (section 5.5), so every case marked "needs a person" in [[Skill Evaluations]] is still open.
+Four skills were first checked by the assistant that wrote them (Stage 2), and again in Stage 3 with a person reading and judging the results. `video-to-playlist` was run with a real client for the terminal route; its client-question case and its decline case are open. The SRS wants a human to review AI-generated work (section 5.5): see [[Skill Evaluations]].
 
 ## What a person must do before Stage 4
-1. Run the skill cases in [[Skill Evaluations]] and write the results in the table.
+1. Try the two open `video-to-playlist` cases in [[Skill Evaluations]] if a suitable client is available, or write them down as not tried.
 2. Confirm the API unit costs (TBD-8) and fill in the team details (TBD-7).
 3. Delete the private test playlists left on YouTube from the real tests.
 4. Work through [[Stage 4 Checklist]].
