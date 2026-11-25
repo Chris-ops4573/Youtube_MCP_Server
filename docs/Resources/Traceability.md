@@ -49,6 +49,6 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | SRS 5.4 (coverage >= 80%) | `.github/workflows/ci.yml` | CI pytest step | [[Testing]] | |
 | FR-5.2 (durations) | `src/ytmcp/durations.py` | `tests/test_durations.py` | | |
 
-SK-1 is written and was run once with a real client (terminal confirmation); two of its cases are still open. FR-4 is built, tested, and was tried on a real account (read-only). FR-3 is built, tested, and was tried on a real account (read-only). UI-4 is built (all five command groups). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation was tried in a real terminal with a real client.
+SK-1 is written and was run with a real client: the terminal confirmation and the decline case passed. The case where the client asks the user cannot be tried with that client. FR-4 is built, tested, and was tried on a real account (read-only). FR-3 is built, tested, and was tried on a real account (read-only). UI-4 is built (all five command groups). FR-5 is built and tested, including one real private playlist created and read back from YouTube; the terminal confirmation was tried in a real terminal with a real client.
 
 Back to [[Requirements]].
