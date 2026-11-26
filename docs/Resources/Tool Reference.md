@@ -46,8 +46,8 @@ Creates the playlist from a proposal. **The only tool that writes.** It makes on
 
 ## recommend_videos
 Recommends videos from your own taste ([[Recommendations]]).
-- **Arguments:** `top_n` (1 to 50, default 10).
-- **Result:** `results` (rank, title, channel, duration, score, url, `reason`, `score_breakdown`), `based_on` (how many likes, subscriptions and playlist videos were read) and `low_confidence` (true when you have fewer than 5 likes). Videos you already liked or saved are left out.
+- **Arguments:** `top_n` (1 to 50, default 10); `min_video_minutes` (0 or more; leave it out for 3, so no Shorts; 0 allows any length).
+- **Result:** `results` (rank, title, channel, duration, score, url, `reason`, `score_breakdown`, `low_confidence` when the score is below 0.25), `based_on` (how many likes, subscriptions and playlist videos were read), `low_confidence` and `confidence_note` (why: fewer than 5 likes, no results, or the best score below 0.25), `min_video_minutes` (the minimum used) and `left_out_short` (how many live or too-short videos were left out). Videos you already liked or saved are left out.
 - **Errors:** `ACCOUNT_NOT_AVAILABLE`, `AUTH_REQUIRED`, `NOT_ENOUGH_HISTORY`, `INVALID_ARGUMENT`, `QUOTA_EXCEEDED`, `API_KEY_MISSING`, `YOUTUBE_API_ERROR`.
 
 ## analyze_engagement

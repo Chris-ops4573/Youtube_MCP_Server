@@ -38,3 +38,4 @@ Newest at the bottom. Format: `YYYY-MM-DD - who - what changed`
 - 2026-11-26 - Chris - Closed TBD-8: a person confirmed the API unit costs in Google's Quota Calculator. See [[Quota]], [[Requirements]].
 - 2026-11-26 - Chris - find_similar_channels now matches channels by content: query from upload titles, candidates from a video search, name not scored (D-12). See [[ADR-020 Find similar channels through their videos]], [[Channels]].
 - 2026-11-26 - Chris - recommend_videos and analyze_engagement now share one set of account caps (500 likes, 200 subscriptions, 10 playlists); recommend_videos costs 137 units (D-13). See [[ADR-021 One account-reading cap for all tools]], [[Recommendations]].
+- 2026-11-26 - Chris - recommend_videos leaves out live videos and videos under 3 minutes by default (min_video_minutes, 0 = any), and flags weak matches with a per-result low_confidence and a confidence_note (D-14). See [[Recommendations]].

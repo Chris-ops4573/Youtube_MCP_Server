@@ -20,6 +20,7 @@ from ytmcp.providers.base import VideoProvider
 from ytmcp.server import create_server
 from ytmcp.services.recommendations import (
     LIKES_CAP,
+    MIN_LIKES_FOR_CONFIDENCE,
     PLAYLISTS_CAP,
     SEARCH_SIZE,
     SUBSCRIPTIONS_CAP,
@@ -28,6 +29,7 @@ from ytmcp.services.recommendations import (
 )
 from ytmcp.similarity import (
     DEFAULT_TASTE_WEIGHTS,
+    LOW_SCORE,
     TasteProfile,
     build_taste_profile,
     rank_for_profile,
@@ -446,7 +448,7 @@ def test_recommend_videos_over_the_protocol():
 
     tool, out = asyncio.run(scenario())
     assert tool.annotations.read_only_hint is True
-    assert set(tool.input_schema["properties"]) == {"top_n"}
+    assert set(tool.input_schema["properties"]) == {"top_n", "min_video_minutes"}
     assert out["results"][0]["title"] == "Rust traits explained"
 
 
@@ -481,3 +483,99 @@ def test_format_words_are_not_interests():
 def test_subscription_titles_are_also_counted_once_each():
     profile = build_taste_profile([], ["Rust Rust Rust", "Rust Lab", "Cooking"], [], term_count=2)
     assert profile.top_terms == ["rust", "cooking"]  # rust is in 2 titles however often it repeats; ties alphabetical
+
+
+# --- found by a real test: Shorts filled the recommendations, and weak matches looked confident (D-14) ----------
+
+
+def many_likes(n=MIN_LIKES_FOR_CONFIDENCE):
+    liked = [LikedVideo(f"l{i}", "2026-01-01T00:00:00Z") for i in range(n)]
+    details = [vid(f"l{i}", "Rust ownership lifetimes", ["rust"], "27", "UC1") for i in range(n)]
+    return liked, details
+
+
+def test_shorts_and_live_videos_are_left_out_by_default():
+    candidates = [
+        vid("short", "Rust in 60 seconds #shorts #rust #code", seconds=59),
+        vid("live", "Rust live stream", seconds=0),
+        vid("long", "Rust ownership deep dive", seconds=1800),
+        vid("edge", "Rust lifetimes in three minutes", seconds=180),
+    ]
+    provider, account = setup(candidates=candidates)
+    result = recommend_videos(provider, account)
+    assert sorted(r.video.id for r in result.results) == ["edge", "long"]  # 3 minutes exactly is kept
+    assert (result.min_video_minutes, result.left_out_short) == (3, 2)
+
+
+def test_a_live_video_is_left_out_whatever_its_length():
+    live = Video(id="live", title="Rust live", description="", channel_id="UC9", channel_title="C",
+                 duration_seconds=7200, is_live=True)
+    provider, account = setup(candidates=[live, vid("ok", "Rust ok")])
+    assert [r.video.id for r in recommend_videos(provider, account).results] == ["ok"]
+
+
+def test_zero_keeps_every_length():
+    candidates = [vid("short", "Rust in 60 seconds", seconds=59), vid("long", "Rust deep dive", seconds=1800)]
+    provider, account = setup(candidates=candidates)
+    result = recommend_videos(provider, account, min_video_minutes=0)
+    assert sorted(r.video.id for r in result.results) == ["long", "short"]
+    assert result.left_out_short == 0
+
+
+def test_a_custom_minimum_is_used():
+    candidates = [vid("ten", "Rust ten", seconds=600), vid("twenty", "Rust twenty", seconds=1200)]
+    provider, account = setup(candidates=candidates)
+    result = recommend_videos(provider, account, min_video_minutes=15)
+    assert [r.video.id for r in result.results] == ["twenty"]
+
+
+def test_the_tool_uses_three_minutes_when_no_minimum_is_given():
+    provider, account = setup(candidates=[vid("short", "Rust", seconds=30), vid("ok", "Rust", seconds=400)])
+    out = recommend_videos_tool(provider, account)
+    assert [r["url"][-2:] for r in out["results"]] == ["ok"]
+    assert out["min_video_minutes"] == 3 and out["left_out_short"] == 1
+
+
+@pytest.mark.parametrize("bad", [-1, 2.5, "3", True])
+def test_a_bad_minimum_makes_no_call(bad):
+    provider, account = setup()
+    out = recommend_videos_tool(provider, account, min_video_minutes=bad)
+    assert out["error"]["code"] == "INVALID_ARGUMENT"
+    assert "min_video_minutes" in out["error"]["fields"]
+    assert provider.events == [] and account.events == []
+
+
+def test_weak_scores_are_flagged_even_with_plenty_of_likes():
+    liked, details = many_likes()
+    # nothing in common with the likes: no shared words, category or channel
+    provider, account = setup(liked=liked, details=details, candidates=[vid("far", "Gardening tips", seconds=600)])
+    result = recommend_videos(provider, account)
+    assert result.results[0].score < LOW_SCORE
+    assert result.low_confidence is True
+    assert "weak matches" in result.confidence_note and "likes were read" not in result.confidence_note
+    item = recommend_videos_tool(provider, account)["results"][0]
+    assert item["low_confidence"] is True
+
+
+def test_strong_scores_with_plenty_of_likes_are_confident():
+    liked, details = many_likes()
+    close = vid("close", "Rust ownership and lifetimes", ["rust"], "27", "UC1", seconds=900)
+    provider, account = setup(liked=liked, details=details, candidates=[close])
+    result = recommend_videos(provider, account)
+    assert result.results[0].score >= LOW_SCORE
+    assert (result.low_confidence, result.confidence_note) == (False, None)
+    out = recommend_videos_tool(provider, account)
+    assert out["results"][0]["low_confidence"] is False and out["confidence_note"] is None
+
+
+def test_no_results_is_low_confidence_with_a_reason():
+    liked, details = many_likes()
+    provider, account = setup(liked=liked, details=details, candidates=[vid("short", "Rust", seconds=10)])
+    result = recommend_videos(provider, account)
+    assert result.results == [] and result.low_confidence is True
+    assert "No new videos" in result.confidence_note
+
+
+def test_few_likes_note_names_the_count():
+    provider, account = setup(candidates=[vid("x", "Rust", seconds=600)])
+    assert "Only 2 likes were read" in recommend_videos(provider, account).confidence_note

@@ -4,7 +4,7 @@ FR-3: videos you might like, worked out from your own YouTube likes, subscriptio
 Files: `src/ytmcp/services/recommendations.py` (the steps), `src/ytmcp/similarity.py` (the taste profile and the scoring), `src/ytmcp/tools.py` (what the AI client sees)
 
 ## The tool
-`recommend_videos(top_n)` with `top_n` from 1 to 50 (default 10). It needs you to be signed in (`python -m ytmcp auth login`, read-only is enough: [[Auth]]). It only reads. In fixture mode there is no account, so it answers `ACCOUNT_NOT_AVAILABLE`.
+`recommend_videos(top_n, min_video_minutes)` with `top_n` from 1 to 50 (default 10) and `min_video_minutes` 0 or more (left out = 3, the same default as `propose_playlist`; 0 = any length; anything else is `INVALID_ARGUMENT` before any call). It needs you to be signed in (`python -m ytmcp auth login`, read-only is enough: [[Auth]]). It only reads. In fixture mode there is no account, so it answers `ACCOUNT_NOT_AVAILABLE`.
 
 ## Steps
 1. **Check the budget first.** The request costs 137 units. If that does not fit in what is left today, it stops before a single call ([[Quota]]).
@@ -12,7 +12,7 @@ Files: `src/ytmcp/services/recommendations.py` (the steps), `src/ytmcp/similarit
 3. **Get the details** of the liked videos (title, tags, category, channel), which the cache serves when it can.
 4. **Build a taste profile** (below).
 5. **Search once** with the profile's top words, 50 results.
-6. **Leave out** videos you already liked, videos already in one of your playlists, and duplicates (FR-3.3).
+6. **Leave out** videos you already liked, videos already in one of your playlists, and duplicates (FR-3.3). Then leave out live videos and videos shorter than `min_video_minutes` (default 3), so Shorts do not fill the list.
 7. **Score and rank** the rest, and give each one a short reason.
 
 ## The taste profile (FR-3.2)
@@ -44,7 +44,12 @@ One short reason per result, the first that applies:
 ## What the tool returns
 - `results`: rank, title, channel, duration, score, url, reason, score_breakdown.
 - `based_on`: how many likes, subscriptions and playlist videos were read. **Only counts**: the tool never returns what you liked.
-- `low_confidence`: true with fewer than 5 likes.
+- Each result also has `low_confidence`: true when its score is below **0.25** (`LOW_SCORE`, a starting guess, TBD-2).
+- `low_confidence` for the whole answer is true, and `confidence_note` says why, when any of these hold:
+  - fewer than 5 likes were read
+  - no videos were left after the filters
+  - the best score is below 0.25
+- `min_video_minutes`: the minimum that was used. `left_out_short`: how many live or too-short videos were left out.
 
 ## Cost: 137 units
 | Call | Units |
@@ -67,13 +72,13 @@ About 69 requests fit in a day's usable quota. Repeats are cheaper because the c
 | `AUTH_REQUIRED` | not signed in, or the login expired |
 | `NOT_ENOUGH_HISTORY` | no likes and no subscriptions, or no usable words in them |
 | `QUOTA_EXCEEDED` | 137 units do not fit in what is left today |
-| `INVALID_ARGUMENT` | `top_n` is not 1 to 50 |
+| `INVALID_ARGUMENT` | `top_n` is not 1 to 50, or `min_video_minutes` is not a whole number 0 or more (with `fields`) |
 
 ## Known limits
 - The weights are untuned (TBD-2) and the search uses only 3 words, so a varied taste is under-represented.
 - Likes beyond the newest 500 are not read, and only the first 50 videos of each of 10 playlists are.
 - The tool reports `playlist_videos` (how many distinct videos were found in your playlists), not the number of playlists, because the account interface returns only the video IDs.
-- If most of your likes are Shorts, most recommendations will be Shorts too: there is no minimum length for recommendations.
+- The minimum length filters after the one search of 50, so a topic with mostly Shorts can leave only a few results. `left_out_short` shows how many were dropped.
 - Tested with fakes and over the real MCP protocol, and **tried on a real account** (see below).
 
 ## Tried on a real account (2026-11-24)

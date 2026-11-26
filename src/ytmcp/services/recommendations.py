@@ -3,7 +3,13 @@
 import math
 from dataclasses import dataclass
 
-from ytmcp.errors import AccountUnavailableError, NotEnoughHistoryError
+from ytmcp.errors import (
+    AccountUnavailableError,
+    InvalidArgumentError,
+    NotEnoughHistoryError,
+)
+from ytmcp.models import Video
+from ytmcp.playlist_planner import DEFAULT_MIN_VIDEO_MINUTES
 from ytmcp.providers.base import AccountProvider, VideoProvider
 from ytmcp.quota import (
     COSTS,
@@ -13,7 +19,12 @@ from ytmcp.quota import (
     PLAYLISTS_CAP,
     SUBSCRIPTIONS_CAP,
 )
-from ytmcp.similarity import ScoredRecommendation, build_taste_profile, rank_for_profile
+from ytmcp.similarity import (
+    LOW_SCORE,
+    ScoredRecommendation,
+    build_taste_profile,
+    rank_for_profile,
+)
 
 SEARCH_SIZE = 50  # candidates from one search
 TOP_TERMS = 3  # words in the search query
@@ -26,7 +37,43 @@ class Recommendations:
     likes: int  # how many likes were read
     subscriptions: int
     playlist_videos: int  # distinct videos found in the user's playlists
-    low_confidence: bool  # True with fewer than 5 likes
+    low_confidence: bool  # True when confidence_note says why
+    confidence_note: str | None  # why the results may be weak, or None
+    min_video_minutes: int  # the minimum length used (0 = none)
+    left_out_short: int  # candidates left out for being live or shorter than the minimum
+
+
+def validate_min_video_minutes(value: object) -> int:
+    """None means the default (3 minutes, as in propose_playlist), 0 turns the minimum off."""
+    if value is None:
+        return DEFAULT_MIN_VIDEO_MINUTES
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise InvalidArgumentError(
+            "Some arguments are not valid: min_video_minutes.",
+            {"min_video_minutes": "must be a whole number of minutes, 0 or more (0 = no minimum)"},
+        )
+    return value
+
+
+def long_enough(video: Video, min_video_minutes: int) -> bool:
+    """Live videos and clips under the minimum are left out, unless the minimum is 0."""
+    if min_video_minutes == 0:
+        return True
+    return not video.is_live and video.duration_seconds >= min_video_minutes * 60
+
+
+def confidence_note(likes: int, results: list[ScoredRecommendation]) -> str | None:
+    """Say why the results may be weak: too little history, nothing found, or low scores."""
+    reasons = []
+    if likes < MIN_LIKES_FOR_CONFIDENCE:
+        reasons.append(f"Only {likes} likes were read, so your taste profile is thin.")
+    if not results:
+        reasons.append("No new videos were found for your interests.")
+    elif results[0].score < LOW_SCORE:
+        reasons.append(
+            f"The best match scores {results[0].score:.2f}, below {LOW_SCORE}, so these are weak matches."
+        )
+    return " ".join(reasons) or None
 
 
 def estimate_cost() -> int:
@@ -44,11 +91,15 @@ def estimate_cost() -> int:
 
 
 def recommend_videos(
-    provider: VideoProvider, account: AccountProvider | None, top_n: int = 10
+    provider: VideoProvider,
+    account: AccountProvider | None,
+    top_n: int = 10,
+    min_video_minutes: int = DEFAULT_MIN_VIDEO_MINUTES,
 ) -> Recommendations:
-    """Recommend videos the user has not liked or saved. Raises AccountUnavailableError without
-    an account (fixture mode), NotEnoughHistoryError with no likes and no subscriptions,
-    AuthRequiredError if not signed in, and QuotaExceededError (before any API call)."""
+    """Recommend videos the user has not liked or saved, at least `min_video_minutes` long
+    (0 = any length). Raises AccountUnavailableError without an account (fixture mode),
+    NotEnoughHistoryError with no likes and no subscriptions, AuthRequiredError if not signed
+    in, and QuotaExceededError (before any API call)."""
     if account is None:
         raise AccountUnavailableError("Recommendations need your own YouTube data.")
     provider.ensure_budget(estimate_cost())  # before any API call (FR-7.1)
@@ -70,15 +121,21 @@ def recommend_videos(
         raise NotEnoughHistoryError("Your likes and subscriptions have no words to search with.")
 
     already_known = {item.video_id for item in liked} | in_playlists  # FR-3.3
-    candidates = [
+    new = [
         v
         for v in provider.search_videos(" ".join(profile.top_terms), SEARCH_SIZE)
         if v.id not in already_known
     ]
+    candidates = [v for v in new if long_enough(v, min_video_minutes)]
+    results = rank_for_profile(profile, candidates, top_n=top_n)
+    note = confidence_note(len(liked), results)
     return Recommendations(
-        results=rank_for_profile(profile, candidates, top_n=top_n),
+        results=results,
         likes=len(liked),
         subscriptions=len(subscriptions),
         playlist_videos=len(in_playlists),
-        low_confidence=len(liked) < MIN_LIKES_FOR_CONFIDENCE,
+        low_confidence=note is not None,
+        confidence_note=note,
+        min_video_minutes=min_video_minutes,
+        left_out_short=len({v.id for v in new}) - len({v.id for v in candidates}),
     )

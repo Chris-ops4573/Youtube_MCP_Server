@@ -18,7 +18,7 @@ You get a ranked list with a score and the reason it scored that way. A `low_con
 ### Get recommendations from your own taste
 > "Recommend 10 videos based on what I like"
 
-Needs the sign-in. It reads your likes, subscriptions and playlists (read-only), and leaves out what you already liked or saved. Each result says why it was picked. With fewer than 5 likes the answer is marked low confidence ([[Recommendations]]).
+Needs the sign-in. It reads your likes, subscriptions and playlists (read-only), and leaves out what you already liked or saved. Each result says why it was picked. Live videos and videos under 3 minutes are left out unless you ask for short ones ("include Shorts" means a minimum of 0). The answer is marked low confidence, with a sentence saying why, when you have fewer than 5 likes or the best match is weak ([[Recommendations]]).
 
 ### See what you like
 > "What do I watch most? Compare the last 6 months with the 6 before."
