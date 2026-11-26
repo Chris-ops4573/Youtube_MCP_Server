@@ -271,6 +271,7 @@ DEFAULT_TASTE_WEIGHTS: dict[str, float] = {
 }
 
 LIKED_OFTEN_SHARE = 0.20  # a category is "liked often" when it is 20% of the user's likes
+LOW_SCORE = 0.25  # a recommendation below this is a weak match (a starting guess, TBD-2)
 
 
 @dataclass(frozen=True)

@@ -24,8 +24,8 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | UI-2 (proposal shows videos, totals, longest, asks to confirm) | `src/ytmcp/tools.py` | `tests/test_playlist_tools.py` | [[Playlist]] | |
 | FR-6.1 (write permission only when needed) | `src/ytmcp/cli.py`, `src/ytmcp/providers/youtube.py` | `tests/test_cli.py`, `tests/test_youtube_account.py` | [[Auth]] | |
 | SRS 5.2 (private, create only, no retries) | `src/ytmcp/providers/youtube.py` | `tests/test_youtube_account.py` | [[Playlist]] | |
-| FR-3.1 (reading likes, subscriptions and playlists, read-only scope) | `src/ytmcp/providers/youtube.py`, `src/ytmcp/providers/base.py` | `tests/test_youtube_account.py` | [[Providers]] | |
-| FR-3.2 (taste profile, ranking) | `src/ytmcp/similarity.py`, `src/ytmcp/services/recommendations.py` | `tests/test_recommendations.py` | [[Recommendations]] | |
+| FR-3.1 (reading likes, subscriptions and playlists, read-only scope) | `src/ytmcp/providers/youtube.py`, `src/ytmcp/providers/base.py`, `src/ytmcp/quota.py` (shared caps) | `tests/test_youtube_account.py`, `tests/test_recommendations.py` | [[Providers]] | Caps shared with FR-4 ([[ADR-021 One account-reading cap for all tools]]) |
+| FR-3.2 (taste profile, ranking) | `src/ytmcp/similarity.py`, `src/ytmcp/services/recommendations.py` | `tests/test_recommendations.py` | [[Recommendations]] | Live and short videos left out by default; weak scores flagged (D-14) |
 | FR-3.3 (exclude liked and saved videos, a reason for each) | `src/ytmcp/services/recommendations.py`, `src/ytmcp/similarity.py`, `src/ytmcp/tools.py` | `tests/test_recommendations.py` | [[Recommendations]] | |
 | FR-4.1 (top channels and categories with counts and shares) | `src/ytmcp/services/engagement.py`, `src/ytmcp/providers/youtube.py` | `tests/test_engagement.py`, `tests/test_youtube_provider.py` | [[Engagement]] | |
 | FR-4.2 (monthly trends, and which date field was used) | `src/ytmcp/services/engagement.py` | `tests/test_engagement.py` | [[Engagement]] | |

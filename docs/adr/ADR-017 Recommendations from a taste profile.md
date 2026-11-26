@@ -1,6 +1,6 @@
 # ADR-017 Recommendations from a taste profile
 
-Status: Accepted
+Status: Accepted (the 250-like cap and the cost of 127 units are superseded by [[ADR-021 One account-reading cap for all tools]])
 
 ## Context
 FR-3 asks for recommendations built from the user's likes, subscriptions and playlists, read with the read-only scope and capped per source to limit quota. Candidates must exclude videos the user already liked or saved, and each result needs a short reason based on metadata. YouTube has no recommendation endpoint, so the ranking is computed locally, as in [[ADR-002 Metadata similarity]].

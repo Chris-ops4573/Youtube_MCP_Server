@@ -20,12 +20,14 @@ from ytmcp.errors import (
 )
 from ytmcp.models import LikedVideo, Video
 from ytmcp.providers.base import AccountProvider, VideoProvider
-from ytmcp.quota import COSTS, MAX_IDS_PER_CALL
-
-LIKES_CAP = 500  # newest likes to read (limits quota)
-SUBSCRIPTIONS_CAP = 200
-PLAYLISTS_CAP = 10
-PAGE_SIZE = 50  # items per API page: each page costs 1 quota unit
+from ytmcp.quota import (
+    COSTS,
+    LIKES_CAP,
+    MAX_IDS_PER_CALL,
+    PAGE_SIZE,
+    PLAYLISTS_CAP,
+    SUBSCRIPTIONS_CAP,
+)
 
 SOURCES = ("likes", "subscriptions", "playlists")
 MIN_PERIOD_MONTHS = 1

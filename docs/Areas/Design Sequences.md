@@ -175,9 +175,9 @@ sequenceDiagram
   participant G as YouTube API
   AI->>T: recommend_videos(top_n)
   T->>S: recommend_videos
-  S->>P: ensure_budget(127 units)
+  S->>P: ensure_budget(137 units)
   Note over S,P: QuotaExceededError here means no call is made
-  S->>A: liked_videos(250)
+  S->>A: liked_videos(500)
   A->>G: channels.list and playlistItems.list (read-only login)
   S->>A: subscriptions(200)
   A->>G: subscriptions.list

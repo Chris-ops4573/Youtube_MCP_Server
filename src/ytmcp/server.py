@@ -192,20 +192,23 @@ def create_server(
             read_only_hint=True, destructive_hint=False, open_world_hint=True
         ),
     )
-    def recommend_videos_fn(top_n: int = 10) -> dict[str, Any]:
+    def recommend_videos_fn(top_n: int = 10, min_video_minutes: int | None = None) -> dict[str, Any]:
         """Recommend videos based on the user's own YouTube likes, subscriptions and playlists.
 
         Needs the user to be signed in (python -m ytmcp auth login). It reads their data
-        read-only, never changes anything, and costs about 127 quota units.
+        read-only, never changes anything, and costs about 137 quota units.
 
         Args:
             top_n: How many results to return (1 to 50, default 10).
+            min_video_minutes: Leave out live videos and videos shorter than this. Leave it
+                out for the default of 3 minutes (no Shorts); 0 allows any length.
 
         Returns ranked videos the user has not already liked or saved, each with a short
-        reason, plus counts of what was read. Returns an error with a code, message and
+        reason, plus counts of what was read. low_confidence and confidence_note say when
+        the matches are weak (little history, or low scores). Returns an error with a code, message and
         remediation if the user is not signed in or has no likes or subscriptions.
         """
-        return recommend_videos_tool(provider, account, top_n)
+        return recommend_videos_tool(provider, account, top_n, min_video_minutes)
 
     @mcp.tool(
         name="analyze_engagement",

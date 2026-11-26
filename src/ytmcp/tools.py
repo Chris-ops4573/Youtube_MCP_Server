@@ -31,10 +31,14 @@ from ytmcp.services.playlists import (
     prepare_create,
     propose_playlist,
 )
-from ytmcp.services.recommendations import Recommendations, recommend_videos
+from ytmcp.services.recommendations import (
+    Recommendations,
+    recommend_videos,
+    validate_min_video_minutes,
+)
 from ytmcp.services.similar_channels import find_similar_channels
 from ytmcp.services.similar_videos import describe_video, find_similar_videos
-from ytmcp.similarity import ScoredChannel, ScoredRecommendation, ScoredVideo
+from ytmcp.similarity import LOW_SCORE, ScoredChannel, ScoredRecommendation, ScoredVideo
 
 # --- shared helpers --------------------------------------------------------------------------------
 
@@ -339,13 +343,17 @@ def format_recommendations(results: list[ScoredRecommendation]) -> list[dict[str
             "url": video_url(item.video.id),
             "reason": item.reason,
             "score_breakdown": {k: round(v, 3) for k, v in vars(item.breakdown).items()},
+            "low_confidence": item.score < LOW_SCORE,
         }
         for rank, item in enumerate(results, start=1)
     ]
 
 
 def recommend_videos_tool(
-    provider: VideoProvider, account: AccountProvider | None, top_n: int = 10
+    provider: VideoProvider,
+    account: AccountProvider | None,
+    top_n: int = 10,
+    min_video_minutes: object = None,
 ) -> dict[str, Any]:
     """Run FR-3 and return either {"results": [...], ...} or {"error": {...}}. Only counts are
     reported about the user's own data (never the liked videos themselves)."""
@@ -356,9 +364,10 @@ def recommend_videos_tool(
             f"Ask for between 1 and {MAX_TOP_N} results.",
         )
     try:
-        found: Recommendations = recommend_videos(provider, account, top_n=top_n)
+        minimum = validate_min_video_minutes(min_video_minutes)  # before any call
+        found: Recommendations = recommend_videos(provider, account, top_n=top_n, min_video_minutes=minimum)
     except YtmcpError as exc:
-        return error_response(exc.code, str(exc), exc.remediation)
+        return _error(exc)
     return {
         "results": format_recommendations(found.results),
         "based_on": {
@@ -367,6 +376,9 @@ def recommend_videos_tool(
             "playlist_videos": found.playlist_videos,
         },
         "low_confidence": found.low_confidence,
+        "confidence_note": found.confidence_note,
+        "min_video_minutes": found.min_video_minutes,
+        "left_out_short": found.left_out_short,
     }
 
 
