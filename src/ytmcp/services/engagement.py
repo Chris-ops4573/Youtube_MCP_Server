@@ -1,8 +1,9 @@
 """Analyse the signed-in user's likes, subscriptions and playlists (FR-4).
 
 Plain statistics from the three sources the API gives us: top channels and categories, a monthly
-trend, duration preferences and a comparison of two periods. YouTube does not share watch
-history, so it is never used (FR-4.4). The functions at the top are pure (no API calls);
+trend, duration preferences and a comparison of two periods. The report has two parts that each
+say what they cover: `all_data` (everything read) and `period` (only likes dated in the period).
+YouTube does not share watch history, so it is never used (FR-4.4). The functions at the top are pure (no API calls);
 `analyze_engagement` at the bottom does the reading.
 """
 
@@ -191,6 +192,33 @@ def _top_categories(videos: list[Video], category_names: dict[str, str], n: int)
     return top_counts(keys, n, names)
 
 
+def period_stats(
+    liked: list[LikedVideo],
+    details: dict[str, Video],
+    start: datetime,
+    end: datetime,
+    category_names: dict[str, str],
+    n: int = TOP_N,
+) -> dict[str, Any]:
+    """Statistics for the likes dated from `start` (included) to `end` (not included) only."""
+    ids = [i.video_id for i in liked if (when := _parse(i.liked_at)) and start <= when < end]
+    videos = [details[i] for i in ids if i in details]
+    return {
+        "from": start.strftime("%Y-%m"),
+        "to": _shift_month(end, -1).strftime("%Y-%m"),
+        "likes": len(ids),
+        "top_channels": _top_channels(videos, n),
+        "top_categories": _top_categories(videos, category_names, n),
+        "duration_preferences": duration_buckets(videos),
+    }
+
+
+def _period_bounds(months: int, now: datetime) -> tuple[datetime, datetime]:
+    """The first day of the period and the first day after it: the last `months` UTC months."""
+    this_month = _month_start(now)
+    return _shift_month(this_month, -(months - 1)), _shift_month(this_month, 1)
+
+
 def compare_periods(
     liked: list[LikedVideo],
     details: dict[str, Video],
@@ -200,24 +228,41 @@ def compare_periods(
 ) -> dict[str, Any]:
     """The last `months` months next to the `months` before them, using only liked videos
     inside each window (FR-4.3)."""
-    this_month = _month_start(now)
-    current_start = _shift_month(this_month, -(months - 1))
+    current_start, stop = _period_bounds(months, now)
     previous_start = _shift_month(current_start, -months)
-    stop = _shift_month(this_month, 1)
+    return {
+        "current": period_stats(liked, details, current_start, stop, category_names, COMPARE_TOP_N),
+        "previous": period_stats(liked, details, previous_start, current_start, category_names, COMPARE_TOP_N),
+    }
 
-    def window(start: datetime, end: datetime) -> dict[str, Any]:
-        ids = [i.video_id for i in liked if (when := _parse(i.liked_at)) and start <= when < end]
-        videos = [details[i] for i in ids if i in details]
-        return {
-            "from": start.strftime("%Y-%m"),
-            "to": _shift_month(end, -1).strftime("%Y-%m"),
-            "likes": len(ids),
-            "top_channels": _top_channels(videos, COMPARE_TOP_N),
-            "top_categories": _top_categories(videos, category_names, COMPARE_TOP_N),
-            "duration_preferences": duration_buckets(videos),
-        }
 
-    return {"current": window(current_start, stop), "previous": window(previous_start, current_start)}
+def _plural(count: int, word: str) -> str:
+    return f"{count} {word}" + ("" if count == 1 else "s")
+
+
+def all_data_covers(liked: list[LikedVideo], playlist_videos: int, subscriptions: int, sources: tuple[str, ...]) -> str:
+    """One sentence saying what the all-data numbers are built from."""
+    parts = []
+    if "likes" in sources:
+        dates = [d for d in (_parse(item.liked_at) for item in liked) if d]
+        back_to = f", back to {min(dates):%Y-%m-%d}" if dates else ""
+        parts.append(f"your newest {_plural(len(liked), 'like')}{back_to}")
+    if "playlists" in sources:
+        parts.append(f"{_plural(playlist_videos, 'video')} in your playlists")
+    if "subscriptions" in sources:
+        parts.append(_plural(subscriptions, "subscription"))
+    listed = parts[0] if len(parts) == 1 else ", ".join(parts[:-1]) + " and " + parts[-1]
+    return (
+        f"Everything that was read: {listed}. Not limited to the period. "
+        "Categories and lengths come from the videos only, not the subscriptions."
+    )
+
+
+def period_covers(start: datetime, end: datetime, months: int) -> str:
+    return (
+        f"Only likes dated from {start:%Y-%m} to {_shift_month(end, -1):%Y-%m} (the last {months} "
+        "months, UTC). Subscriptions and playlists have no dates, so they are not in this part."
+    )
 
 
 # --- the analysis -------------------------------------------------------------------------------------
@@ -257,27 +302,36 @@ def analyze_engagement(
     channel_keys = [v.channel_id for v in videos] + [s.channel_id for s in subscriptions]
     flag_subscribed = (lambda key: {"subscribed": key in subscribed}) if "subscriptions" in sources else None
 
+    # Two parts, each saying what it covers, so period numbers and all-data numbers are never mixed.
     report: dict[str, Any] = {
         "sources": list(sources),
         "period_months": arguments.period_months,
-        "totals": {
-            "likes": len(liked),
-            "subscriptions": len(subscriptions),
-            "playlist_videos": len(playlist_ids),
+        "all_data": {
+            "covers": all_data_covers(liked, len(playlist_ids), len(subscriptions), sources),
+            "totals": {
+                "likes": len(liked),
+                "subscriptions": len(subscriptions),
+                "playlist_videos": len(playlist_ids),
+            },
+            "top_channels": top_counts(channel_keys, TOP_N, names, flag_subscribed),
+            "top_categories": _top_categories(videos, category_names, TOP_N),
+            "duration_preferences": duration_buckets(videos),
         },
-        "top_channels": top_counts(channel_keys, TOP_N, names, flag_subscribed),
-        "top_categories": _top_categories(videos, category_names, TOP_N),
-        "duration_preferences": duration_buckets(videos),
     }
     caveats: list[str] = []
     if "likes" in sources:
-        report["monthly_trend"] = {
+        start, end = _period_bounds(arguments.period_months, now)
+        report["period"] = {
+            "covers": period_covers(start, end, arguments.period_months),
             "date_field": DATE_FIELD,
-            "months": monthly_trend(liked, arguments.period_months, now),
+            **period_stats(liked, details, start, end, category_names),
+            "monthly_trend": monthly_trend(liked, arguments.period_months, now),
         }
         if arguments.compare:
             report["comparison"] = compare_periods(liked, details, arguments.period_months, now, category_names)
         caveats += _likes_caveat(liked, arguments, now)
+    else:
+        caveats.append("There is no period part: only likes have dates, and likes were not chosen.")
     if len(subscriptions) >= SUBSCRIPTIONS_CAP:
         caveats.append(f"Only the first {SUBSCRIPTIONS_CAP} subscriptions were read.")
     report["caveats"] = caveats

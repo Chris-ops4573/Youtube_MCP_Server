@@ -15,20 +15,37 @@ Files: `src/ytmcp/services/engagement.py` (the statistics and the steps), `src/y
 Bad arguments are reported field by field (`INVALID_ARGUMENT` with `fields`) before anything is read.
 
 ## What it reports
-| Part | What it is | Requirement |
+The report has **two parts**, and each starts with a `covers` sentence saying exactly what its numbers are built from, so numbers for the period are never mixed up with numbers for everything read.
+
+**`all_data`**: everything that was read, **not limited to the period**.
+| Field | What it is | Requirement |
 |---|---|---|
+| `covers` | For example "Everything that was read: your newest 500 likes, back to 2025-12-02, 43 videos in your playlists and 142 subscriptions. Not limited to the period. ..." | |
+| `totals` | How many likes, subscriptions and playlist videos were read | |
 | `top_channels` | The 10 channels that show up most. Every liked video, saved video (in a playlist) and subscription counts once for its channel. A video both liked and saved counts once. Each entry says whether you subscribe to the channel | FR-4.1 |
 | `top_categories` | The 10 most common video categories, by name, with count and share | FR-4.1 |
-| `monthly_trend` | Likes per month for the last `period_months` months (UTC, empty months shown as 0), and **which date was used**: the date the video was liked | FR-4.2 |
 | `duration_preferences` | How the videos split by length: under 5 min, 5 to 20, 20 to 60, over 60 | FR-4.3 |
-| `comparison` | Only with `compare`: the last N months next to the N months before, each with its own likes count, top 5 channels, top 5 categories and duration split | FR-4.3 |
-| `totals` | How many likes, subscriptions and playlist videos were read | |
-| `caveats` | Plain warnings, for example when the cap cut off the period | |
+
+**`period`**: only likes dated in the last `period_months` months (only when `likes` is a source).
+| Field | What it is | Requirement |
+|---|---|---|
+| `covers` | For example "Only likes dated from 2026-09 to 2026-11 (the last 3 months, UTC). Subscriptions and playlists have no dates, so they are not in this part." | |
+| `date_field` | **Which date was used**: the date the video was liked | FR-4.2 |
+| `from`, `to`, `likes` | The months covered and how many likes fall in them | |
+| `top_channels`, `top_categories`, `duration_preferences` | The same statistics as above, for those likes only | FR-4.1, FR-4.3 |
+| `monthly_trend` | Likes per month (UTC, empty months shown as 0) | FR-4.2 |
+
+**Also:**
+| Field | What it is | Requirement |
+|---|---|---|
+| `comparison` | Only with `compare`: the last N months next to the N months before, each with its own likes count, top 5 channels, top 5 categories and duration split. Its `current` side matches `period` | FR-4.3 |
+| `caveats` | Plain warnings, for example when the cap cut off the period, or that there is no `period` part without likes | |
 | `note` | "Based on your likes, subscriptions and playlists only. YouTube does not share watch history." | FR-4.4 |
 
+The same code (`period_stats`) builds `period` and both sides of `comparison`.
+
 Things to know:
-- **Only likes have a date**, so the trend and the comparison use likes only. Subscriptions and playlists are counted in the top lists but not trended ([[ADR-010 Like dates from the likes playlist]]). Asking to compare without `likes` is an error.
-- The period applies to the trend and the comparison. The top lists and the duration split use everything that was read.
+- **Only likes have a date**, so the period part and the comparison use likes only. Subscriptions and playlists are counted in `all_data` but not in `period` ([[ADR-010 Like dates from the likes playlist]]). Asking to compare without `likes` is an error.
 - The tool returns only statistics: never the titles of the videos you liked.
 
 ## Steps

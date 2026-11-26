@@ -23,7 +23,7 @@ Needs the sign-in. It reads your likes, subscriptions and playlists (read-only),
 ### See what you like
 > "What do I watch most? Compare the last 6 months with the 6 before."
 
-Reports your top channels and categories, how many videos you liked each month, and how long your videos usually are. Only likes have dates, so the trend and comparison use likes. It cannot use watch history: YouTube does not share it ([[Engagement]]).
+Reports your top channels and categories, how many videos you liked each month, and how long your videos usually are. The answer has two parts: **all data** (everything read, whatever the period) and **period** (only what you liked in the months you asked about). Each part starts with a sentence saying what it covers. Only likes have dates, so the period part and the comparison use likes. It cannot use watch history: YouTube does not share it ([[Engagement]]).
 
 ### Make a playlist
 Example conversation:
