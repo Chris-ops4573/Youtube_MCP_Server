@@ -256,10 +256,18 @@ def setup(liked=LIKED, subs=SUBS, playlist_ids=("pl1",), details=DETAILS, candid
     return provider, account
 
 
-def test_the_cost_is_127_units():
-    assert estimate_cost() == 127
-    assert (LIKES_CAP, SUBSCRIPTIONS_CAP, PLAYLISTS_CAP, SEARCH_SIZE) == (250, 200, 10, 50)
-    assert 1 + 5 + 4 + 1 + 10 + 5 + 100 + 1 == 127
+def test_the_cost_is_137_units():
+    assert estimate_cost() == 137
+    assert (LIKES_CAP, SUBSCRIPTIONS_CAP, PLAYLISTS_CAP, SEARCH_SIZE) == (500, 200, 10, 50)
+    # channel lookup, likes pages, subscription pages, playlists, playlist pages, liked details,
+    # search, candidate details
+    assert 1 + 10 + 4 + 1 + 10 + 10 + 100 + 1 == 137
+
+
+def test_recommendations_and_engagement_read_the_same_number_of_likes():
+    from ytmcp.services import engagement, recommendations
+
+    assert recommendations.LIKES_CAP == engagement.LIKES_CAP == 500  # D-13: one shared cap (ADR-021)
 
 
 def test_liked_saved_and_duplicate_videos_are_left_out():
@@ -298,17 +306,17 @@ def test_the_liked_videos_details_are_fetched_with_all_their_ids():
 def test_the_caps_are_passed_exactly():
     provider, account = setup(candidates=[vid("x", "Rust")])
     recommend_videos(provider, account)
-    assert ("liked", 250) in account.events
+    assert ("liked", 500) in account.events
     assert ("subscriptions", 200) in account.events
     assert ("playlists", 10) in account.events
 
 
 def test_the_budget_is_checked_first_and_nothing_else_happens_when_it_fails():
     provider, account = setup()
-    provider.budget_error = QuotaExceededError("needs 127, 10 left")
+    provider.budget_error = QuotaExceededError("needs 137, 10 left")
     with pytest.raises(QuotaExceededError):
         recommend_videos(provider, account)
-    assert provider.events == [("budget", 127)]
+    assert provider.events == [("budget", 137)]
     assert account.events == []  # not a single call about the user's account
 
 
@@ -418,7 +426,7 @@ def test_errors_have_a_code_and_a_fix(kwargs, code):
 
 def test_quota_error_is_reported():
     provider, account = setup()
-    provider.budget_error = QuotaExceededError("needs 127")
+    provider.budget_error = QuotaExceededError("needs 137")
     assert recommend_videos_tool(provider, account)["error"]["code"] == "QUOTA_EXCEEDED"
 
 

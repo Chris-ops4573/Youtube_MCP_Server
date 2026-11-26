@@ -11,7 +11,7 @@ All results are JSON. An error looks like `{"error": {"code": "...", "message": 
 | `find_similar_channels` | reads public data | API key | 119 |
 | `propose_playlist` | reads public data, saves a proposal in the local database | API key | 101 |
 | `create_playlist` | **writes**: one new private playlist | login with write access, and a person's confirmation | 50 + 50 per video |
-| `recommend_videos` | reads your account | login (read-only is enough) | 127 |
+| `recommend_videos` | reads your account | login (read-only is enough) | 137 |
 | `analyze_engagement` | reads your account | login (read-only is enough) | up to 47 |
 
 ## find_similar_videos

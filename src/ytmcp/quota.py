@@ -27,6 +27,12 @@ COSTS: dict[str, int] = {
 
 MAX_IDS_PER_CALL = 50  # videos.list / channels.list accept up to 50 IDs
 
+# How much of the user's account one request reads (FR-3 and FR-4 use the same caps, ADR-021).
+LIKES_CAP = 500  # newest likes
+SUBSCRIPTIONS_CAP = 200
+PLAYLISTS_CAP = 10  # the user's playlists, one page of videos each
+PAGE_SIZE = 50  # items per API page: each page costs 1 quota unit
+
 DAILY_LIMIT = 10_000
 RESERVE = 500  # kept back as a safety margin (assumed, TBD-6)
 

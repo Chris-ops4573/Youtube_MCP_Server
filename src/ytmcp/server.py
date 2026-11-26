@@ -196,7 +196,7 @@ def create_server(
         """Recommend videos based on the user's own YouTube likes, subscriptions and playlists.
 
         Needs the user to be signed in (python -m ytmcp auth login). It reads their data
-        read-only, never changes anything, and costs about 127 quota units.
+        read-only, never changes anything, and costs about 137 quota units.
 
         Args:
             top_n: How many results to return (1 to 50, default 10).

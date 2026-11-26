@@ -5,16 +5,19 @@ from dataclasses import dataclass
 
 from ytmcp.errors import AccountUnavailableError, NotEnoughHistoryError
 from ytmcp.providers.base import AccountProvider, VideoProvider
-from ytmcp.quota import COSTS, MAX_IDS_PER_CALL
+from ytmcp.quota import (
+    COSTS,
+    LIKES_CAP,
+    MAX_IDS_PER_CALL,
+    PAGE_SIZE,
+    PLAYLISTS_CAP,
+    SUBSCRIPTIONS_CAP,
+)
 from ytmcp.similarity import ScoredRecommendation, build_taste_profile, rank_for_profile
 
-LIKES_CAP = 250  # newest likes to read (FR-3.1: capped per source to limit quota)
-SUBSCRIPTIONS_CAP = 200
-PLAYLISTS_CAP = 10
 SEARCH_SIZE = 50  # candidates from one search
 TOP_TERMS = 3  # words in the search query
 MIN_LIKES_FOR_CONFIDENCE = 5
-PAGE_SIZE = 50  # items per API page: each page costs 1 quota unit
 
 
 @dataclass(frozen=True)
@@ -27,7 +30,7 @@ class Recommendations:
 
 
 def estimate_cost() -> int:
-    """Quota units for one FR-3 request: 127 with the default caps."""
+    """Quota units for one FR-3 request: 137 with the shared caps (FR-3.1 caps each source)."""
     return (
         COSTS["channels.list"]  # find the likes playlist
         + math.ceil(LIKES_CAP / PAGE_SIZE) * COSTS["playlistItems.list"]  # likes pages
