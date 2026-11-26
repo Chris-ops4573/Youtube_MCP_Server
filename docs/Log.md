@@ -36,3 +36,4 @@ Newest at the bottom. Format: `YYYY-MM-DD - who - what changed`
 - 2026-11-26 - Chris - Recorded the video-to-playlist decline case as a pass (real client, nothing created). See [[Skill Evaluations]].
 - 2026-11-26 - Chris - Closed TBD-7: the team names are on the SRS cover page. See [[Requirements]], [[Stage 3 Review]].
 - 2026-11-26 - Chris - Closed TBD-8: a person confirmed the API unit costs in Google's Quota Calculator. See [[Quota]], [[Requirements]].
+- 2026-11-26 - Chris - find_similar_channels now matches channels by content: query from upload titles, candidates from a video search, name not scored (D-12). See [[ADR-020 Find similar channels through their videos]], [[Channels]].

@@ -23,10 +23,6 @@ class VideoProvider(ABC):
         """Look up a channel by @handle. Returns None if there is no such channel."""
 
     @abstractmethod
-    def search_channels(self, query: str, max_results: int = 25) -> list[Channel]:
-        """Search for channels. Results include full channel metadata."""
-
-    @abstractmethod
     def get_recent_uploads(self, channel_id: str, max_results: int = 10) -> list[str]:
         """Titles of the channel's most recent public uploads, newest first."""
 

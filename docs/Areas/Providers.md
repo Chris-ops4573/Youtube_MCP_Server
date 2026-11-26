@@ -11,7 +11,6 @@ They are separate on purpose. VideoProvider needs only an API key. AccountProvid
 - `search_videos(query, max_results)`
 - `get_channels(ids)`
 - `get_channel_by_handle(handle)` - `channels.list` with `forHandle`; None if not found (FR-2.1)
-- `search_channels(query, max_results)` - `search.list type=channel`, then full details (FR-2)
 - `get_recent_uploads(channel_id, max_results)` - titles from the uploads playlist, 1 unit (FR-2.2)
 - `category_names(region)` - video category ID to name, 1 unit (FR-4.1). It has a default that returns nothing, for providers that cannot look names up; the caching provider passes it straight through
 - `ensure_budget(units)` - quota pre-check (FR-7.1); does nothing for fixtures

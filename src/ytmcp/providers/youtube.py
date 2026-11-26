@@ -238,16 +238,6 @@ class YouTubeProvider(VideoProvider):
         items = body.get("items", [])
         return _to_channel(items[0]) if items else None
 
-    def search_channels(self, query: str, max_results: int = 25) -> list[Channel]:
-        """search.list finds channel IDs; channels.list fills in the metadata."""
-        body = self._get(
-            "search.list",
-            {"part": "id", "type": "channel", "q": query,
-             "maxResults": min(max(max_results, 1), 50)},
-        )
-        ids = [i["id"]["channelId"] for i in body.get("items", []) if i.get("id", {}).get("channelId")]
-        return self.get_channels(ids)[:max_results]
-
     def category_names(self, region: str = "US") -> dict[str, str]:
         """videoCategories.list: category ID -> name, 1 unit."""
         body = self._get("videoCategories.list", {"part": "snippet", "regionCode": region})

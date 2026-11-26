@@ -2,11 +2,12 @@ import pytest
 from fake_youtube import FakeYouTube
 
 from ytmcp.errors import ChannelNotFoundError, QuotaExceededError
-from ytmcp.models import Channel
+from ytmcp.models import Channel, Video
 from ytmcp.providers.youtube import YouTubeProvider
 from ytmcp.quota import QuotaTracker
 from ytmcp.services.similar_channels import (
     build_channel_query,
+    candidate_channel_ids,
     estimate_cost,
     find_similar_channels,
 )
@@ -66,31 +67,50 @@ def test_hidden_subscriber_channel_works(provider):
 # --- query and cost ---------------------------------------------------------
 
 
-def test_build_channel_query_uses_only_top_keywords():
-    seed = Channel(id="x", title="Rust Lab", description="", keywords=["Rust", "rust", "systems", "web"],
-                   topics=["Technology"])
-    assert build_channel_query(seed) == "rust"  # title, topics and later keywords are left out
+def test_query_comes_from_upload_titles_not_the_name():
+    seed = Channel(id="x", title="Byte Garden", description="", keywords=[])
+    titles = ["Async Rust explained", "Rust lifetimes deep dive", "Garden of bytes: async tips"]
+    query = build_channel_query(seed, titles)
+    assert query == "async rust bytes"  # most common words first, then alphabetical
+    assert "garden" not in query  # a word from the channel's name is left out
 
 
-def test_build_channel_query_keeps_two_keywords():
-    seed = Channel(id="x", title="Rust Lab", description="", keywords=["angular", "firebase", "web"])
-    assert build_channel_query(seed) == "angular firebase"
+def test_a_name_word_that_is_also_a_keyword_is_kept():
+    seed = Channel(id="x", title="Rust Lab", description="", keywords=["rust", "systems programming"])
+    titles = ["Rust ownership explained", "Rust lifetimes tutorial"]
+    assert build_channel_query(seed, titles) == "rust explained lifetimes"  # "lab" is left out
 
 
-def test_build_channel_query_falls_back_to_title():
-    seed = Channel(id="x", title="Quiet Channel", description="", keywords=[])
-    assert build_channel_query(seed) == "quiet channel"
+def test_query_falls_back_to_keywords_then_title():
+    no_words = Channel(id="x", title="Quiet Channel", description="", keywords=["angular", "firebase", "web"])
+    assert build_channel_query(no_words, ["Quiet channel"]) == "angular firebase web"
+    keywords_only_short = Channel(id="x", title="Ok", description="", keywords=["go", "ui"])
+    assert build_channel_query(keywords_only_short, []) == "go ui"  # too short to be topic words
+    nothing = Channel(id="x", title="Quiet Channel", description="", keywords=[])
+    assert build_channel_query(nothing, []) == "quiet channel"
 
 
 def test_query_is_stable_when_topic_order_changes():
     a = Channel(id="x", title="T", description="", keywords=["k"], topics=["B", "A"])
     b = Channel(id="x", title="T", description="", keywords=["k"], topics=["A", "B"])
-    assert build_channel_query(a) == build_channel_query(b)
+    titles = ["rust async", "python async"]
+    assert build_channel_query(a, titles) == build_channel_query(b, titles)  # topics are not used
+    assert build_channel_query(a, titles) == build_channel_query(a, list(reversed(titles))) == "async python rust"
+
+
+def test_candidates_are_the_channels_behind_the_videos():
+    def video(vid, channel):
+        return Video(id=vid, title="t", description="", channel_id=channel, channel_title="c")
+
+    videos = [video("a", "SEED"), video("b", "UC_B"), video("c", "UC_A"), video("d", "UC_B"), video("e", "")]
+    assert candidate_channel_ids(videos, "SEED", 10) == ["UC_B", "UC_A"]  # no seed, no repeats
+    assert candidate_channel_ids(videos, "SEED", 1) == ["UC_B"]
 
 
 def test_estimate_cost():
-    assert estimate_cost(15) == 118  # 1 + 1 + 100 + 1 + 15
-    assert estimate_cost(60) == 1 + 1 + 100 + 2 + 60
+    # seed, seed uploads, video search, video details, candidate details, candidate uploads
+    assert estimate_cost(15) == 1 + 1 + 100 + 1 + 1 + 15
+    assert estimate_cost(60) == 1 + 1 + 100 + 1 + 2 + 60
 
 
 # --- with the live provider (fake API) -------------------------------------
@@ -105,14 +125,18 @@ def live(quota=None):
 def test_live_provider_end_to_end():
     provider, fake, quota = live()
     results = find_similar_channels(provider, "@rustlab")
-    assert ids(results) == [RUST_WEEKLY, SOURDOUGH]  # seed (in the search results) is excluded
-    assert results[0].score > results[1].score
-    assert results[0].profile.recent_titles == ["Rust 2026 edition news", "Rust async tutorial"]
-    assert results[1].profile.recent_titles == []  # channel with no uploads playlist -> empty
-    # seed by handle, seed uploads, search, candidate details, then uploads per candidate
-    assert fake.resources() == ["channels", "playlistItems", "search", "channels",
-                                "playlistItems", "playlistItems"]
-    assert quota.spent == 1 + 1 + 100 + 1 + 2
+    found = ids(results)
+    assert RUST_LAB not in found  # the seed's own videos are in the search results, but it is excluded
+    assert found.index(RUST_WEEKLY) < found.index(SOURDOUGH)  # Rust content above unrelated content
+    weekly = results[found.index(RUST_WEEKLY)]
+    assert weekly.profile.recent_titles == ["Rust 2026 edition news", "Rust async tutorial"]
+    search = fake.calls[2][1]
+    assert search["type"] == "video" and search["q"] == "rust explained lifetimes"
+    # seed by handle, seed uploads, video search, video details, candidate details, then uploads
+    assert fake.resources() == ["channels", "playlistItems", "search", "videos", "channels"] + [
+        "playlistItems"
+    ] * len(results)
+    assert quota.spent == 1 + 1 + 100 + 1 + 1 + len(results)
 
 
 def test_quota_checked_before_any_api_call():

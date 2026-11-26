@@ -69,16 +69,6 @@ class CachingProvider(VideoProvider):
             self._cache.put_channels([channel])
         return channel
 
-    def search_channels(self, query: str, max_results: int = 25) -> list[Channel]:
-        key = f"channel: {query}"  # kept apart from video searches
-        ids = self._cache.get_search(key, max_results, self._search_max_age)
-        if ids is not None:
-            return self.get_channels(ids)
-        channels = self._inner.search_channels(query, max_results)
-        self._cache.put_channels(channels)
-        self._cache.put_search(key, max_results, [c.id for c in channels])
-        return channels
-
     def category_names(self, region: str = "US") -> dict[str, str]:
         return self._inner.category_names(region)
 

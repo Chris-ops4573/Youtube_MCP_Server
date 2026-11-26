@@ -14,7 +14,6 @@ classDiagram
     +search_videos(query, max_results) list~Video~
     +get_channels(channel_ids) list~Channel~
     +get_channel_by_handle(handle) Channel
-    +search_channels(query, max_results) list~Channel~
     +get_recent_uploads(channel_id, max_results) list~str~
     +ensure_budget(units)
   }

@@ -8,7 +8,7 @@ All results are JSON. An error looks like `{"error": {"code": "...", "message": 
 |---|---|---|---|
 | `find_similar_videos` | reads public data | API key | 102 |
 | `describe_video` | reads public data | API key | 1 |
-| `find_similar_channels` | reads public data | API key | 118 |
+| `find_similar_channels` | reads public data | API key | 119 |
 | `propose_playlist` | reads public data, saves a proposal in the local database | API key | 101 |
 | `create_playlist` | **writes**: one new private playlist | login with write access, and a person's confirmation | 50 + 50 per video |
 | `recommend_videos` | reads your account | login (read-only is enough) | 127 |

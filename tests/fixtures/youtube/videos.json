@@ -32,6 +32,26 @@
         "categoryId": "26", "liveBroadcastContent": "live"
       },
       "contentDetails": {"duration": "P0D"}
+    },
+    {
+      "kind": "youtube#video",
+      "id": "ddddddddddd",
+      "snippet": {
+        "channelId": "UC3333333333333333333333", "channelTitle": "Rust Weekly",
+        "title": "Rust 2026 edition news", "description": "What changed this year",
+        "tags": ["rust", "news"], "categoryId": "28", "liveBroadcastContent": "none"
+      },
+      "contentDetails": {"duration": "PT8M"}
+    },
+    {
+      "kind": "youtube#video",
+      "id": "eeeeeeeeeee",
+      "snippet": {
+        "channelId": "UC4444444444444444444444", "channelTitle": "Quiet Channel",
+        "title": "Notes on the borrow checker", "description": "",
+        "categoryId": "27", "liveBroadcastContent": "none"
+      },
+      "contentDetails": {"duration": "PT12M"}
     }
   ]
 }

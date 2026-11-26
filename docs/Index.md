@@ -59,6 +59,7 @@ Brain for the YouTube Video MCP Server. Organised with PARA.
 - [[ADR-017 Recommendations from a taste profile]]
 - [[ADR-018 Engagement analysis sources and periods]]
 - [[ADR-019 Leave out short clips by default]]
+- [[ADR-020 Find similar channels through their videos]]
 
 ## Log
 - [[Log]]

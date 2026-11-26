@@ -19,7 +19,7 @@ def test_get_videos_returns_known_ids(provider):
 
 def test_search_matches_title_terms(provider):
     results = provider.search_videos("rust")
-    assert {v.id for v in results} == {"aaaaaaaaaaa", "bbbbbbbbbbb"}
+    assert {v.id for v in results} == {"aaaaaaaaaaa", "bbbbbbbbbbb", "ddddddddddd"}
 
 
 def test_get_channels_hidden_subscribers(provider):

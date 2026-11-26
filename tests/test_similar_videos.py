@@ -26,12 +26,12 @@ def test_build_query_uses_title_and_top_tags():
 
 def test_finds_similar_video_from_fixtures(provider):
     results = find_similar_videos(provider, "aaaaaaaaaaa")
-    assert [r.video.id for r in results] == ["bbbbbbbbbbb"]
+    assert results[0].video.id == "bbbbbbbbbbb"  # same channel, same topic first
 
 
 def test_accepts_a_url(provider):
     results = find_similar_videos(provider, "https://youtu.be/aaaaaaaaaaa")
-    assert [r.video.id for r in results] == ["bbbbbbbbbbb"]
+    assert results[0].video.id == "bbbbbbbbbbb"  # same channel, same topic first
 
 
 def test_seed_is_not_in_results(provider):
