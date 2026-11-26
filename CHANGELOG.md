@@ -3,7 +3,11 @@
 All notable changes. The dates are the days the work was done. Format follows Keep a Changelog; the project uses simple version numbers.
 
 ## Unreleased
-Nothing yet.
+### Changed
+- `find_similar_channels` matches channels by what they publish, not by their names: the query comes from recent upload titles, candidates are the channels behind a video search, and the name is not scored. Costs 119 units instead of 118 (ADR-020).
+- `recommend_videos` and `analyze_engagement` read the same number of likes (500), so `recommend_videos` costs 137 units instead of 127 (ADR-021).
+- `recommend_videos` leaves out live videos and videos under 3 minutes by default (`min_video_minutes`, 0 = any length), flags each weak result, and explains a low-confidence answer in `confidence_note`.
+- `analyze_engagement` splits its report into `all_data` (everything read) and `period` (only likes dated in the period), each with a `covers` sentence. The top-level `totals`, `top_channels`, `top_categories`, `duration_preferences` and `monthly_trend` fields moved into these parts.
 
 ## 1.0.0
 ### Added

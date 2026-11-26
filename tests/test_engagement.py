@@ -309,16 +309,21 @@ FULL = {
 
 def test_the_report_shape():
     report = run(*setup(**FULL))
-    assert set(report) == {"sources", "period_months", "totals", "top_channels", "top_categories", "duration_preferences", "monthly_trend", "caveats", "note"}
+    assert set(report) == {"sources", "period_months", "all_data", "period", "caveats", "note"}
+    assert set(report["all_data"]) == {"covers", "totals", "top_channels", "top_categories", "duration_preferences"}
+    assert set(report["period"]) == {
+        "covers", "date_field", "from", "to", "likes", "top_channels", "top_categories",
+        "duration_preferences", "monthly_trend",
+    }
     assert report["sources"] == ["likes", "subscriptions", "playlists"] and report["period_months"] == 12
-    assert report["totals"] == {"likes": 3, "subscriptions": 2, "playlist_videos": 2}
+    assert report["all_data"]["totals"] == {"likes": 3, "subscriptions": 2, "playlist_videos": 2}
     assert report["note"] == WATCH_HISTORY_NOTE == "Based on your likes, subscriptions and playlists only. YouTube does not share watch history."
-    assert report["monthly_trend"]["date_field"] == DATE_FIELD
+    assert report["period"]["date_field"] == DATE_FIELD
     assert "comparison" not in report
 
 
 def test_every_liked_video_saved_video_and_subscription_counts_once_for_its_channel():
-    channels = {c["name"]: c for c in run(*setup(**FULL))["top_channels"]}
+    channels = {c["name"]: c for c in run(*setup(**FULL))["all_data"]["top_channels"]}
     # a video both liked and saved counts once: Chan One has video a (1) + a subscription (1)
     assert channels["Chan One"]["count"] == 2 and channels["Chan Two"]["count"] == 2
     assert channels["Chan Three"]["count"] == 1 and channels["Only Subscribed"]["count"] == 1
@@ -327,12 +332,12 @@ def test_every_liked_video_saved_video_and_subscription_counts_once_for_its_chan
 
 
 def test_top_channels_say_which_ones_you_subscribe_to():
-    channels = {c["name"]: c["subscribed"] for c in run(*setup(**FULL))["top_channels"]}
+    channels = {c["name"]: c["subscribed"] for c in run(*setup(**FULL))["all_data"]["top_channels"]}
     assert channels == {"Chan One": True, "Chan Two": False, "Chan Three": False, "Only Subscribed": True}
 
 
 def test_categories_use_the_names_and_label_the_unknown_ones():
-    cats = {c["name"]: c["count"] for c in run(*setup(**FULL))["top_categories"]}
+    cats = {c["name"]: c["count"] for c in run(*setup(**FULL))["all_data"]["top_categories"]}
     assert cats == {"Education": 1, "Howto & Style": 1, "Unknown": 1, "Category 99": 1}
 
 
@@ -346,12 +351,12 @@ def test_categories_are_asked_for_once_and_only_when_there_are_videos():
 
 
 def test_duration_preferences_cover_the_liked_and_saved_videos():
-    buckets = {b["bucket"]: b["count"] for b in run(*setup(**FULL))["duration_preferences"]}
+    buckets = {b["bucket"]: b["count"] for b in run(*setup(**FULL))["all_data"]["duration_preferences"]}
     assert buckets == {"under 5 min": 2, "5 to 20 min": 1, "20 to 60 min": 0, "over 60 min": 1}
 
 
 def test_the_monthly_trend_counts_likes_by_the_date_liked():
-    months = {m["month"]: m["likes"] for m in run(*setup(**FULL), period_months=3)["monthly_trend"]["months"]}
+    months = {m["month"]: m["likes"] for m in run(*setup(**FULL), period_months=3)["period"]["monthly_trend"]}
     assert months == {"2026-09": 0, "2026-10": 2, "2026-11": 1}
 
 
@@ -364,19 +369,20 @@ def test_only_the_chosen_sources_are_read():
     provider, account = setup(**FULL)
     report = run(provider, account, sources=["likes"])
     assert [e[0] for e in account.events] == ["liked"]
-    assert report["totals"] == {"likes": 3, "subscriptions": 0, "playlist_videos": 0}
-    assert all("subscribed" not in c for c in report["top_channels"])  # no flag without that source
+    assert report["all_data"]["totals"] == {"likes": 3, "subscriptions": 0, "playlist_videos": 0}
+    assert all("subscribed" not in c for c in report["all_data"]["top_channels"])  # no flag without that source
 
 
 def test_without_likes_there_is_no_trend_because_only_likes_have_a_date():
     report = run(*setup(**FULL), sources=["subscriptions", "playlists"])
-    assert "monthly_trend" not in report and "comparison" not in report
+    assert "period" not in report and "comparison" not in report
+    assert report["caveats"] == ["There is no period part: only likes have dates, and likes were not chosen."]
 
 
 def test_subscriptions_alone_still_give_a_channel_list():
     report = run(*setup(subs=[Subscription("UC1", "One"), Subscription("UC2", "Two")]), sources=["subscriptions"])
-    assert [c["name"] for c in report["top_channels"]] == ["One", "Two"]
-    assert report["top_categories"] == [] and report["totals"]["subscriptions"] == 2
+    assert [c["name"] for c in report["all_data"]["top_channels"]] == ["One", "Two"]
+    assert report["all_data"]["top_categories"] == [] and report["all_data"]["totals"]["subscriptions"] == 2
 
 
 def test_the_caps_are_passed_exactly():
@@ -456,7 +462,7 @@ def test_a_comparison_needs_twice_the_period_to_be_covered():
 
 def test_the_subscription_cap_is_called_out():
     subs = [Subscription(f"UC{n}", f"C{n}") for n in range(200)]
-    assert run(*setup(subs=subs), sources=["subscriptions"])["caveats"] == ["Only the first 200 subscriptions were read."]
+    assert "Only the first 200 subscriptions were read." in run(*setup(subs=subs), sources=["subscriptions"])["caveats"]
 
 
 def test_likes_with_no_usable_dates_give_no_caveat():
@@ -469,7 +475,7 @@ def test_likes_with_no_usable_dates_give_no_caveat():
 
 def test_the_tool_returns_the_report():
     out = analyze_engagement_tool(*setup(**FULL), now=NOW)
-    assert out["totals"]["likes"] == 3 and out["note"] == WATCH_HISTORY_NOTE
+    assert out["all_data"]["totals"]["likes"] == 3 and out["note"] == WATCH_HISTORY_NOTE
 
 
 @pytest.mark.parametrize(
@@ -522,7 +528,7 @@ def test_analyze_engagement_over_the_protocol():
     tool, ok, bad = asyncio.run(scenario())
     assert tool.annotations.read_only_hint is True
     assert set(tool.input_schema["properties"]) == {"sources", "period_months", "compare"}
-    assert ok["sources"] == ["likes"] and len(ok["monthly_trend"]["months"]) == 3
+    assert ok["sources"] == ["likes"] and len(ok["period"]["monthly_trend"]) == 3
     assert bad["error"]["code"] == "INVALID_ARGUMENT"
 
 
@@ -534,3 +540,42 @@ def test_analyze_engagement_without_an_account_over_the_protocol(provider):
             return json.loads((await client.call_tool("analyze_engagement", {})).content[0].text)
 
     assert asyncio.run(scenario())["error"]["code"] == "ACCOUNT_NOT_AVAILABLE"
+
+
+# --- found by a real test: period numbers and all-data numbers were mixed without saying so (D-15) ---------------
+
+
+def test_a_like_outside_the_period_counts_in_all_data_but_not_in_the_period():
+    report = run(*setup(**FULL), period_months=1)  # only November 2026
+    assert report["all_data"]["totals"]["likes"] == 3
+    assert (report["period"]["from"], report["period"]["to"], report["period"]["likes"]) == ("2026-11", "2026-11", 1)
+    assert [c["name"] for c in report["period"]["top_channels"]] == ["Chan One"]  # only video a was liked in November
+    assert {c["name"] for c in report["all_data"]["top_channels"]} >= {"Chan One", "Chan Two", "Chan Three"}
+    period_buckets = {b["bucket"]: b["count"] for b in report["period"]["duration_preferences"]}
+    assert period_buckets == {"under 5 min": 1, "5 to 20 min": 0, "20 to 60 min": 0, "over 60 min": 0}
+
+
+def test_each_part_says_what_it_covers():
+    report = run(*setup(**FULL), period_months=3)
+    assert report["all_data"]["covers"] == (
+        "Everything that was read: your newest 3 likes, back to 2026-10-05, 2 videos in your playlists and "
+        "2 subscriptions. Not limited to the period. Categories and lengths come from the videos only, "
+        "not the subscriptions."
+    )
+    assert report["period"]["covers"] == (
+        "Only likes dated from 2026-09 to 2026-11 (the last 3 months, UTC). Subscriptions and playlists "
+        "have no dates, so they are not in this part."
+    )
+
+
+def test_all_data_covers_names_only_the_chosen_sources():
+    report = run(*setup(subs=[Subscription("UC1", "One")]), sources=["subscriptions"])
+    assert report["all_data"]["covers"].startswith("Everything that was read: 1 subscription.")
+    report = run(*setup(liked=[like("a", "")], details=[vid("a", "UC1", "One", "27", 100)]), sources=["likes"])
+    assert report["all_data"]["covers"].startswith("Everything that was read: your newest 1 like.")  # no dates
+
+
+def test_the_period_uses_the_same_numbers_as_the_current_side_of_a_comparison():
+    report = run(*setup(**FULL), period_months=1, compare=True)
+    current = report["comparison"]["current"]
+    assert (report["period"]["from"], report["period"]["likes"]) == (current["from"], current["likes"])

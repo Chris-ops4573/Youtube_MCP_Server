@@ -394,7 +394,8 @@ def analyze_engagement_tool(
     now: datetime | None = None,
 ) -> dict[str, Any]:
     """Run FR-4 and return the statistics, or {"error": {...}}. The arguments are checked first,
-    with a reason for each bad one, before anything is read."""
+    with a reason for each bad one, before anything is read. The statistics come in two parts,
+    `all_data` (everything read) and `period` (likes dated in the period), each with `covers`."""
     try:
         arguments = validate_arguments(sources, period_months, compare)
         return analyze_engagement(provider, account, arguments, now)

@@ -234,8 +234,10 @@ def create_server(
             compare: If true, also compare the last period_months months with the same
                 number of months before them. Needs "likes" in sources.
 
-        Returns top channels and categories with counts and shares, a monthly trend of likes
-        (using the date each video was liked), duration preferences, and optionally a
+        Returns two parts, each with a "covers" sentence. all_data: totals, top channels and
+        categories, and duration preferences over everything read, not limited to the period.
+        period (needs "likes"): the same statistics for likes dated in the last period_months
+        months only, plus a monthly trend by the date each video was liked. Optionally a
         comparison of two periods. It is based on likes, subscriptions and playlists only:
         YouTube does not share watch history. Returns an error with a code, message and
         remediation if an argument is invalid or the user is not signed in.

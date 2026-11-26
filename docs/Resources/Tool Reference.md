@@ -53,7 +53,10 @@ Recommends videos from your own taste ([[Recommendations]]).
 ## analyze_engagement
 Statistics about your likes, subscriptions and playlists ([[Engagement]]).
 - **Arguments:** `sources` (any of `likes`, `subscriptions`, `playlists`; default all three); `period_months` (1 to 60, default 12); `compare` (true or false: compare the last `period_months` months with the same number before them; needs `likes`).
-- **Result:** `sources`, `period_months`, `totals`, `top_channels`, `top_categories`, `duration_preferences`, `monthly_trend` (with the date field used), `comparison` (only with `compare`), `caveats` and a `note` that watch history is not used.
+- **Result:** `sources`, `period_months`, then two parts that each start with a `covers` sentence:
+  - `all_data` (everything read, not limited to the period): `totals`, `top_channels`, `top_categories`, `duration_preferences`.
+  - `period` (only likes dated in the last `period_months` months; needs `likes`): `date_field`, `from`, `to`, `likes`, `top_channels`, `top_categories`, `duration_preferences`, `monthly_trend`.
+  - Then `comparison` (only with `compare`), `caveats` and a `note` that watch history is not used.
 - **Errors:** `INVALID_ARGUMENT` (with `fields`), `ACCOUNT_NOT_AVAILABLE`, `AUTH_REQUIRED`, `NOT_ENOUGH_HISTORY`, `QUOTA_EXCEEDED`, `YOUTUBE_API_ERROR`.
 
 ## Notes that apply to every tool
