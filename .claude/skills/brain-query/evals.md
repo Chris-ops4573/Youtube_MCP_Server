@@ -4,7 +4,7 @@ Run each prompt in a fresh Claude Code session with the skill. A person reads th
 
 ## Case 1: a number that is in the notes
 Prompt: How many quota units does one find_similar_channels request cost?
-Expect: Says 118 units. Cites [[Quota]] or [[Channels]]. Does not invent other numbers.
+Expect: Says 119 units. Cites [[Quota]] or [[Channels]]. Does not invent other numbers.
 
 ## Case 2: a decision and its reason
 Prompt: Why does the server only use stdio?

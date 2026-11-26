@@ -141,9 +141,34 @@ def rank_similar(
     return scored[:top_n]
 
 
+# --- topic words (used by channels and recommendations) ------------------------
+
+_WORD = re.compile(r"[^\W\d_]{3,}")  # words made of 3 or more letters
+# Words that name the format of a video, not what it is about. A real test showed "shorts" as
+# the top interest of someone whose likes are mostly Shorts, which says nothing about taste.
+FORMAT_WORDS = frozenset(
+    {"shorts", "short", "video", "videos", "official", "full", "viral", "trending",
+     "subscribe", "youtube", "edit", "edits"}
+)
+
+
+def _words(text: str) -> list[str]:
+    return [w for w in _WORD.findall(text.lower()) if w not in ENGLISH_STOP_WORDS and w not in FORMAT_WORDS]
+
+
+def top_words(documents: list[str], n: int, exclude: frozenset[str] = frozenset()) -> list[str]:
+    """The n most common topic words. A word counts once per document, so one document that
+    repeats a word cannot outweigh the rest. Ties are broken alphabetically."""
+    counts = Counter(
+        word for document in documents for word in set(_words(document)) if word not in exclude
+    )
+    ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+    return [word for word, _ in ranked[:n]]
+
+
 # --- channels (FR-2.2, FR-2.3) --------------------------------------------
-# A channel is described by a profile: its title, description, keywords, topics and the
-# titles of its recent uploads. Candidates are ranked by how similar their profile is to
+# A channel is described by a profile: its description, keywords, topics and the titles of
+# its recent uploads (not its name, see ADR-020). Candidates are ranked by how similar their profile is to
 # the seed channel's. Subscriber counts are never used for ranking (SRS 5.5: metadata,
 # not engagement counts), so hidden counts cannot affect a score.
 
@@ -179,8 +204,10 @@ class ScoredChannel:
 
 
 def profile_text(profile: ChannelProfile) -> str:
+    """What the channel publishes. The title is left out on purpose: two channels with similar
+    names are not similar unless their content is (ADR-020)."""
     c = profile.channel
-    parts = [c.title, c.description, *c.keywords, *c.topics, *profile.recent_titles]
+    parts = [c.description, *c.keywords, *c.topics, *profile.recent_titles]
     return " ".join(parts)
 
 
@@ -244,13 +271,6 @@ DEFAULT_TASTE_WEIGHTS: dict[str, float] = {
 }
 
 LIKED_OFTEN_SHARE = 0.20  # a category is "liked often" when it is 20% of the user's likes
-_WORD = re.compile(r"[^\W\d_]{3,}")  # words made of 3 or more letters
-# Words that name the format of a video, not what it is about. A real test showed "shorts" as
-# the top interest of someone whose likes are mostly Shorts, which says nothing about taste.
-FORMAT_WORDS = frozenset(
-    {"shorts", "short", "video", "videos", "official", "full", "viral", "trending",
-     "subscribe", "youtube", "edit", "edits"}
-)
 
 
 @dataclass(frozen=True)
@@ -278,10 +298,6 @@ class ScoredRecommendation:
     reason: str  # a short explanation from metadata (FR-3.3)
 
 
-def _words(text: str) -> list[str]:
-    return [w for w in _WORD.findall(text.lower()) if w not in ENGLISH_STOP_WORDS and w not in FORMAT_WORDS]
-
-
 def build_taste_profile(
     liked: list[Video],
     subscription_titles: list[str],
@@ -294,14 +310,10 @@ def build_taste_profile(
     if not liked_text.strip():  # no likes: the subscription titles stand in
         documents = list(subscription_titles)
     text = liked_text if liked_text.strip() else " ".join(subscription_titles)
-    # A word counts once per video, so a few videos with long repeated tag lists cannot
-    # outweigh everything else.
-    counts = Counter(word for document in documents for word in set(_words(document)))
-    ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))  # ties: alphabetical
     categories = Counter(v.category_id for v in liked if v.category_id)
     return TasteProfile(
         text=text,
-        top_terms=[word for word, _ in ranked[:term_count]],
+        top_terms=top_words(documents, term_count),  # once per video, so long tag lists cannot dominate
         category_share={cid: n / len(liked) for cid, n in categories.items()},
         channel_ids=frozenset([v.channel_id for v in liked if v.channel_id] + subscribed_channel_ids),
     )

@@ -20,7 +20,7 @@ def test_video_url():
 
 def test_success_shape(provider):
     out = similar_videos_tool(provider, "aaaaaaaaaaa")
-    (item,) = out["results"]
+    item = out["results"][0]
     assert item["rank"] == 1
     assert item["title"] == "Rust lifetimes tutorial"
     assert item["channel"] == "Rust Lab"

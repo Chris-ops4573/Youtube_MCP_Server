@@ -78,7 +78,7 @@ def test_search_enriches_with_videos_list():
     provider, fake, _ = make(quota=quota)
     videos = provider.search_videos("rust", max_results=10)
     assert fake.resources() == ["search", "videos"]
-    assert [v.id for v in videos] == ["bbbbbbbbbbb", "aaaaaaaaaaa", "ccccccccccc"]
+    assert [v.id for v in videos] == ["bbbbbbbbbbb", "aaaaaaaaaaa", "ccccccccccc", "ddddddddddd", "eeeeeeeeeee"]
     assert videos[0].duration_seconds == 900  # full metadata, not just the ID
     assert quota.spent == 101
 
@@ -200,18 +200,6 @@ def test_get_channel_by_handle():
 def test_get_channel_by_handle_not_found():
     provider, _, _ = make()
     assert provider.get_channel_by_handle("@nobodyhere") is None
-
-
-def test_search_channels_enriches_and_skips_unknown_ids():
-    quota = QuotaTracker(reserve=0)
-    provider, fake, _ = make(quota=quota)
-    channels = provider.search_channels("rust", max_results=10)
-    assert fake.resources() == ["search", "channels"]
-    assert fake.calls[0][1]["type"] == "channel"
-    assert [c.id for c in channels] == [
-        "UC3333333333333333333333", RUST_LAB, "UC4444444444444444444444"
-    ]
-    assert quota.spent == 101
 
 
 def test_get_recent_uploads_hides_private_and_deleted():

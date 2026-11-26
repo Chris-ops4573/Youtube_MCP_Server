@@ -11,7 +11,7 @@ Requirement -> code -> test -> note (SE-5). Fill in Issue/PR as you go.
 | UI-1 | `src/ytmcp/tools.py` | `tests/test_similar_videos_tool.py`, `tests/test_describe_video.py` | [[Errors]] | |
 | UI-3 | `src/ytmcp/tools.py`, `src/ytmcp/errors.py` | `tests/test_similar_videos_tool.py`, `tests/test_server.py` | [[Errors]] | |
 | FR-2.1 (ID, @handle, URL) | `src/ytmcp/ids.py`, `providers/youtube.py` | `tests/test_ids.py`, `tests/test_youtube_provider.py` | [[Channels]] | |
-| FR-2.2 (channel profile) | `src/ytmcp/services/similar_channels.py`, `src/ytmcp/similarity.py` | `tests/test_similar_channels.py`, `tests/test_channel_similarity.py` | [[Channels]] | |
+| FR-2.2 (channel profile) | `src/ytmcp/services/similar_channels.py`, `src/ytmcp/similarity.py` | `tests/test_similar_channels.py`, `tests/test_channel_similarity.py` | [[Channels]] | Candidates come from a video search and the name is not scored ([[ADR-020 Find similar channels through their videos]]) |
 | FR-2.3 (rank, exclude seed, hidden subs) | `src/ytmcp/similarity.py`, `src/ytmcp/tools.py` | `tests/test_channel_similarity.py`, `tests/test_similar_channels_tool.py` | [[Channels]] | |
 | FR-6.1 (OAuth, PKCE, read-only default) | `src/ytmcp/auth/oauth.py`, `pkce.py`, `loopback.py`, `service.py` | `tests/test_oauth.py`, `test_pkce.py`, `test_loopback.py`, `test_auth_service.py` | [[Auth]] | |
 | FR-6.2 (tokens only in keyring, re-auth on expiry) | `src/ytmcp/auth/tokens.py`, `service.py` | `tests/test_tokens.py`, `tests/test_auth_service.py` | [[Auth]] | |

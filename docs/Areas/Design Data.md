@@ -35,12 +35,11 @@ erDiagram
     int units
   }
   searches }o--o{ videos : "lists IDs of"
-  searches }o--o{ channels : "channel searches list IDs of"
   uploads }o--|| channels : "recent titles of"
 ```
 
 Notes:
-- Channel searches use the `searches` table with the query written as `channel: <words>`, so they never clash with video searches.
+- FR-2 finds candidate channels through a video search, so it uses the same `searches` rows as FR-1.
 - `quota_usage` has one row per Pacific-time day. It is the only table that is never expired ([[Quota]]).
 - `prune` runs at startup and deletes rows older than their limit.
 

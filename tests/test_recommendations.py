@@ -71,9 +71,6 @@ class TasteProvider(VideoProvider):
     def get_channel_by_handle(self, handle):
         return None
 
-    def search_channels(self, query, max_results=25):
-        return []
-
     def get_recent_uploads(self, channel_id, max_results=10):
         return []
 

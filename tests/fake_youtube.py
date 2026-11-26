@@ -34,7 +34,7 @@ class FakeYouTube:
                 raise item
             return item
         if resource == "search":
-            return 200, sample("search_channels" if params.get("type") == "channel" else "search")
+            return 200, sample("search")
         if resource == "playlistItems":
             playlist = sample("playlist_items").get(params["playlistId"])
             if playlist is None:

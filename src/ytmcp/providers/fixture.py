@@ -44,14 +44,6 @@ class FixtureProvider(VideoProvider):
                 return channel
         return None
 
-    def search_channels(self, query, max_results=25):
-        terms = query.lower().split()
-        hits = [
-            c for c in self._channels.values()
-            if any(t in f"{c.title} {c.description} {' '.join(c.keywords)}".lower() for t in terms)
-        ]
-        return hits[:max_results]
-
     def category_names(self, region="US"):
         return dict(self._categories)
 

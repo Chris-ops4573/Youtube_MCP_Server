@@ -1,11 +1,7 @@
 [
-  {"id": "aaaaaaaaaaa", "title": "Rust ownership explained", "description": "Borrow checker basics",
-   "channel_id": "UC1111111111111111111111", "channel_title": "Rust Lab", "tags": ["rust", "ownership"],
-   "category_id": "27", "language": "en", "duration_seconds": 600, "is_live": false},
-  {"id": "bbbbbbbbbbb", "title": "Rust lifetimes tutorial", "description": "Lifetimes and borrowing",
-   "channel_id": "UC1111111111111111111111", "channel_title": "Rust Lab", "tags": ["rust", "lifetimes"],
-   "category_id": "27", "language": "en", "duration_seconds": 900, "is_live": false},
-  {"id": "ccccccccccc", "title": "Sourdough for beginners", "description": "Baking bread",
-   "channel_id": "UC2222222222222222222222", "channel_title": "Bake Club", "tags": ["bread"],
-   "category_id": "26", "language": "en", "duration_seconds": 1200, "is_live": false}
+  {"id": "aaaaaaaaaaa", "title": "Rust ownership explained", "description": "Borrow checker basics", "channel_id": "UC1111111111111111111111", "channel_title": "Rust Lab", "tags": ["rust", "ownership"], "category_id": "27", "language": "en", "duration_seconds": 600, "is_live": false},
+  {"id": "bbbbbbbbbbb", "title": "Rust lifetimes tutorial", "description": "Lifetimes and borrowing", "channel_id": "UC1111111111111111111111", "channel_title": "Rust Lab", "tags": ["rust", "lifetimes"], "category_id": "27", "language": "en", "duration_seconds": 900, "is_live": false},
+  {"id": "ccccccccccc", "title": "Sourdough for beginners", "description": "Baking bread", "channel_id": "UC2222222222222222222222", "channel_title": "Bake Club", "tags": ["bread"], "category_id": "26", "language": "en", "duration_seconds": 1200, "is_live": false},
+  {"id": "ddddddddddd", "title": "Rust 2026 edition news", "description": "What changed this year", "channel_id": "UC3333333333333333333333", "channel_title": "Rust Weekly", "tags": ["rust", "news"], "category_id": "28", "language": "en", "duration_seconds": 480, "is_live": false},
+  {"id": "eeeeeeeeeee", "title": "Sourdough starter guide", "description": "Feeding a bread starter", "channel_id": "UC4444444444444444444444", "channel_title": "Sourdough Daily", "tags": ["sourdough", "bread"], "category_id": "26", "language": "en", "duration_seconds": 720, "is_live": false}
 ]

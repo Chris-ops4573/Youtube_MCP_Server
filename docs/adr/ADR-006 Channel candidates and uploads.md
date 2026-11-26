@@ -1,6 +1,6 @@
 # ADR-006 Channel candidates and uploads
 
-Status: Accepted
+Status: Accepted (query and candidate search superseded by [[ADR-020 Find similar channels through their videos]])
 
 ## Context
 FR-2 needs similar channels, but YouTube has no related-channels endpoint (same

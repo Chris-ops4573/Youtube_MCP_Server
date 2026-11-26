@@ -22,8 +22,8 @@ Reading about 4,000 likes is about 80 `playlistItems.list` calls (50 per call): 
 ## Checking the count against Google (TBD-8, done)
 The unit costs were confirmed by a person on 2026-11-26. Our count is still only what this server believes it spent. To check it against Google again:
 1. In Google Cloud Console open the project, then APIs & Services, YouTube Data API v3, Quotas and System Limits. Note today's "Queries per day" usage.
-2. Run one fresh `find_similar_channels` request (expected cost: 118 units) with an empty cache (`YTMCP_CACHE=off` or a new `YTMCP_CACHE_PATH`).
-3. Look at the console again (it can lag a few minutes). The difference should be 118.
+2. Run one fresh `find_similar_channels` request (expected cost: 119 units) with an empty cache (`YTMCP_CACHE=off` or a new `YTMCP_CACHE_PATH`).
+3. Look at the console again (it can lag a few minutes). The difference should be 119.
 4. Write the result in [[Stage 2 Review]] and fix `COSTS` in `quota.py` if it is different.
 
 ## How it works
@@ -34,7 +34,7 @@ The unit costs were confirmed by a person on 2026-11-26. Our count is still only
 - Reading the signed-in user's account: `liked_videos` costs 1 (channel lookup) plus 1 per page of 50, `subscriptions` costs 1 per page of 50, and `playlist_video_ids` costs 1 plus 1 per playlist. Every page and every retry is counted: see [[Providers]].
 - One `analyze_engagement` costs up to **47** units (less with fewer sources): see [[Engagement]].
 - One `recommend_videos` costs **127** units, almost all of it the one search: see [[Recommendations]].
-- One `find_similar_channels` costs **118** units (15 candidates): see [[Channels]].
+- One `find_similar_channels` costs **119** units (15 candidates): see [[Channels]].
 - One `propose_playlist` costs **101** units (a search plus video details). `create_playlist` costs **50 + 50 per video** (550 for 10 videos), checked before anything is created and shared with the reads in one counter: see [[Playlist]].
 
 ## Looking at it

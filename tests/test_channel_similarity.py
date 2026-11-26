@@ -28,10 +28,11 @@ def test_weights_sum_to_one():
     assert sum(DEFAULT_CHANNEL_WEIGHTS.values()) == pytest.approx(1)
 
 
-def test_profile_text_has_all_parts():
+def test_profile_text_has_all_parts_but_the_name():
     text = profile_text(SEED)
-    for part in ["Rust Lab", "Rust tutorials", "systems", "Technology", "lifetimes"]:
+    for part in ["Rust tutorials", "systems", "Technology", "lifetimes"]:
         assert part in text
+    assert "Rust Lab" not in text  # the name is left out (ADR-020)
 
 
 def test_similar_channel_ranks_first():
@@ -96,3 +97,13 @@ def test_only_stop_words_does_not_crash():
 def test_weights_must_sum_to_one():
     with pytest.raises(ValueError):
         rank_similar_channels(SEED, [RUST], weights={"text": 0.5, "keywords": 0.2, "topics": 0.2})
+
+
+def test_a_similar_name_does_not_beat_similar_content():
+    """D-12: channels with names like the seed's ranked above channels with the same content."""
+    same_name = profile("name", "Rust Lab Kitchen", "Cooking at home", ["recipes"], ["Food"],
+                        ["Pasta in ten minutes", "Easy bread recipe"])
+    same_content = profile("content", "Byte Garden", "Systems programming lessons", ["rust"], ["Technology"],
+                           ["Rust lifetimes explained", "Ownership in Rust"])
+    ranked = rank_similar_channels(SEED, [same_name, same_content])
+    assert [r.profile.channel.id for r in ranked] == ["content", "name"]

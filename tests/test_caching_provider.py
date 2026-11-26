@@ -125,30 +125,6 @@ def test_end_to_end_second_request_is_free():
 RUST_LAB = "UC1111111111111111111111"
 
 
-def test_repeat_channel_search_costs_nothing():
-    provider, fake, quota, _ = make()
-    first = provider.search_channels("rust lab", 15)
-    spent = quota.spent
-    second = provider.search_channels("Rust  Lab", 15)
-    assert [c.id for c in first] == [c.id for c in second]
-    assert quota.spent == spent == 101
-    assert fake.resources() == ["search", "channels"]
-
-
-def test_channel_search_is_kept_apart_from_video_search():
-    provider, fake, _, _ = make()
-    provider.search_videos("rust", 25)
-    provider.search_channels("rust", 25)
-    assert fake.resources().count("search") == 2
-
-
-def test_channel_search_primes_channel_cache():
-    provider, fake, _, _ = make()
-    provider.search_channels("rust", 25)
-    provider.get_channels([RUST_LAB])
-    assert fake.resources() == ["search", "channels"]
-
-
 def test_recent_uploads_are_cached_including_empty():
     provider, fake, quota, _ = make()
     first = provider.get_recent_uploads(RUST_LAB)
@@ -183,7 +159,7 @@ def test_end_to_end_second_channel_request_is_free():
     provider, _, quota, _ = make()
     first = find_similar_channels(provider, RUST_LAB)
     spent = quota.spent
-    assert spent == 1 + 1 + 100 + 1 + 2
+    assert spent == 1 + 1 + 100 + 1 + 1 + len(first)  # seed, uploads, search, details, channels, uploads
     second = find_similar_channels(provider, RUST_LAB)
     assert [r.profile.channel.id for r in first] == [r.profile.channel.id for r in second]
     assert quota.spent == spent
